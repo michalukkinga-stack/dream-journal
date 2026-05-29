@@ -5,7 +5,7 @@ export function FAB() {
   const navigate = useNavigate()
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-gradient-to-t from-[#0f3460]/80 to-transparent pointer-events-none">
+    <div className="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-gradient-to-t from-[#f0e8ff]/80 to-transparent pointer-events-none">
       <button
         onClick={() => navigate('/add')}
         className="pointer-events-auto w-full h-14 rounded-full

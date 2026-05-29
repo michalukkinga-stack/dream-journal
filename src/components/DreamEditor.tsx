@@ -38,8 +38,8 @@ export function DreamEditor({ value, onChange, className }: DreamEditorProps) {
   return (
     <div
       className={cn(
-        'dream-editor rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm',
-        'focus-within:ring-1 focus-within:ring-[#94d5c9]/40 transition-shadow',
+        'dream-editor rounded-xl border border-white/70 bg-white/50 backdrop-blur-sm',
+        'focus-within:ring-1 focus-within:ring-purple-300/50 focus-within:border-purple-300/60 transition-shadow',
         className
       )}
     >

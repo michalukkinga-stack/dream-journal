@@ -1,20 +1,37 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { DreamEditor } from '@/components/DreamEditor'
 import { TagPicker } from '@/components/TagPicker'
-import { saveDream } from '@/storage/dreamStorage'
+import { getDreamById, updateDream } from '@/storage/dreamStorage'
 
-export function AddDreamPage() {
+export function EditDreamPage() {
+  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [tags, setTags] = useState<string[]>([])
+  const dream = id ? getDreamById(id) : undefined
+
+  const [title, setTitle] = useState(dream?.title ?? '')
+  const [description, setDescription] = useState(dream?.description ?? '')
+  const [tags, setTags] = useState<string[]>(dream?.tags ?? [])
   const [showPicker, setShowPicker] = useState(false)
   const [error, setError] = useState('')
+
+  if (!dream) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-5 text-center">
+        <p className="text-4xl mb-4">🌫️</p>
+        <p className="text-[#6b5f80]">Ten sen znikł jak mgła...</p>
+        <button
+          onClick={() => navigate('/')}
+          className="mt-6 text-purple-500 text-sm underline underline-offset-4"
+        >
+          Wróć do listy
+        </button>
+      </div>
+    )
+  }
 
   function handleSave() {
     if (!title.trim()) {
@@ -22,8 +39,8 @@ export function AddDreamPage() {
       return
     }
     setError('')
-    saveDream({ title: title.trim(), description, tags })
-    navigate('/')
+    updateDream(id!, { title: title.trim(), description, tags })
+    navigate(`/dream/${id}`)
   }
 
   return (
@@ -41,10 +58,10 @@ export function AddDreamPage() {
 
       {/* Tytuł ekranu */}
       <div className="px-5 pb-6">
-        <p className="label-caps mb-2">Nowy wpis</p>
-        <h1 className="font-display text-[#2d2440] text-4xl">Nowy sen</h1>
+        <p className="label-caps mb-2">Edycja</p>
+        <h1 className="font-display text-[#2d2440] text-4xl">Edytuj sen</h1>
         <p className="font-ui text-[#6b5f80] text-[0.85rem] font-light mt-1 tracking-wide">
-          Zapisz zanim zniknie
+          Popraw, co chcesz zmienić
         </p>
       </div>
 
@@ -71,7 +88,6 @@ export function AddDreamPage() {
 
         {/* Tagi */}
         <div className="space-y-3">
-
           {tags.length > 0 ? (
             <div className="flex flex-wrap gap-2 items-center">
               {tags.map(tag => (

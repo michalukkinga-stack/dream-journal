@@ -37,7 +37,8 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
                    rounded-t-3xl border-t border-white/10
                    animate-slide-up"
         style={{
-          background: 'linear-gradient(180deg, #16213e 0%, #0f3460 100%)',
+          background: 'linear-gradient(180deg, rgba(245,238,255,0.97) 0%, rgba(252,232,244,0.97) 100%)',
+          backdropFilter: 'blur(20px)',
         }}
       >
         {/* Handle */}
@@ -48,14 +49,14 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-3 pb-5">
           <div>
-            <h2 className="font-display text-[#f0e6d3] text-2xl leading-tight">
+            <h2 className="font-display text-[#2d2440] text-2xl leading-tight">
               Co to był za sen?
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-white/8 flex items-center justify-center
-                       text-[#8fa3bf] hover:text-[#f0e6d3] transition-colors"
+            className="w-9 h-9 rounded-full bg-black/5 flex items-center justify-center
+                       text-[#6b5f80] hover:text-[#2d2440] transition-colors"
           >
             <X size={18} />
           </button>
@@ -74,8 +75,8 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
                     'px-4 py-2 rounded-full text-sm font-ui font-light tracking-wide',
                     'border transition-all duration-150 active:scale-95',
                     isSelected
-                      ? 'border-[#94d5c9] text-[#94d5c9] bg-[#94d5c9]/10'
-                      : 'border-white/15 text-[#8fa3bf] bg-white/4 hover:border-white/30',
+                      ? 'border-purple-400 text-purple-700 bg-purple-100/70'
+                      : 'border-purple-200/60 text-[#6b5f80] bg-white/40 hover:border-purple-300',
                   ].join(' ')}
                 >
                   {tag}
@@ -86,7 +87,7 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
         </div>
 
         {/* Footer */}
-        <div className="px-5 pt-3 pb-10 border-t border-white/8">
+        <div className="px-5 pt-3 pb-10 border-t border-purple-100/50">
           <button
             onClick={onClose}
             className="font-ui w-full h-13 rounded-full

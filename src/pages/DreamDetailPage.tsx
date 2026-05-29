@@ -37,7 +37,7 @@ export function DreamDetailPage() {
       <div className="flex items-center justify-between pt-12 px-4 pb-4">
         <button
           onClick={() => navigate(-1)}
-          className="font-ui flex items-center gap-1 text-[#8fa3bf] hover:text-[#f0e6d3] transition-colors py-2 pr-3 text-sm font-light tracking-wide"
+          className="font-ui flex items-center gap-1 text-[#6b5f80] hover:text-[#2d2440] transition-colors py-2 pr-3 text-sm font-light tracking-wide"
         >
           <ChevronLeft size={20} />
           <span className="text-sm">wróć</span>
@@ -46,16 +46,16 @@ export function DreamDetailPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate(`/edit/${dream.id}`)}
-            className="w-9 h-9 rounded-full bg-white/6 flex items-center justify-center
-                       text-[#8fa3bf] hover:text-[#f0e6d3] hover:bg-white/12
+            className="w-9 h-9 rounded-full bg-white/50 border border-white/70 flex items-center justify-center
+                       text-[#6b5f80] hover:text-[#2d2440] hover:bg-white/80
                        transition-all duration-150 active:scale-95"
           >
             <Pencil size={16} />
           </button>
           <button
             onClick={() => setConfirmDelete(true)}
-            className="w-9 h-9 rounded-full bg-white/6 flex items-center justify-center
-                       text-[#8fa3bf] hover:text-red-400 hover:bg-red-400/10
+            className="w-9 h-9 rounded-full bg-white/50 border border-white/70 flex items-center justify-center
+                       text-[#6b5f80] hover:text-red-500 hover:bg-red-50
                        transition-all duration-150 active:scale-95"
           >
             <Trash2 size={16} />
@@ -69,7 +69,7 @@ export function DreamDetailPage() {
           {formatDate(dream.createdAt)}
         </p>
 
-        <h1 className="font-display text-[#f0e6d3] text-4xl leading-tight mb-6">
+        <h1 className="font-display text-[#2d2440] text-4xl leading-tight mb-6">
           {dream.title}
         </h1>
 
@@ -79,7 +79,7 @@ export function DreamDetailPage() {
               <span
                 key={tag}
                 className="font-ui px-3 py-1.5 rounded-full text-xs font-light tracking-wide
-                           border border-[#94d5c9]/50 text-[#94d5c9] bg-[#94d5c9]/8"
+                           border border-purple-300/60 text-purple-600 bg-purple-100/50"
               >
                 {tag}
               </span>

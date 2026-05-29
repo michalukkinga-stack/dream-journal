@@ -22,13 +22,13 @@ export function HomePage() {
     <div className="min-h-screen flex flex-col">
       {/* Header */}
       <div className="pt-14 pb-6 px-5">
-        <h1 className="font-display text-[#f0e6d3] text-4xl mb-1">
+        <h1 className="font-display text-[#2d2440] text-4xl mb-1">
           Łapacz snów
         </h1>
-        <p className="font-ui text-[#94a3b8] text-[0.95rem] font-light mt-1 tracking-wide">
+        <p className="font-ui text-[#6b5f80] text-[0.95rem] font-light mt-1 tracking-wide">
           Cześć Kinga,
         </p>
-        <p className="font-ui text-[#94a3b8] text-[0.95rem] font-light tracking-wide">
+        <p className="font-ui text-[#6b5f80] text-[0.95rem] font-light tracking-wide">
           {dreams.length === 1
             ? 'Razem złapaliśmy już 1 sen.'
             : `Razem złapaliśmy już ${dreams.length} sny.`}
