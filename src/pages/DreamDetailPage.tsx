@@ -47,6 +47,21 @@ export function DreamDetailPage() {
           {dream.title}
         </h1>
 
+        {/* Tagi */}
+        {dream.tags && dream.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-6">
+            {dream.tags.map(tag => (
+              <span
+                key={tag}
+                className="font-ui px-3 py-1.5 rounded-full text-xs font-light tracking-wide
+                           border border-[#94d5c9]/50 text-[#94d5c9] bg-[#94d5c9]/8"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+
         {/* Separator */}
         <div className="h-px w-12 bg-gradient-to-r from-[#94d5c9]/40 to-transparent mb-6" />
 

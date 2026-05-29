@@ -8,6 +8,7 @@ const SEED_DREAM: Dream = {
   title: 'Latanie nad miastem',
   description:
     '<p>Leciałam nad nocnym miastem pokrytym mgłą. Ulice świeciły złotymi lampami, a powietrze było ciepłe i spokojne. Czułam się lekka, jakby wszystkie troski zostały na ziemi.</p><p>Gdzieś w oddali widać było rzekę – srebrną wstęgę wijącą się między dzielnicami. Nikt mnie nie widział, ale ja widziałam wszystko.</p>',
+  tags: ['Latanie', 'Miasto', 'Spokojny', 'Kolorowy'],
   createdAt: new Date('2026-05-27T06:30:00').toISOString(),
 }
 
@@ -32,9 +33,10 @@ export function getDreamById(id: string): Dream | undefined {
   return getDreams().find((d) => d.id === id)
 }
 
-export function saveDream(dream: Omit<Dream, 'id' | 'createdAt'>): Dream {
+export function saveDream(dream: Omit<Dream, 'id' | 'createdAt'> & { tags?: string[] }): Dream {
   const newDream: Dream = {
     ...dream,
+    tags: dream.tags ?? [],
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
   }

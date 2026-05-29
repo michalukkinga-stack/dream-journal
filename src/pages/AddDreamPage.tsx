@@ -1,16 +1,19 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, Tag } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { DreamEditor } from '@/components/DreamEditor'
+import { TagPicker } from '@/components/TagPicker'
 import { saveDream } from '@/storage/dreamStorage'
 
 export function AddDreamPage() {
   const navigate = useNavigate()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [tags, setTags] = useState<string[]>([])
+  const [showPicker, setShowPicker] = useState(false)
   const [error, setError] = useState('')
 
   function handleSave() {
@@ -19,7 +22,7 @@ export function AddDreamPage() {
       return
     }
     setError('')
-    saveDream({ title: title.trim(), description })
+    saveDream({ title: title.trim(), description, tags })
     navigate('/')
   }
 
@@ -40,16 +43,17 @@ export function AddDreamPage() {
       <div className="px-5 pb-6">
         <p className="label-caps mb-2">Nowy wpis</p>
         <h1 className="font-display text-[#f0e6d3] text-4xl">Nowy sen</h1>
-        <p className="font-ui text-[#8fa3bf] text-[0.85rem] font-light mt-1 tracking-wide">Zapisz zanim zniknie</p>
+        <p className="font-ui text-[#8fa3bf] text-[0.85rem] font-light mt-1 tracking-wide">
+          Zapisz zanim zniknie
+        </p>
       </div>
 
       {/* Formularz */}
       <div className="flex-1 px-5 space-y-6 pb-36">
+
         {/* Tytuł */}
         <div className="space-y-2">
-          <Label className="label-caps">
-            Tytuł snu
-          </Label>
+          <Label className="label-caps">Tytuł snu</Label>
           <Input
             value={title}
             onChange={(e) => {
@@ -66,11 +70,42 @@ export function AddDreamPage() {
           )}
         </div>
 
+        {/* Tagi */}
+        <div className="space-y-3">
+          <Label className="label-caps">Tagi</Label>
+
+          {/* Wybrane tagi jako badge'y */}
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {tags.map(tag => (
+                <span
+                  key={tag}
+                  className="font-ui px-3 py-1.5 rounded-full text-xs font-light tracking-wide
+                             border border-[#94d5c9]/60 text-[#94d5c9] bg-[#94d5c9]/8"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Przycisk Dodaj tagi */}
+          <button
+            type="button"
+            onClick={() => setShowPicker(true)}
+            className="font-ui flex items-center gap-2 px-4 py-2.5 rounded-full
+                       border border-white/15 text-[#8fa3bf] text-sm font-light tracking-wide
+                       bg-white/4 hover:border-white/30 hover:text-[#f0e6d3]
+                       transition-all duration-150 active:scale-95"
+          >
+            <Tag size={14} />
+            {tags.length > 0 ? 'Edytuj tagi' : 'Dodaj tagi'}
+          </button>
+        </div>
+
         {/* Opis */}
         <div className="space-y-2">
-          <Label className="label-caps">
-            Opis snu
-          </Label>
+          <Label className="label-caps">Opis snu</Label>
           <DreamEditor value={description} onChange={setDescription} />
         </div>
       </div>
@@ -89,6 +124,15 @@ export function AddDreamPage() {
           Zapisz sen
         </Button>
       </div>
+
+      {/* Tag picker bottom sheet */}
+      {showPicker && (
+        <TagPicker
+          selected={tags}
+          onChange={setTags}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
     </div>
   )
 }
