@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 11%;
+    --foreground: 38 40% 85%;
+    --card: 220 45% 15%;
+    --card-foreground: 38 40% 85%;
+    --primary: 270 45% 36%;
+    --primary-foreground: 38 40% 90%;
+    --secondary: 210 40% 20%;
+    --secondary-foreground: 38 40% 85%;
+    --muted: 215 32% 22%;
+    --muted-foreground: 215 20% 55%;
+    --accent: 174 40% 68%;
+    --accent-foreground: 220 45% 12%;
+    --destructive: 0 62% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 215 30% 22%;
+    --input: 215 30% 22%;
+    --ring: 174 40% 68%;
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html, body, #root {
+    height: 100%;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(160deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+}
+
+/* Glass-morphism kafelek */
+.dream-card {
+  background: rgba(15, 52, 96, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(148, 213, 201, 0.15);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25), 0 1px 0 rgba(255,255,255,0.04) inset;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dream-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(255,255,255,0.06) inset;
+}
+
+.dream-card:active {
+  transform: translateY(0);
+}
+
+/* TipTap editor */
+.dream-editor .ProseMirror {
+  outline: none;
+  color: #e2d4b7;
+}
+
+.dream-editor .ProseMirror p {
+  margin-bottom: 0.5rem;
+}
+
+.dream-editor .ProseMirror p:last-child {
+  margin-bottom: 0;
+}
+
+.dream-editor .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: rgba(148, 163, 184, 0.5);
+  pointer-events: none;
+  float: left;
+  height: 0;
+  white-space: pre-line;
+}
+
+/* Prose content w szczegółach snu */
+.dream-prose p {
+  margin-bottom: 0.75rem;
+  line-height: 1.7;
+  color: #c8bfa8;
+}
+
+.dream-prose p:last-child {
+  margin-bottom: 0;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 213, 201, 0.2);
+  border-radius: 2px;
+}
+
+/* Mobilna szerokość */
+#root {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+}
