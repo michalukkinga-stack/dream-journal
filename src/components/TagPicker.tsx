@@ -48,7 +48,6 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-3 pb-5">
           <div>
-            <p className="label-caps mb-1">Tagi snu</p>
             <h2 className="font-display text-[#f0e6d3] text-2xl leading-tight">
               Co to był za sen?
             </h2>
@@ -98,9 +97,7 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
                        active:scale-[0.98] transition-all duration-150
                        py-3.5"
           >
-            {selected.length > 0
-              ? `Gotowe · ${selected.length} ${selected.length === 1 ? 'tag' : 'tagów'}`
-              : 'Gotowe'}
+            Zapisz
           </button>
         </div>
       </div>

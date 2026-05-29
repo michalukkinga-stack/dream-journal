@@ -22,12 +22,16 @@ export function HomePage() {
     <div className="min-h-screen flex flex-col">
       {/* Header */}
       <div className="pt-14 pb-6 px-5">
-        <p className="label-caps mb-3">Dziennik snów</p>
         <h1 className="font-display text-[#f0e6d3] text-4xl mb-1">
-          Cześć Kinga,
+          Łapacz snów
         </h1>
         <p className="font-ui text-[#94a3b8] text-[0.95rem] font-light mt-1 tracking-wide">
-          Oto lista Twoich snów:
+          Cześć Kinga,
+        </p>
+        <p className="font-ui text-[#94a3b8] text-[0.95rem] font-light tracking-wide">
+          {dreams.length === 1
+            ? 'Razem złapaliśmy już 1 sen.'
+            : `Razem złapaliśmy już ${dreams.length} sny.`}
         </p>
       </div>
 

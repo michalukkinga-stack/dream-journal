@@ -17,7 +17,7 @@ export function FAB() {
                    active:scale-[0.98] transition-all duration-150"
       >
         <Plus size={20} strokeWidth={2.5} />
-        Dodaj nowy sen
+        Złapmy następny!
       </button>
     </div>
   )

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronLeft, Tag } from 'lucide-react'
+import { ChevronLeft, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -49,18 +49,17 @@ export function AddDreamPage() {
       </div>
 
       {/* Formularz */}
-      <div className="flex-1 px-5 space-y-6 pb-36">
+      <div className="flex-1 px-5 space-y-2 pb-36">
 
         {/* Tytuł */}
         <div className="space-y-2">
-          <Label className="label-caps">Tytuł snu</Label>
           <Input
             value={title}
             onChange={(e) => {
               setTitle(e.target.value)
               if (e.target.value.trim()) setError('')
             }}
-            placeholder="nazwij swój sen"
+            placeholder="Nazwij swój sen"
             className="font-ui bg-white/5 border-white/10 text-[#f0e6d3] placeholder:text-white/20
                        focus-visible:ring-[#94d5c9]/40 focus-visible:border-[#94d5c9]/30
                        rounded-xl h-12 text-[0.95rem] font-light tracking-wide"
@@ -72,11 +71,9 @@ export function AddDreamPage() {
 
         {/* Tagi */}
         <div className="space-y-3">
-          <Label className="label-caps">Tagi</Label>
 
-          {/* Wybrane tagi jako badge'y */}
-          {tags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
+          {tags.length > 0 ? (
+            <div className="flex flex-wrap gap-2 items-center">
               {tags.map(tag => (
                 <span
                   key={tag}
@@ -86,26 +83,34 @@ export function AddDreamPage() {
                   {tag}
                 </span>
               ))}
+              <button
+                type="button"
+                onClick={() => setShowPicker(true)}
+                className="w-7 h-7 rounded-full border border-white/20 text-[#8fa3bf]
+                           flex items-center justify-center
+                           hover:border-white/40 hover:text-[#f0e6d3]
+                           transition-all duration-150 active:scale-95"
+              >
+                <Plus size={13} />
+              </button>
             </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowPicker(true)}
+              className="font-ui flex items-center gap-2 px-4 py-2.5 rounded-full
+                         border border-white/15 text-[#8fa3bf] text-sm font-light tracking-wide
+                         bg-white/4 hover:border-white/30 hover:text-[#f0e6d3]
+                         transition-all duration-150 active:scale-95"
+            >
+              <Plus size={14} />
+              Dodaj tagi
+            </button>
           )}
-
-          {/* Przycisk Dodaj tagi */}
-          <button
-            type="button"
-            onClick={() => setShowPicker(true)}
-            className="font-ui flex items-center gap-2 px-4 py-2.5 rounded-full
-                       border border-white/15 text-[#8fa3bf] text-sm font-light tracking-wide
-                       bg-white/4 hover:border-white/30 hover:text-[#f0e6d3]
-                       transition-all duration-150 active:scale-95"
-          >
-            <Tag size={14} />
-            {tags.length > 0 ? 'Edytuj tagi' : 'Dodaj tagi'}
-          </button>
         </div>
 
         {/* Opis */}
         <div className="space-y-2">
-          <Label className="label-caps">Opis snu</Label>
           <DreamEditor value={description} onChange={setDescription} />
         </div>
       </div>
