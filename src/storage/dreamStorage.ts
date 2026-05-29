@@ -45,6 +45,17 @@ export function saveDream(dream: Omit<Dream, 'id' | 'createdAt'> & { tags?: stri
   return newDream
 }
 
+export function deleteDream(id: string): void {
+  const updated = getDreams().filter((d) => d.id !== id)
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+}
+
+export function updateDream(id: string, patch: Partial<Omit<Dream, 'id' | 'createdAt'>>): void {
+  const dreams = getDreams()
+  const updated = dreams.map((d) => d.id === id ? { ...d, ...patch } : d)
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+}
+
 export function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
 }
