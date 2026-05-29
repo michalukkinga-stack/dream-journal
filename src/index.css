@@ -37,14 +37,41 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    font-weight: 400;
     background: linear-gradient(160deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
     background-attachment: fixed;
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
-/* Glass-morphism kafelek */
+/* ── Typografia ────────────────────────────────────────────── */
+
+/* Serif display – duże tytuły jak "Meditation for Anxiety" */
+.font-display {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+/* Sans UI – etykiety, body, przyciski */
+.font-ui {
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+/* Małe uppercase labele – "7 DAYS OF CALM", "FEATURED" */
+.label-caps {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(148, 213, 201, 0.7);
+}
+
+/* ── Glass-morphism kafelek ─────────────────────────────────── */
 .dream-card {
   background: rgba(15, 52, 96, 0.45);
   backdrop-filter: blur(14px);

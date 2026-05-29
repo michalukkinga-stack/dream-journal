@@ -10,7 +10,7 @@ export function FAB() {
         onClick={() => navigate('/add')}
         className="pointer-events-auto w-full h-14 rounded-full
                    bg-gradient-to-r from-[#533483] to-[#6a44a0]
-                   text-[#e2d4b7] font-medium text-base
+                   text-white font-ui font-medium text-[0.95rem] tracking-wide
                    flex items-center justify-center gap-2
                    shadow-lg shadow-purple-900/50
                    hover:from-[#6a44a0] hover:to-[#7d55b8]

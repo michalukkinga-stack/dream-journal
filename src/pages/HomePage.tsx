@@ -22,13 +22,11 @@ export function HomePage() {
     <div className="min-h-screen flex flex-col">
       {/* Header */}
       <div className="pt-14 pb-6 px-5">
-        <p className="text-[#94a3b8] text-sm font-light tracking-widest uppercase mb-1">
-          Dziennik snów
-        </p>
-        <h1 className="text-[#e2d4b7] text-3xl font-semibold leading-tight">
+        <p className="label-caps mb-3">Dziennik snów</p>
+        <h1 className="font-display text-[#f0e6d3] text-4xl mb-1">
           Cześć Kinga,
         </h1>
-        <p className="text-[#94a3b8] text-base mt-1">
+        <p className="font-ui text-[#94a3b8] text-[0.95rem] font-light mt-1 tracking-wide">
           Oto lista Twoich snów:
         </p>
       </div>

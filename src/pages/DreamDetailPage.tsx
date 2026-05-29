@@ -28,7 +28,7 @@ export function DreamDetailPage() {
       <div className="flex items-center gap-2 pt-12 px-4 pb-4">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-1 text-[#94a3b8] hover:text-[#e2d4b7] transition-colors py-2 pr-3"
+          className="font-ui flex items-center gap-1 text-[#8fa3bf] hover:text-[#f0e6d3] transition-colors py-2 pr-3 text-sm font-light tracking-wide"
         >
           <ChevronLeft size={20} />
           <span className="text-sm">wróć</span>
@@ -38,12 +38,12 @@ export function DreamDetailPage() {
       {/* Treść snu */}
       <div className="flex-1 px-5 pb-16">
         {/* Data */}
-        <p className="text-[#94a3b8] text-sm font-light tracking-wide mb-3">
+        <p className="label-caps mb-4">
           {formatDate(dream.createdAt)}
         </p>
 
         {/* Tytuł */}
-        <h1 className="text-[#e2d4b7] text-2xl font-semibold leading-snug mb-6">
+        <h1 className="font-display text-[#f0e6d3] text-4xl leading-tight mb-6">
           {dream.title}
         </h1>
 
@@ -53,11 +53,11 @@ export function DreamDetailPage() {
         {/* Opis */}
         {dream.description ? (
           <div
-            className="dream-prose text-[#c8bfa8] text-base leading-relaxed"
+            className="font-ui dream-prose text-[#9ab0c8] text-[0.95rem] font-light leading-[1.85]"
             dangerouslySetInnerHTML={{ __html: dream.description }}
           />
         ) : (
-          <p className="text-[#94a3b8]/50 text-sm italic">Brak opisu.</p>
+          <p className="font-ui text-[#94a3b8]/50 text-sm font-light italic">Brak opisu.</p>
         )}
       </div>
     </div>
