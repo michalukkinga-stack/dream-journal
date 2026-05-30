@@ -162,7 +162,13 @@ export function DesktopLayout() {
   const location = useLocation()
 
   if (!isDesktop) {
-    return <Outlet />
+    return (
+      <div className="min-h-screen flex flex-col items-center">
+        <div className="w-full max-w-[480px]">
+          <Outlet />
+        </div>
+      </div>
+    )
   }
 
   const showPlaceholder = location.pathname === '/home'

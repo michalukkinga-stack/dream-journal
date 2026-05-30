@@ -20,7 +20,8 @@ export function WelcomePage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col items-center">
+    <div className="w-full max-w-[480px] flex flex-col flex-1">
 
       {/* Tytuł i podtytuł */}
       <div className="pt-16 px-8 text-center">
@@ -69,6 +70,7 @@ export function WelcomePage() {
           Zaczynajmy!
         </button>
       </div>
+    </div>
     </div>
   )
 }
