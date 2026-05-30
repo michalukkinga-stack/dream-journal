@@ -20,11 +20,11 @@ export function WelcomePage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center">
-    <div className="w-full max-w-[480px] flex flex-col flex-1">
+    <div className="h-dvh flex flex-col items-center overflow-hidden">
+    <div className="w-full max-w-[480px] flex flex-col h-full">
 
       {/* Tytuł i podtytuł */}
-      <div className="pt-16 px-8 text-center">
+      <div className="pt-12 px-8 text-center shrink-0">
         <h1 className="font-display text-white text-4xl mb-3">
           Łapacz snów
         </h1>
@@ -34,12 +34,12 @@ export function WelcomePage() {
       </div>
 
       {/* Ikona łapacza snów — centrum ekranu */}
-      <div className="flex-1 flex items-center justify-center py-4">
+      <div className="flex-1 min-h-0 flex items-center justify-center py-2">
         <DreamcatcherIcon />
       </div>
 
       {/* Pole na imię */}
-      <div className="px-8 pb-6">
+      <div className="px-8 pb-4 shrink-0">
         <input
           type="text"
           placeholder="Twoje imię"
@@ -51,7 +51,7 @@ export function WelcomePage() {
       </div>
 
       {/* Baton — pełna szerokość, przyklejony do dołu */}
-      <div className="p-4 pb-8">
+      <div className="p-4 pb-8 shrink-0">
         <button
           onClick={handleStart}
           disabled={!name.trim()}
@@ -130,9 +130,8 @@ function DreamcatcherIcon() {
   return (
     <svg
       viewBox="0 0 200 375"
-      width="300"
-      height="562"
       aria-label="Łapacz snów"
+      className="w-auto h-full max-h-full"
       style={{ filter: 'drop-shadow(0 4px 24px rgba(100,70,160,0.18))', opacity: 0.5 }}
     >
       {/* ── Obręcz ── */}
