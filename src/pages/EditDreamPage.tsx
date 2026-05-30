@@ -71,7 +71,7 @@ export function EditDreamPage() {
       </div>
 
       {/* Tytuł ekranu */}
-      <div className="px-5 pb-6">
+      <div className="px-5 pb-6 max-w-[900px] mx-auto w-full">
         <p className="label-caps mb-2">Edycja</p>
         <h1 className="font-display text-white text-4xl">Edytuj sen</h1>
         <p className="font-ui text-white/85 text-[0.85rem] font-light mt-1 tracking-wide">
@@ -80,7 +80,7 @@ export function EditDreamPage() {
       </div>
 
       {/* Formularz */}
-      <div className="flex-1 px-5 space-y-2 pb-36">
+      <div className="flex-1 px-5 space-y-2 pb-36 max-w-[900px] mx-auto w-full">
 
         {/* Tytuł */}
         <div className="space-y-2">
@@ -148,6 +148,7 @@ export function EditDreamPage() {
 
       {/* Przycisk zapisu */}
       <div className="sticky bottom-0 p-4 pb-8 bg-gradient-to-t from-black/40 to-transparent">
+        <div className="max-w-[900px] mx-auto">
         <Button
           onClick={handleSave}
           className="font-ui w-full h-14 rounded-full bg-gradient-to-r from-[#533483] to-[#6a44a0]
@@ -158,6 +159,7 @@ export function EditDreamPage() {
         >
           Zapisz sen
         </Button>
+        </div>
       </div>
 
       {showPicker && (

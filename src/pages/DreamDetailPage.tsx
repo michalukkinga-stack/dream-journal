@@ -64,7 +64,7 @@ export function DreamDetailPage() {
       </div>
 
       {/* Treść snu */}
-      <div className="flex-1 px-5 pb-16">
+      <div className="flex-1 px-5 pb-16 max-w-[900px] mx-auto w-full">
         <p className="label-caps mb-4">
           {formatDate(dream.createdAt)}
         </p>

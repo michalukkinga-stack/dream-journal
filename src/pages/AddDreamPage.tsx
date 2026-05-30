@@ -59,7 +59,7 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
 
       {/* Tytuł ekranu – desktop */}
       {desktopMode && (
-        <div className="px-8 pt-6 pb-4">
+        <div className="w-full max-w-[900px] mx-auto px-8 pt-6 pb-4">
           <h1 className="font-display text-white text-4xl">Nowy sen</h1>
           <p className="font-ui text-white/85 text-[0.85rem] font-light mt-1 tracking-wide">
             Zapisz zanim zniknie
@@ -68,7 +68,7 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
       )}
 
       {/* Formularz */}
-      <div className={`flex-1 space-y-2 ${desktopMode ? 'px-8 overflow-y-auto pb-8' : 'px-5 pb-36'}`}>
+      <div className={`flex-1 space-y-2 ${desktopMode ? 'w-full max-w-[900px] mx-auto px-8 overflow-y-auto pb-8' : 'px-5 pb-36'}`}>
 
         {/* Tytuł */}
         <div className="space-y-2">
@@ -136,7 +136,7 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
 
       {/* Przycisk zapisu */}
       <div className={desktopMode
-        ? 'px-8 pb-10 pt-4'
+        ? 'w-full max-w-[900px] mx-auto px-8 pb-10 pt-4'
         : 'sticky bottom-0 p-4 pb-8 bg-gradient-to-t from-black/40 to-transparent'
       }>
         <Button

@@ -119,8 +119,8 @@ export function DesktopLayout() {
   const showAddForm = location.pathname === '/home' || location.pathname === '/add'
 
   return (
-    <div className="flex h-screen overflow-hidden justify-center">
-      <div className="flex h-full w-full max-w-[1440px]">
+    <div className="flex h-screen overflow-hidden">
+      <div className="flex h-full w-full">
         <DesktopSidebar dreams={dreams} />
         <main className="flex-1 overflow-y-auto relative">
           {showSaved && (
