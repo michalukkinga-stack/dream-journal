@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { DreamEditor } from '@/components/DreamEditor'
 import { TagPicker } from '@/components/TagPicker'
 import { saveDream } from '@/storage/dreamStorage'
@@ -43,15 +42,15 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
           <div className="flex items-center gap-2 pt-12 px-4 pb-4">
             <button
               onClick={() => navigate(-1)}
-              className="font-ui flex items-center gap-1 text-[#6b5f80] hover:text-[#2d2440] transition-colors py-2 pr-3 text-sm font-light tracking-wide"
+              className="font-ui flex items-center gap-1 text-white/70 hover:text-white transition-colors py-2 pr-3 text-sm font-light tracking-wide"
             >
               <ChevronLeft size={20} />
               <span className="text-sm">wróć</span>
             </button>
           </div>
           <div className="px-5 pb-6">
-            <h1 className="font-display text-[#2d2440] text-4xl">Nowy sen</h1>
-            <p className="font-ui text-[#6b5f80] text-[0.85rem] font-light mt-1 tracking-wide">
+            <h1 className="font-display text-white text-4xl">Nowy sen</h1>
+            <p className="font-ui text-white/85 text-[0.85rem] font-light mt-1 tracking-wide">
               Zapisz zanim zniknie
             </p>
           </div>
@@ -60,9 +59,9 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
 
       {/* Tytuł ekranu – desktop */}
       {desktopMode && (
-        <div className="px-8 pt-12 pb-6">
-          <h1 className="font-display text-[#2d2440] text-4xl">Nowy sen</h1>
-          <p className="font-ui text-[#6b5f80] text-[0.85rem] font-light mt-1 tracking-wide">
+        <div className="px-8 pt-6 pb-4">
+          <h1 className="font-display text-white text-4xl">Nowy sen</h1>
+          <p className="font-ui text-white/85 text-[0.85rem] font-light mt-1 tracking-wide">
             Zapisz zanim zniknie
           </p>
         </div>
@@ -80,12 +79,14 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
               if (e.target.value.trim()) setError('')
             }}
             placeholder="Nazwij swój sen"
-            className="font-ui bg-white/50 border-white/70 text-[#2d2440] placeholder:text-[#9d90b0]
-                       focus-visible:ring-purple-300/50 focus-visible:border-purple-300/60
-                       rounded-xl h-12 text-[0.95rem] font-light tracking-wide"
+            className="font-ui text-white placeholder:text-white/40
+                       focus-visible:ring-white/20 focus-visible:border-white/30
+                       rounded-xl h-12 text-[0.95rem] font-light tracking-wide
+                       [background:rgba(255,255,255,0.07)] [border-color:rgba(255,255,255,0.12)]
+                       [box-shadow:0_4px_20px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)]"
           />
           {error && (
-            <p className="text-red-400/80 text-xs mt-1">{error}</p>
+            <p className="text-red-400 text-xs mt-1">{error}</p>
           )}
         </div>
 
@@ -102,7 +103,7 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
                 <span
                   key={tag}
                   className="font-ui px-3 py-1.5 rounded-full text-xs font-light tracking-wide
-                             border border-purple-300/60 text-purple-600 bg-purple-100/50"
+                             border border-white/25 text-white/90 bg-white/10"
                 >
                   {tag}
                 </span>
@@ -110,10 +111,9 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
               <button
                 type="button"
                 onClick={() => setShowPicker(true)}
-                className="w-7 h-7 rounded-full border border-purple-300/50 text-purple-500
-                           flex items-center justify-center bg-white/40
-                           hover:border-purple-400 hover:text-purple-700
-                           transition-all duration-150 active:scale-95"
+                className="w-7 h-7 rounded-full border border-white/25 text-white/90
+                           flex items-center justify-center bg-white/10
+                           hover:bg-white/20 transition-all duration-150 active:scale-95"
               >
                 <Plus size={13} />
               </button>
@@ -123,8 +123,8 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
               type="button"
               onClick={() => setShowPicker(true)}
               className="font-ui flex items-center gap-2 px-4 py-2.5 rounded-full
-                         border border-purple-200/70 text-purple-500 text-sm font-light tracking-wide
-                         bg-white/40 hover:border-purple-300 hover:text-purple-700
+                         border border-white/25 text-white/90 text-sm font-light tracking-wide
+                         bg-white/10 hover:bg-white/20
                          transition-all duration-150 active:scale-95"
             >
               <Plus size={14} />
@@ -137,7 +137,7 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
       {/* Przycisk zapisu */}
       <div className={desktopMode
         ? 'px-8 pb-10 pt-4'
-        : 'sticky bottom-0 p-4 pb-8 bg-gradient-to-t from-[#f0e8ff]/90 to-transparent'
+        : 'sticky bottom-0 p-4 pb-8 bg-gradient-to-t from-black/40 to-transparent'
       }>
         <Button
           onClick={handleSave}
@@ -151,7 +151,6 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
         </Button>
       </div>
 
-      {/* Tag picker bottom sheet */}
       {showPicker && (
         <TagPicker
           selected={tags}

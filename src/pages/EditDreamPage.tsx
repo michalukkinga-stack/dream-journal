@@ -23,10 +23,10 @@ export function EditDreamPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-5 text-center">
         <p className="text-4xl mb-4">🌫️</p>
-        <p className="text-[#6b5f80]">Ten sen znikł jak mgła...</p>
+        <p className="text-white/65">Ten sen znikł jak mgła...</p>
         <button
           onClick={() => navigate('/home')}
-          className="mt-6 text-purple-500 text-sm underline underline-offset-4"
+          className="mt-6 text-white/70 text-sm underline underline-offset-4"
         >
           Wróć do listy
         </button>
@@ -63,7 +63,7 @@ export function EditDreamPage() {
       <div className="flex items-center gap-2 pt-12 px-4 pb-4">
         <button
           onClick={handleBack}
-          className="font-ui flex items-center gap-1 text-[#6b5f80] hover:text-[#2d2440] transition-colors py-2 pr-3 text-sm font-light tracking-wide"
+          className="font-ui flex items-center gap-1 text-white/70 hover:text-white transition-colors py-2 pr-3 text-sm font-light tracking-wide"
         >
           <ChevronLeft size={20} />
           <span className="text-sm">wróć</span>
@@ -73,8 +73,8 @@ export function EditDreamPage() {
       {/* Tytuł ekranu */}
       <div className="px-5 pb-6">
         <p className="label-caps mb-2">Edycja</p>
-        <h1 className="font-display text-[#2d2440] text-4xl">Edytuj sen</h1>
-        <p className="font-ui text-[#6b5f80] text-[0.85rem] font-light mt-1 tracking-wide">
+        <h1 className="font-display text-white text-4xl">Edytuj sen</h1>
+        <p className="font-ui text-white/85 text-[0.85rem] font-light mt-1 tracking-wide">
           Popraw, co chcesz zmienić
         </p>
       </div>
@@ -91,12 +91,14 @@ export function EditDreamPage() {
               if (e.target.value.trim()) setError('')
             }}
             placeholder="Nazwij swój sen"
-            className="font-ui bg-white/50 border-white/70 text-[#2d2440] placeholder:text-[#9d90b0]
-                       focus-visible:ring-purple-300/50 focus-visible:border-purple-300/60
-                       rounded-xl h-12 text-[0.95rem] font-light tracking-wide"
+            className="font-ui text-white placeholder:text-white/40
+                       focus-visible:ring-white/20 focus-visible:border-white/30
+                       rounded-xl h-12 text-[0.95rem] font-light tracking-wide
+                       [background:rgba(255,255,255,0.07)] [border-color:rgba(255,255,255,0.12)]
+                       [box-shadow:0_4px_20px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)]"
           />
           {error && (
-            <p className="text-red-400/80 text-xs mt-1">{error}</p>
+            <p className="text-red-400 text-xs mt-1">{error}</p>
           )}
         </div>
 
@@ -113,7 +115,7 @@ export function EditDreamPage() {
                 <span
                   key={tag}
                   className="font-ui px-3 py-1.5 rounded-full text-xs font-light tracking-wide
-                             border border-purple-300/60 text-purple-600 bg-purple-100/50"
+                             border border-white/25 text-white/90 bg-white/10"
                 >
                   {tag}
                 </span>
@@ -121,10 +123,9 @@ export function EditDreamPage() {
               <button
                 type="button"
                 onClick={() => setShowPicker(true)}
-                className="w-7 h-7 rounded-full border border-purple-300/50 text-purple-500
-                           flex items-center justify-center bg-white/40
-                           hover:border-purple-400 hover:text-purple-700
-                           transition-all duration-150 active:scale-95"
+                className="w-7 h-7 rounded-full border border-white/25 text-white/90
+                           flex items-center justify-center bg-white/10
+                           hover:bg-white/20 transition-all duration-150 active:scale-95"
               >
                 <Plus size={13} />
               </button>
@@ -134,8 +135,8 @@ export function EditDreamPage() {
               type="button"
               onClick={() => setShowPicker(true)}
               className="font-ui flex items-center gap-2 px-4 py-2.5 rounded-full
-                         border border-purple-200/70 text-purple-500 text-sm font-light tracking-wide
-                         bg-white/40 hover:border-purple-300 hover:text-purple-700
+                         border border-[#3D4254]/50 text-[#3D4254] text-sm font-light tracking-wide
+                         bg-white/50 hover:bg-white/70
                          transition-all duration-150 active:scale-95"
             >
               <Plus size={14} />
@@ -146,7 +147,7 @@ export function EditDreamPage() {
       </div>
 
       {/* Przycisk zapisu */}
-      <div className="sticky bottom-0 p-4 pb-8 bg-gradient-to-t from-[#f0e8ff]/90 to-transparent">
+      <div className="sticky bottom-0 p-4 pb-8 bg-gradient-to-t from-black/40 to-transparent">
         <Button
           onClick={handleSave}
           className="font-ui w-full h-14 rounded-full bg-gradient-to-r from-[#533483] to-[#6a44a0]
@@ -159,7 +160,6 @@ export function EditDreamPage() {
         </Button>
       </div>
 
-      {/* Tag picker */}
       {showPicker && (
         <TagPicker
           selected={tags}
@@ -171,19 +171,19 @@ export function EditDreamPage() {
       {/* Dialog potwierdzenia cofnięcia */}
       {showConfirm && (
         <>
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50" />
           <div className="fixed inset-0 z-50 flex items-center justify-center px-8">
             <div
-              className="w-full rounded-3xl p-7 text-center"
+              className="w-full rounded-3xl p-7 text-center border border-white/15"
               style={{
-                background: 'linear-gradient(160deg, rgba(245,238,255,0.98) 0%, rgba(252,232,244,0.98) 100%)',
+                background: 'rgba(30, 18, 66, 0.95)',
                 backdropFilter: 'blur(20px)',
               }}
             >
-              <p className="font-display text-[#2d2440] text-2xl leading-snug mb-2">
+              <p className="font-display text-white text-2xl leading-snug mb-2">
                 Porzucić zmiany?
               </p>
-              <p className="font-ui text-[#6b5f80] text-sm font-light mb-7">
+              <p className="font-ui text-white/65 text-sm font-light mb-7">
                 Niezapisane zmiany w tym śnie przepadną.
               </p>
               <div className="flex flex-col gap-3">
@@ -199,7 +199,7 @@ export function EditDreamPage() {
                 <button
                   onClick={() => setShowConfirm(false)}
                   className="w-full rounded-full py-3.5 font-ui font-light text-[0.95rem]
-                             text-[#6b5f80] border border-purple-200/60 bg-white/40
+                             text-white/70 border border-white/20 bg-white/8
                              active:scale-[0.98] transition-all duration-150"
                 >
                   Zostań i edytuj dalej

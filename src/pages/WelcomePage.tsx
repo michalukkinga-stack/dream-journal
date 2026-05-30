@@ -25,10 +25,10 @@ export function WelcomePage() {
 
       {/* Tytuł i podtytuł */}
       <div className="pt-16 px-8 text-center">
-        <h1 className="font-display text-[#2d2440] text-4xl mb-3">
+        <h1 className="font-display text-white text-4xl mb-3">
           Łapacz snów
         </h1>
-        <p className="font-ui text-[#6b5f80] text-base font-light">
+        <p className="font-ui text-white/65 text-base font-light">
           Miejsce na sny, które warto zapamiętać.
         </p>
       </div>
@@ -40,21 +40,18 @@ export function WelcomePage() {
 
       {/* Pole na imię */}
       <div className="px-8 pb-6">
-        <p className="font-ui text-[#2d2440] text-base mb-2">
-          Czyje sny będziemy łapać?
-        </p>
         <input
           type="text"
           placeholder="Twoje imię"
           value={name}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleStart()}
-          className="w-full border border-[#d1c9e0] rounded-xl px-4 py-3 font-ui text-[#2d2440] placeholder-[#b0a8c0] bg-white/60 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#7c6fa0]"
+          className="w-full border border-white/20 rounded-xl px-4 py-3 font-ui text-white placeholder:text-white/35 bg-white/10 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-white/25"
         />
       </div>
 
       {/* Baton — pełna szerokość, przyklejony do dołu */}
-      <div className="p-4 pb-8 bg-gradient-to-t from-[#f0e8ff]/80 to-transparent">
+      <div className="p-4 pb-8">
         <button
           onClick={handleStart}
           disabled={!name.trim()}
@@ -133,10 +130,10 @@ function DreamcatcherIcon() {
   return (
     <svg
       viewBox="0 0 200 375"
-      width="190"
-      height="356"
+      width="300"
+      height="562"
       aria-label="Łapacz snów"
-      style={{ filter: 'drop-shadow(0 4px 24px rgba(100,70,160,0.18))' }}
+      style={{ filter: 'drop-shadow(0 4px 24px rgba(100,70,160,0.18))', opacity: 0.5 }}
     >
       {/* ── Obręcz ── */}
       <circle cx={cx} cy={cy} r={R} stroke="white" strokeWidth={hw} fill="none" />

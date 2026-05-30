@@ -38,7 +38,7 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
                    flex flex-col"
         style={{
           height: '67vh',
-          background: 'linear-gradient(180deg, rgba(245,238,255,0.97) 0%, rgba(252,232,244,0.97) 100%)',
+          background: '#3D4254',
           backdropFilter: 'blur(20px)',
         }}
       >
@@ -51,9 +51,9 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
           className="relative w-full max-w-lg rounded-2xl shadow-xl flex flex-col"
           style={{
             height: '72vh',
-            background: 'linear-gradient(160deg, rgba(245,238,255,0.99) 0%, rgba(252,232,244,0.99) 100%)',
+            background: '#3D4254',
             backdropFilter: 'blur(24px)',
-            border: '1px solid rgba(200,180,240,0.3)',
+            border: '1px solid rgba(255,255,255,0.12)',
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -84,9 +84,9 @@ function SheetContent({
       {/* X */}
       <button
         onClick={onClose}
-        className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/5
+        className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/10
                    flex items-center justify-center z-10
-                   text-[#6b5f80] hover:text-[#2d2440] transition-colors"
+                   text-white/60 hover:text-white transition-colors"
       >
         <X size={16} />
       </button>
@@ -94,7 +94,7 @@ function SheetContent({
       {/* Wyszukiwarka */}
       <div className="pl-5 pr-14 pt-5 pb-3 shrink-0">
         <div className="relative">
-          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9d90b0]" />
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
           <input
             type="text"
             value={query}
@@ -102,19 +102,19 @@ function SheetContent({
             placeholder="Szukaj motywu..."
             autoFocus
             className="font-ui w-full h-10 pl-9 pr-9 rounded-full
-                       bg-white/60 border border-purple-200/60
-                       text-[#2d2440] placeholder:text-[#b0a0c0] text-sm font-light tracking-wide
-                       focus:outline-none focus:border-purple-300/80 focus:ring-1 focus:ring-purple-200/50
+                       bg-white/10 border border-white/18
+                       text-white placeholder:text-white/35 text-sm font-light tracking-wide
+                       focus:outline-none focus:border-white/35 focus:ring-1 focus:ring-white/15
                        transition-all"
           />
           {query && (
             <button
               onClick={() => setQuery('')}
               className="absolute right-3 top-1/2 -translate-y-1/2
-                         w-5 h-5 rounded-full bg-[#c0b0d0]/40 hover:bg-[#c0b0d0]/70
+                         w-5 h-5 rounded-full bg-white/15 hover:bg-white/25
                          flex items-center justify-center transition-colors"
             >
-              <X size={11} className="text-[#6b5f80]" />
+              <X size={11} className="text-white/70" />
             </button>
           )}
         </div>
@@ -123,7 +123,7 @@ function SheetContent({
       {/* Tagi */}
       <div className="flex-1 overflow-y-auto px-5 pb-2">
         {filtered.length === 0 ? (
-          <p className="font-ui text-[#9d90b0] text-sm font-light text-center py-8 tracking-wide">
+          <p className="font-ui text-white/50 text-sm font-light text-center py-8 tracking-wide">
             Brak pasujących motywów
           </p>
         ) : (
@@ -138,15 +138,15 @@ function SheetContent({
                     'px-4 py-2 rounded-full text-sm font-ui font-light tracking-wide',
                     'border transition-all duration-150 active:scale-95',
                     isSelected
-                      ? 'border-purple-400 text-purple-700 bg-purple-100/70'
-                      : 'border-purple-200/60 text-[#6b5f80] bg-white/40 hover:border-purple-300',
+                      ? 'border-white/60 text-white bg-white/20 font-medium'
+                      : 'border-white/22 text-white/85 bg-white/8 hover:border-white/40 hover:text-white',
                   ].join(' ')}
                 >
                   <Highlighter
                     searchWords={[query]}
                     autoEscape
                     textToHighlight={tag}
-                    highlightClassName="bg-transparent font-semibold text-purple-700 not-italic"
+                    highlightClassName="bg-transparent font-semibold text-white not-italic"
                   />
                 </button>
               )
@@ -156,7 +156,7 @@ function SheetContent({
       </div>
 
       {/* Footer */}
-      <div className="px-5 pt-3 pb-6 border-t border-purple-100/50 shrink-0">
+      <div className="px-5 pt-3 pb-6 border-t border-white/10 shrink-0">
         <button
           onClick={onClose}
           className="font-ui w-full rounded-full py-3.5

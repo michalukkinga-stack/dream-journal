@@ -4,23 +4,23 @@
 
 @layer base {
   :root {
-    --background: 222 47% 11%;
-    --foreground: 38 40% 85%;
-    --card: 220 45% 15%;
-    --card-foreground: 38 40% 85%;
-    --primary: 270 45% 36%;
-    --primary-foreground: 38 40% 90%;
-    --secondary: 210 40% 20%;
-    --secondary-foreground: 38 40% 85%;
-    --muted: 215 32% 22%;
-    --muted-foreground: 215 20% 55%;
-    --accent: 174 40% 68%;
-    --accent-foreground: 220 45% 12%;
+    --background: 250 40% 8%;
+    --foreground: 0 0% 100%;
+    --card: 250 35% 12%;
+    --card-foreground: 0 0% 100%;
+    --primary: 270 45% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 250 30% 18%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 250 25% 20%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 174 40% 60%;
+    --accent-foreground: 250 40% 8%;
     --destructive: 0 62% 55%;
     --destructive-foreground: 0 0% 98%;
-    --border: 215 30% 22%;
-    --input: 215 30% 22%;
-    --ring: 174 40% 68%;
+    --border: 250 30% 20%;
+    --input: 250 30% 20%;
+    --ring: 270 50% 60%;
     --radius: 0.75rem;
   }
 }
@@ -36,55 +36,56 @@
   }
 
   body {
-    @apply bg-background text-foreground;
     font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
     font-weight: 400;
-    background: linear-gradient(145deg, #f0e8ff 0%, #e8d5f5 20%, #fce4ec 45%, #ffecd2 70%, #d4eaf7 100%);
+    /* Ciemne tło z purpurowo-winnym poświatą jak w Calm */
+    background:
+      radial-gradient(ellipse 100% 60% at 50% 60%, rgba(202, 196, 238, 0.18) 0%, transparent 70%),
+      linear-gradient(170deg, #3D4254 0%, #7A465B 50%, #16323F 100%);
     background-attachment: fixed;
     min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
+    color: white;
   }
 }
 
-/* ── Typografia ────────────────────────────────────────────── */
+/* ── Typografia ─────────────────────────────────────────────── */
 
-/* Serif display – duże tytuły jak "Meditation for Anxiety" */
 .font-display {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-weight: 800;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900;
   line-height: 1.1;
   letter-spacing: -0.01em;
 }
 
-/* Sans UI – etykiety, body, przyciski */
 .font-ui {
   font-family: 'DM Sans', system-ui, sans-serif;
 }
 
-/* Małe uppercase labele – "7 DAYS OF CALM", "FEATURED" */
+/* Małe uppercase labele */
 .label-caps {
   font-family: 'DM Sans', system-ui, sans-serif;
   font-size: 0.65rem;
   font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(100, 80, 130, 0.6);
+  color: rgba(255, 255, 255, 0.70);
 }
 
-/* ── Glass-morphism kafelek ─────────────────────────────────── */
+/* ── Glass-morphism kafelek (ciemny) ──────────────────────── */
 .dream-card {
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.07);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(160, 120, 200, 0.12), 0 1px 0 rgba(255,255,255,0.8) inset;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 1px 0 rgba(255,255,255,0.06) inset;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .dream-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(160, 120, 200, 0.2), 0 1px 0 rgba(255,255,255,0.9) inset;
+  background: rgba(255, 255, 255, 0.11);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 1px 0 rgba(255,255,255,0.1) inset;
 }
 
 .dream-card:active {
@@ -94,7 +95,7 @@
 /* TipTap editor */
 .dream-editor .ProseMirror {
   outline: none;
-  color: #3d3350;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .dream-editor .ProseMirror p {
@@ -107,7 +108,7 @@
 
 .dream-editor .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
-  color: rgba(107, 95, 128, 0.5);
+  color: rgba(255, 255, 255, 0.3);
   pointer-events: none;
   float: left;
   height: 0;
@@ -118,7 +119,7 @@
 .dream-prose p {
   margin-bottom: 0.75rem;
   line-height: 1.7;
-  color: #4a4060;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .dream-prose p:last-child {
@@ -135,7 +136,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 213, 201, 0.2);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 2px;
 }
 

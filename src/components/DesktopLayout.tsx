@@ -30,32 +30,13 @@ function DesktopSidebar({ dreams }: { dreams: Dream[] }) {
 
   return (
     <aside
-      className="w-[320px] shrink-0 flex flex-col border-r border-white/40"
-      style={{ background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(12px)' }}
+      className="w-[320px] shrink-0 flex flex-col border-r border-white/10"
+      style={{ background: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(12px)' }}
     >
-      {/* Header */}
-      <div className="pt-14 pb-5 px-5 border-b border-white/30">
-        <p className="font-display text-[#2d2440] text-2xl leading-snug">
-          Cześć {userName},
-        </p>
-        <p className="font-ui text-[#6b5f80] text-[0.82rem] font-light tracking-wide mt-1">
-          {dreams.length === 0
-            ? 'żaden sen nie złapany.'
-            : dreams.length === 1
-            ? 'złapaliśmy już 1 sen.'
-            : `złapaliśmy już ${dreams.length} sny.`}
-        </p>
-        {lastDream && (
-          <p className="font-ui text-[#9d90b0] text-[0.7rem] font-light tracking-wide mt-1">
-            ostatni zapis {formatDate(lastDream.createdAt)}
-          </p>
-        )}
-      </div>
-
       {/* Dream list */}
-      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2">
+      <div className="flex-1 overflow-y-auto px-3 pt-5 pb-3 space-y-2">
         {dreams.length === 0 ? (
-          <p className="font-ui text-[#9d90b0] text-xs font-light text-center py-8 tracking-wide">
+          <p className="font-ui text-white/75 text-xs font-light text-center py-8 tracking-wide">
             Brak snów. Dodaj pierwszy!
           </p>
         ) : (
@@ -65,17 +46,17 @@ function DesktopSidebar({ dreams }: { dreams: Dream[] }) {
               onClick={() => navigate(`/dream/${dream.id}`)}
               className={`dream-card w-full text-left transition-all duration-150 ${
                 activeId === dream.id
-                  ? 'ring-2 ring-purple-400/60 bg-white/70'
+                  ? 'ring-2 ring-purple-400/50 !bg-white/15'
                   : ''
               }`}
             >
               <div className="p-4">
                 <p className="label-caps mb-2">{formatDate(dream.createdAt)}</p>
-                <h2 className="font-display text-[#2d2440] text-lg leading-tight mb-1">
+                <h2 className="font-display text-white text-lg leading-tight mb-1">
                   {dream.title}
                 </h2>
                 {stripHtml(dream.description) && (
-                  <p className="font-ui text-[#6b5f80] text-[0.75rem] font-light leading-relaxed line-clamp-2">
+                  <p className="font-ui text-white/85 text-[0.75rem] font-light leading-relaxed line-clamp-2">
                     {stripHtml(dream.description)}
                   </p>
                 )}
@@ -85,14 +66,14 @@ function DesktopSidebar({ dreams }: { dreams: Dream[] }) {
                       <span
                         key={tag}
                         className="font-ui px-2 py-0.5 rounded-full text-[0.65rem] font-light whitespace-nowrap
-                                   border border-purple-200/60 text-purple-600 bg-purple-100/40"
+                                   border border-white/25 text-white/90 bg-white/10"
                       >
                         {tag}
                       </span>
                     ))}
                     {dream.tags.length > 3 && (
                       <span className="font-ui px-2 py-0.5 rounded-full text-[0.65rem] font-medium whitespace-nowrap
-                                       border border-purple-300/70 text-purple-700 bg-purple-200/50">
+                                       border border-white/25 text-white/90 bg-white/10">
                         +{dream.tags.length - 3}
                       </span>
                     )}
@@ -142,12 +123,11 @@ export function DesktopLayout() {
       <div className="flex h-full w-full max-w-[1440px]">
         <DesktopSidebar dreams={dreams} />
         <main className="flex-1 overflow-y-auto relative">
-          {/* Potwierdzenie zapisu */}
           {showSaved && (
-            <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50
-                            px-6 py-3 rounded-full
-                            bg-[#533483] text-white font-ui text-sm font-medium tracking-wide
-                            shadow-lg shadow-purple-900/40
+            <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50
+                            px-10 py-5 rounded-full
+                            bg-white/20 backdrop-blur-sm text-white font-ui text-[1.75rem] font-medium tracking-wide
+                            border border-white/30 shadow-lg
                             animate-fade-in">
               Zapisano ✓
             </div>

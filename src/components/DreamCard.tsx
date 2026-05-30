@@ -23,11 +23,11 @@ export function DreamCard({ dream }: DreamCardProps) {
         <p className="label-caps mb-3">
           {formatDate(dream.createdAt)}
         </p>
-        <h2 className="font-display text-[#2d2440] text-2xl leading-tight mb-2">
+        <h2 className="font-display text-white text-2xl leading-tight mb-2">
           {dream.title}
         </h2>
         {preview && (
-          <p className="font-ui text-[#6b5f80] text-[0.82rem] font-light leading-relaxed line-clamp-2 mt-1">
+          <p className="font-ui text-white/85 text-[0.82rem] font-light leading-relaxed line-clamp-2 mt-1">
             {preview}
           </p>
         )}
@@ -37,14 +37,14 @@ export function DreamCard({ dream }: DreamCardProps) {
               <span
                 key={tag}
                 className="font-ui px-2.5 py-1 rounded-full text-[0.7rem] font-light tracking-wide whitespace-nowrap
-                           border border-purple-200/60 text-purple-600 bg-purple-100/40"
+                           border border-white/25 text-white/90 bg-white/10"
               >
                 {tag}
               </span>
             ))}
             {overflow > 0 && (
               <span className="font-ui px-2.5 py-1 rounded-full text-[0.7rem] font-medium whitespace-nowrap
-                               border border-purple-300/70 text-purple-700 bg-purple-200/50">
+                               border border-white/25 text-white/90 bg-white/10">
                 +{overflow}
               </span>
             )}
