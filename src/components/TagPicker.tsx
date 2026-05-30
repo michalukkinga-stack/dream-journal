@@ -35,30 +35,24 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
       <div
         className="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto z-50
                    rounded-t-3xl border-t border-white/10
-                   animate-slide-up"
+                   animate-slide-up relative"
         style={{
           background: 'linear-gradient(180deg, rgba(245,238,255,0.97) 0%, rgba(252,232,244,0.97) 100%)',
           backdropFilter: 'blur(20px)',
         }}
       >
-        {/* Handle */}
-        <div className="flex justify-center pt-3 pb-1">
-          <div className="w-10 h-1 rounded-full bg-white/20" />
-        </div>
+        {/* X w prawym górnym rogu */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/5
+                     flex items-center justify-center
+                     text-[#6b5f80] hover:text-[#2d2440] transition-colors z-10"
+        >
+          <X size={16} />
+        </button>
 
-        {/* Header */}
-        <div className="flex items-center justify-end px-5 pt-3 pb-5">
-          <button
-            onClick={onClose}
-            className="w-9 h-9 rounded-full bg-black/5 flex items-center justify-center
-                       text-[#6b5f80] hover:text-[#2d2440] transition-colors"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* Tag grid */}
-        <div className="px-5 pb-4 max-h-[52vh] overflow-y-auto">
+        {/* Tag grid — zaczyna się od razu */}
+        <div className="px-5 pt-5 pb-4 max-h-[60vh] overflow-y-auto">
           <div className="flex flex-wrap gap-2.5">
             {DREAM_TAGS.map(tag => {
               const isSelected = selected.includes(tag)
