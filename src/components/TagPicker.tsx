@@ -31,11 +31,11 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
         onClick={onClose}
       />
 
-      {/* Bottom sheet */}
+      {/* Bottom sheet — zajmuje 2/3 ekranu */}
       <div
         className="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto z-50
                    rounded-t-3xl border-t border-white/10
-                   animate-slide-up relative"
+                   animate-slide-up relative min-h-[67vh]"
         style={{
           background: 'linear-gradient(180deg, rgba(245,238,255,0.97) 0%, rgba(252,232,244,0.97) 100%)',
           backdropFilter: 'blur(20px)',
@@ -51,9 +51,9 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
           <X size={16} />
         </button>
 
-        {/* Tag grid — zaczyna się od razu */}
-        <div className="px-5 pt-5 pb-4 max-h-[60vh] overflow-y-auto">
-          <div className="flex flex-wrap gap-2.5">
+        {/* Tag grid — 4px odstęp od dolnej krawędzi X (top-3 + h-8 + 4px = 44px) */}
+        <div className="px-5 pb-4 overflow-y-auto" style={{ paddingTop: '44px', maxHeight: '52vh' }}>
+          <div className="flex flex-wrap gap-1.5">
             {DREAM_TAGS.map(tag => {
               const isSelected = selected.includes(tag)
               return (
