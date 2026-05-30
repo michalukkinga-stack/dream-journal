@@ -12,7 +12,7 @@ export function DreamDetailPage() {
   function handleDelete() {
     if (id) {
       deleteDream(id)
-      navigate('/')
+      navigate('/home')
     }
   }
 
@@ -107,7 +107,7 @@ export function DreamDetailPage() {
             onClick={() => setConfirmDelete(false)}
           />
           <div
-            className="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto z-50
+            className="fixed bottom-0 left-0 right-0 z-50 md:left-[320px]
                        rounded-t-3xl border-t border-white/10 px-5 pt-6 pb-10"
             style={{ background: 'linear-gradient(180deg, #16213e 0%, #0f3460 100%)' }}
           >

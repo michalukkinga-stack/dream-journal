@@ -141,8 +141,13 @@
 
 /* Mobilna szerokość */
 #root {
-  max-width: 480px;
-  margin: 0 auto;
   min-height: 100vh;
   position: relative;
+}
+
+@media (max-width: 767px) {
+  #root {
+    max-width: 480px;
+    margin: 0 auto;
+  }
 }

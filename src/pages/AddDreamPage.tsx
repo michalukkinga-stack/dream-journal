@@ -115,7 +115,7 @@ export function AddDreamPage() {
       </div>
 
       {/* Przycisk zapisu – sticky bottom */}
-      <div className="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto p-4 pb-8
+      <div className="sticky bottom-0 p-4 pb-8
                       bg-gradient-to-t from-[#f0e8ff]/90 to-transparent">
         <Button
           onClick={handleSave}

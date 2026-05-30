@@ -6,6 +6,7 @@ import { AddDreamPage } from '@/pages/AddDreamPage'
 import { EditDreamPage } from '@/pages/EditDreamPage'
 import { DreamDetailPage } from '@/pages/DreamDetailPage'
 import { WelcomePage } from '@/pages/WelcomePage'
+import { DesktopLayout } from '@/components/DesktopLayout'
 
 function UserButton() {
   const location = useLocation()
@@ -39,10 +40,12 @@ export default function App() {
       <UserButton />
       <Routes>
         <Route path="/" element={<WelcomePage />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/add" element={<AddDreamPage />} />
-        <Route path="/edit/:id" element={<EditDreamPage />} />
-        <Route path="/dream/:id" element={<DreamDetailPage />} />
+        <Route element={<DesktopLayout />}>
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/add" element={<AddDreamPage />} />
+          <Route path="/edit/:id" element={<EditDreamPage />} />
+          <Route path="/dream/:id" element={<DreamDetailPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   )
