@@ -50,7 +50,7 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
         <div
           className="relative w-full max-w-lg rounded-2xl shadow-xl flex flex-col"
           style={{
-            maxHeight: '80vh',
+            height: '72vh',
             background: 'linear-gradient(160deg, rgba(245,238,255,0.99) 0%, rgba(252,232,244,0.99) 100%)',
             backdropFilter: 'blur(24px)',
             border: '1px solid rgba(200,180,240,0.3)',
@@ -101,12 +101,22 @@ function SheetContent({
             onChange={e => setQuery(e.target.value)}
             placeholder="Szukaj motywu..."
             autoFocus
-            className="font-ui w-full h-10 pl-9 pr-4 rounded-full
+            className="font-ui w-full h-10 pl-9 pr-9 rounded-full
                        bg-white/60 border border-purple-200/60
                        text-[#2d2440] placeholder:text-[#b0a0c0] text-sm font-light tracking-wide
                        focus:outline-none focus:border-purple-300/80 focus:ring-1 focus:ring-purple-200/50
                        transition-all"
           />
+          {query && (
+            <button
+              onClick={() => setQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2
+                         w-5 h-5 rounded-full bg-[#c0b0d0]/40 hover:bg-[#c0b0d0]/70
+                         flex items-center justify-center transition-colors"
+            >
+              <X size={11} className="text-[#6b5f80]" />
+            </button>
+          )}
         </div>
       </div>
 
