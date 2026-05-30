@@ -40,7 +40,7 @@ export function EditDreamPage() {
     }
     setError('')
     updateDream(id!, { title: title.trim(), description, tags })
-    navigate(`/dream/${id}`)
+    navigate(`/dream/${id}`, { replace: true })
   }
 
   return (

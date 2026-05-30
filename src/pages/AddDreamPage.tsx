@@ -23,7 +23,7 @@ export function AddDreamPage() {
     }
     setError('')
     saveDream({ title: title.trim(), description, tags })
-    navigate('/')
+    navigate('/home', { replace: true })
   }
 
   return (
