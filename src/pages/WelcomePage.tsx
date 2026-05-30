@@ -1,9 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 export function WelcomePage() {
   const [name, setName] = useState('')
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (localStorage.getItem('userName')) {
+      navigate('/home', { replace: true })
+    }
+  }, [])
 
   function handleStart() {
     const trimmed = name.trim()
