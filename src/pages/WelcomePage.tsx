@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { storage } from '@/storage/dreamStorage'
 
 export function WelcomePage() {
   const [name, setName] = useState('')
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (localStorage.getItem('userName')) {
+    if (storage.get('userName')) {
       navigate('/home', { replace: true })
     }
   }, [])
@@ -14,7 +15,7 @@ export function WelcomePage() {
   function handleStart() {
     const trimmed = name.trim()
     if (!trimmed) return
-    localStorage.setItem('userName', trimmed)
+    storage.set('userName', trimmed)
     navigate('/home')
   }
 

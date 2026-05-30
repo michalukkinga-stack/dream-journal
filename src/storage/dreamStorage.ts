@@ -12,21 +12,38 @@ const SEED_DREAM: Dream = {
   createdAt: new Date('2026-05-27T06:30:00').toISOString(),
 }
 
+// Bezpieczny dostęp do localStorage — nie rzuca na iOS Safari private/restricted
+function lsGet(key: string): string | null {
+  try { return localStorage.getItem(key) } catch { return null }
+}
+function lsSet(key: string, value: string): void {
+  try { localStorage.setItem(key, value) } catch { /* ignoruj */ }
+}
+function lsRemove(key: string): void {
+  try { localStorage.removeItem(key) } catch { /* ignoruj */ }
+}
+
+export const storage = { get: lsGet, set: lsSet, remove: lsRemove }
+
 export function initStorage(): void {
-  const initialized = localStorage.getItem(INITIALIZED_KEY)
-  if (!initialized) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([SEED_DREAM]))
-    localStorage.setItem(INITIALIZED_KEY, 'true')
-  }
+  try {
+    const initialized = lsGet(INITIALIZED_KEY)
+    if (!initialized) {
+      lsSet(STORAGE_KEY, JSON.stringify([SEED_DREAM]))
+      lsSet(INITIALIZED_KEY, 'true')
+    }
+  } catch { /* nic — aplikacja ruszy bez seed data */ }
 }
 
 export function getDreams(): Dream[] {
-  const raw = localStorage.getItem(STORAGE_KEY)
-  if (!raw) return []
-  const dreams: Dream[] = JSON.parse(raw)
-  return dreams.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  )
+  try {
+    const raw = lsGet(STORAGE_KEY)
+    if (!raw) return []
+    const dreams: Dream[] = JSON.parse(raw)
+    return dreams.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )
+  } catch { return [] }
 }
 
 export function getDreamById(id: string): Dream | undefined {
@@ -37,23 +54,25 @@ export function saveDream(dream: Omit<Dream, 'id' | 'createdAt'> & { tags?: stri
   const newDream: Dream = {
     ...dream,
     tags: dream.tags ?? [],
-    id: crypto.randomUUID(),
+    id: typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
+      : Math.random().toString(36).slice(2),
     createdAt: new Date().toISOString(),
   }
   const existing = getDreams()
-  localStorage.setItem(STORAGE_KEY, JSON.stringify([newDream, ...existing]))
+  lsSet(STORAGE_KEY, JSON.stringify([newDream, ...existing]))
   return newDream
 }
 
 export function deleteDream(id: string): void {
   const updated = getDreams().filter((d) => d.id !== id)
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+  lsSet(STORAGE_KEY, JSON.stringify(updated))
 }
 
 export function updateDream(id: string, patch: Partial<Omit<Dream, 'id' | 'createdAt'>>): void {
   const dreams = getDreams()
   const updated = dreams.map((d) => d.id === id ? { ...d, ...patch } : d)
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+  lsSet(STORAGE_KEY, JSON.stringify(updated))
 }
 
 export function stripHtml(html: string): string {

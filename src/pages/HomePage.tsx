@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getDreams, formatDate } from '@/storage/dreamStorage'
+import { getDreams, formatDate, storage } from '@/storage/dreamStorage'
 import { Dream } from '@/types/dream'
 import { DreamCard } from '@/components/DreamCard'
 import { FAB } from '@/components/FAB'
@@ -25,7 +25,7 @@ export function HomePage() {
       {dreams.length > 0 && (
         <div className="pt-14 pb-6 px-5">
           <p className="font-display text-[#2d2440] text-3xl leading-snug pr-12">
-            Cześć {localStorage.getItem('userName') ?? 'nieznajomy'},
+            Cześć {storage.get('userName') ?? 'nieznajomy'},
           </p>
           <p className="font-ui text-[#6b5f80] text-[0.95rem] font-light tracking-wide mt-1">
             {dreams.length === 1
@@ -44,7 +44,7 @@ export function HomePage() {
       {dreams.length === 0 ? (
         <div className="flex-1 flex items-center justify-center px-8 pb-36">
           <p className="font-ui text-[#6b5f80] text-[1.05rem] font-light text-center leading-relaxed tracking-wide">
-            Cześć {localStorage.getItem('userName') ?? 'nieznajomy'},<br />
+            Cześć {storage.get('userName') ?? 'nieznajomy'},<br />
             żaden sen nie został jeszcze złapany.
           </p>
         </div>

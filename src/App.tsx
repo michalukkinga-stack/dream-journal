@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import { UserRound } from 'lucide-react'
+import { storage } from '@/storage/dreamStorage'
 import { HomePage } from '@/pages/HomePage'
 import { AddDreamPage } from '@/pages/AddDreamPage'
 import { EditDreamPage } from '@/pages/EditDreamPage'
@@ -13,7 +14,7 @@ function UserButton() {
   if (location.pathname === '/') return null
 
   function handleClick() {
-    localStorage.removeItem('userName')
+    storage.remove('userName')
     navigate('/', { replace: true })
   }
 
