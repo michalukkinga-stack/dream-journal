@@ -6,9 +6,13 @@ interface DreamCardProps {
   dream: Dream
 }
 
+const MAX_VISIBLE_TAGS = 3
+
 export function DreamCard({ dream }: DreamCardProps) {
   const navigate = useNavigate()
   const preview = stripHtml(dream.description)
+  const visibleTags = dream.tags.slice(0, MAX_VISIBLE_TAGS)
+  const overflow = dream.tags.length - MAX_VISIBLE_TAGS
 
   return (
     <button
@@ -26,6 +30,25 @@ export function DreamCard({ dream }: DreamCardProps) {
           <p className="font-ui text-[#6b5f80] text-[0.82rem] font-light leading-relaxed line-clamp-2 mt-1">
             {preview}
           </p>
+        )}
+        {dream.tags.length > 0 && (
+          <div className="flex flex-nowrap gap-1.5 mt-3 overflow-hidden">
+            {visibleTags.map(tag => (
+              <span
+                key={tag}
+                className="font-ui px-2.5 py-1 rounded-full text-[0.7rem] font-light tracking-wide whitespace-nowrap
+                           border border-purple-200/60 text-purple-600 bg-purple-100/40"
+              >
+                {tag}
+              </span>
+            ))}
+            {overflow > 0 && (
+              <span className="font-ui px-2.5 py-1 rounded-full text-[0.7rem] font-medium whitespace-nowrap
+                               border border-purple-300/70 text-purple-700 bg-purple-200/50">
+                +{overflow}
+              </span>
+            )}
+          </div>
         )}
       </div>
     </button>

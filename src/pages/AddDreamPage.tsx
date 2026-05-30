@@ -104,7 +104,7 @@ export function AddDreamPage() {
                          transition-all duration-150 active:scale-95"
             >
               <Plus size={14} />
-              Dodaj tagi
+              Dodaj motyw
             </button>
           )}
         </div>

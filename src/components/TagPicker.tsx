@@ -47,12 +47,7 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-5 pt-3 pb-5">
-          <div>
-            <h2 className="font-display text-[#2d2440] text-2xl leading-tight">
-              Co to był za sen?
-            </h2>
-          </div>
+        <div className="flex items-center justify-end px-5 pt-3 pb-5">
           <button
             onClick={onClose}
             className="w-9 h-9 rounded-full bg-black/5 flex items-center justify-center

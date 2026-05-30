@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getDreams } from '@/storage/dreamStorage'
+import { getDreams, formatDate } from '@/storage/dreamStorage'
 import { Dream } from '@/types/dream'
 import { DreamCard } from '@/components/DreamCard'
 import { FAB } from '@/components/FAB'
@@ -11,28 +11,31 @@ export function HomePage() {
     setDreams(getDreams())
   }, [])
 
-  // Odśwież listę gdy wracamy na tę stronę (np. po dodaniu snu)
   useEffect(() => {
     const onFocus = () => setDreams(getDreams())
     window.addEventListener('focus', onFocus)
     return () => window.removeEventListener('focus', onFocus)
   }, [])
 
+  const lastDream = dreams[0]
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
       <div className="pt-14 pb-6 px-5">
-        <h1 className="font-display text-[#2d2440] text-4xl mb-1">
-          Łapacz snów
-        </h1>
-        <p className="font-ui text-[#6b5f80] text-[0.95rem] font-light mt-1 tracking-wide">
+        <p className="font-display text-[#2d2440] text-3xl leading-snug">
           Cześć {localStorage.getItem('userName') ?? 'nieznajomy'},
         </p>
-        <p className="font-ui text-[#6b5f80] text-[0.95rem] font-light tracking-wide">
+        <p className="font-ui text-[#6b5f80] text-[0.95rem] font-light tracking-wide mt-1">
           {dreams.length === 1
-            ? 'Razem złapaliśmy już 1 sen.'
-            : `Razem złapaliśmy już ${dreams.length} sny.`}
+            ? 'razem złapaliśmy już 1 sen.'
+            : `razem złapaliśmy już ${dreams.length} sny.`}
         </p>
+        {lastDream && (
+          <p className="font-ui text-[#9d90b0] text-xs font-light tracking-wide mt-2">
+            ostatni zapis {formatDate(lastDream.createdAt)}
+          </p>
+        )}
       </div>
 
       {/* Lista snów */}
