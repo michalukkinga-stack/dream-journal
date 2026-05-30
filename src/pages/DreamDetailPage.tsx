@@ -73,8 +73,19 @@ export function DreamDetailPage() {
           {dream.title}
         </h1>
 
+        <div className="h-px w-12 bg-gradient-to-r from-[#94d5c9]/40 to-transparent mb-6" />
+
+        {dream.description ? (
+          <div
+            className="font-ui dream-prose text-[#9ab0c8] text-[0.95rem] font-light leading-[1.85]"
+            dangerouslySetInnerHTML={{ __html: dream.description }}
+          />
+        ) : (
+          <p className="font-ui text-[#94a3b8]/50 text-sm font-light italic">Brak opisu.</p>
+        )}
+
         {dream.tags && dream.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-6">
+          <div className="flex flex-wrap gap-2 mt-6">
             {dream.tags.map(tag => (
               <span
                 key={tag}
@@ -85,17 +96,6 @@ export function DreamDetailPage() {
               </span>
             ))}
           </div>
-        )}
-
-        <div className="h-px w-12 bg-gradient-to-r from-[#94d5c9]/40 to-transparent mb-6" />
-
-        {dream.description ? (
-          <div
-            className="font-ui dream-prose text-[#9ab0c8] text-[0.95rem] font-light leading-[1.85]"
-            dangerouslySetInnerHTML={{ __html: dream.description }}
-          />
-        ) : (
-          <p className="font-ui text-[#94a3b8]/50 text-sm font-light italic">Brak opisu.</p>
         )}
       </div>
 

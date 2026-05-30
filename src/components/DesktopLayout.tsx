@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { Plus } from 'lucide-react'
 import { getDreams, formatDate, storage, stripHtml } from '@/storage/dreamStorage'
 import { Dream } from '@/types/dream'
-import { DreamCard } from '@/components/DreamCard'
+import { AddDreamPage } from '@/pages/AddDreamPage'
 
 function useIsDesktop() {
   const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 768)
@@ -16,14 +15,9 @@ function useIsDesktop() {
   return isDesktop
 }
 
-function DesktopSidebar() {
-  const [dreams, setDreams] = useState<Dream[]>([])
+function DesktopSidebar({ dreams }: { dreams: Dream[] }) {
   const navigate = useNavigate()
   const location = useLocation()
-
-  useEffect(() => {
-    setDreams(getDreams())
-  }, [location])
 
   const userName = storage.get('userName') ?? 'nieznajomy'
   const lastDream = dreams[0]
@@ -109,57 +103,27 @@ function DesktopSidebar() {
           ))
         )}
       </div>
-
-      {/* Add button */}
-      <div className="p-4 border-t border-white/30">
-        <button
-          onClick={() => navigate('/add')}
-          className={`font-ui w-full h-11 rounded-full flex items-center justify-center gap-2
-                     text-white text-sm font-medium tracking-wide
-                     bg-gradient-to-r from-[#533483] to-[#6a44a0]
-                     hover:from-[#6a44a0] hover:to-[#7d55b8]
-                     shadow-md shadow-purple-900/30
-                     transition-all duration-150 active:scale-[0.98] ${
-                       location.pathname === '/add' ? 'ring-2 ring-purple-400/60' : ''
-                     }`}
-        >
-          <Plus size={16} />
-          Nowy sen
-        </button>
-      </div>
     </aside>
-  )
-}
-
-function DesktopRightPlaceholder() {
-  return (
-    <div className="flex-1 flex flex-col items-center justify-center text-center px-8">
-      <div className="mb-6 opacity-30">
-        <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
-          <circle cx="36" cy="36" r="18" stroke="#533483" strokeWidth="1.5" />
-          <circle cx="36" cy="36" r="10" stroke="#533483" strokeWidth="1.5" />
-          <circle cx="36" cy="36" r="2" fill="#533483" />
-          {[0,45,90,135,180,225,270,315].map((angle, i) => {
-            const rad = (angle * Math.PI) / 180
-            const x1 = 36 + 18 * Math.cos(rad)
-            const y1 = 36 + 18 * Math.sin(rad)
-            const x2 = 36 + 28 * Math.cos(rad)
-            const y2 = 36 + 28 * Math.sin(rad)
-            return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#533483" strokeWidth="1.5" strokeLinecap="round" />
-          })}
-        </svg>
-      </div>
-      <p className="font-display text-[#2d2440] text-2xl mb-2">Wybierz sen</p>
-      <p className="font-ui text-[#9d90b0] text-sm font-light tracking-wide">
-        lub dodaj nowy ze listy po lewej
-      </p>
-    </div>
   )
 }
 
 export function DesktopLayout() {
   const isDesktop = useIsDesktop()
   const location = useLocation()
+  const [dreams, setDreams] = useState<Dream[]>(() => getDreams())
+  const [formKey, setFormKey] = useState(0)
+  const [showSaved, setShowSaved] = useState(false)
+
+  useEffect(() => {
+    setDreams(getDreams())
+  }, [location, formKey])
+
+  function handleSaved() {
+    setDreams(getDreams())
+    setShowSaved(true)
+    setFormKey(k => k + 1)
+    setTimeout(() => setShowSaved(false), 3000)
+  }
 
   if (!isDesktop) {
     return (
@@ -171,14 +135,29 @@ export function DesktopLayout() {
     )
   }
 
-  const showPlaceholder = location.pathname === '/home'
+  const showAddForm = location.pathname === '/home' || location.pathname === '/add'
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <DesktopSidebar />
-      <main className="flex-1 overflow-y-auto">
-        {showPlaceholder ? <DesktopRightPlaceholder /> : <Outlet />}
-      </main>
+    <div className="flex h-screen overflow-hidden justify-center">
+      <div className="flex h-full w-full max-w-[1440px]">
+        <DesktopSidebar dreams={dreams} />
+        <main className="flex-1 overflow-y-auto relative">
+          {/* Potwierdzenie zapisu */}
+          {showSaved && (
+            <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50
+                            px-6 py-3 rounded-full
+                            bg-[#533483] text-white font-ui text-sm font-medium tracking-wide
+                            shadow-lg shadow-purple-900/40
+                            animate-fade-in">
+              Zapisano ✓
+            </div>
+          )}
+          {showAddForm
+            ? <AddDreamPage key={formKey} desktopMode onSaved={handleSaved} />
+            : <Outlet />
+          }
+        </main>
+      </div>
     </div>
   )
 }

@@ -1,5 +1,6 @@
-import { useEffect } from 'react'
-import { X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { X, Search } from 'lucide-react'
+import Highlighter from 'react-highlight-words'
 import { DREAM_TAGS } from '@/constants/tags'
 
 interface TagPickerProps {
@@ -30,11 +31,6 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
         onClick={onClose}
       />
 
-      {/*
-        Mobile  → bottom sheet, 67vh, od dołu
-        Desktop → wyśrodkowany modal (jak Shadcn Dialog), max-w-lg, zaokrąglony
-      */}
-
       {/* ── MOBILE bottom sheet ── */}
       <div
         className="md:hidden fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto z-50
@@ -49,7 +45,7 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
         <SheetContent selected={selected} onClose={onClose} toggle={toggle} />
       </div>
 
-      {/* ── DESKTOP centered dialog (Shadcn style) ── */}
+      {/* ── DESKTOP centered dialog ── */}
       <div className="hidden md:flex fixed inset-0 z-50 items-center justify-center p-6">
         <div
           className="relative w-full max-w-lg rounded-2xl shadow-xl flex flex-col"
@@ -68,7 +64,6 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
   )
 }
 
-/* ── Wspólna zawartość dla obu wariantów ── */
 function SheetContent({
   selected,
   onClose,
@@ -78,6 +73,12 @@ function SheetContent({
   onClose: () => void
   toggle: (tag: string) => void
 }) {
+  const [query, setQuery] = useState('')
+
+  const filtered = query.trim()
+    ? DREAM_TAGS.filter(tag => tag.toLowerCase().includes(query.toLowerCase()))
+    : DREAM_TAGS
+
   return (
     <>
       {/* X */}
@@ -90,28 +91,58 @@ function SheetContent({
         <X size={16} />
       </button>
 
-      {/* Tagi */}
-      <div className="flex-1 overflow-y-auto px-5 pt-4 pb-2">
-        <div className="flex flex-wrap gap-1.5">
-          {DREAM_TAGS.map(tag => {
-            const isSelected = selected.includes(tag)
-            return (
-              <button
-                key={tag}
-                onClick={() => toggle(tag)}
-                className={[
-                  'px-4 py-2 rounded-full text-sm font-ui font-light tracking-wide',
-                  'border transition-all duration-150 active:scale-95',
-                  isSelected
-                    ? 'border-purple-400 text-purple-700 bg-purple-100/70'
-                    : 'border-purple-200/60 text-[#6b5f80] bg-white/40 hover:border-purple-300',
-                ].join(' ')}
-              >
-                {tag}
-              </button>
-            )
-          })}
+      {/* Wyszukiwarka */}
+      <div className="px-5 pt-5 pb-3 shrink-0">
+        <div className="relative">
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9d90b0]" />
+          <input
+            type="text"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Szukaj motywu..."
+            autoFocus
+            className="font-ui w-full h-10 pl-9 pr-4 rounded-full
+                       bg-white/60 border border-purple-200/60
+                       text-[#2d2440] placeholder:text-[#b0a0c0] text-sm font-light tracking-wide
+                       focus:outline-none focus:border-purple-300/80 focus:ring-1 focus:ring-purple-200/50
+                       transition-all"
+          />
         </div>
+      </div>
+
+      {/* Tagi */}
+      <div className="flex-1 overflow-y-auto px-5 pb-2">
+        {filtered.length === 0 ? (
+          <p className="font-ui text-[#9d90b0] text-sm font-light text-center py-8 tracking-wide">
+            Brak pasujących motywów
+          </p>
+        ) : (
+          <div className="flex flex-wrap gap-1.5">
+            {filtered.map(tag => {
+              const isSelected = selected.includes(tag)
+              return (
+                <button
+                  key={tag}
+                  onClick={() => toggle(tag)}
+                  className={[
+                    'px-4 py-2 rounded-full text-sm font-ui font-light tracking-wide',
+                    'border transition-all duration-150 active:scale-95',
+                    isSelected
+                      ? 'border-purple-400 text-purple-700 bg-purple-100/70'
+                      : 'border-purple-200/60 text-[#6b5f80] bg-white/40 hover:border-purple-300',
+                  ].join(' ')}
+                >
+                  <Highlighter
+                    searchWords={[query]}
+                    autoEscape
+                    textToHighlight={tag}
+                    highlightClassName="bg-transparent font-semibold text-purple-700 not-italic"
+                  />
+                </button>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       {/* Footer */}

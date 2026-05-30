@@ -8,7 +8,12 @@ import { DreamEditor } from '@/components/DreamEditor'
 import { TagPicker } from '@/components/TagPicker'
 import { saveDream } from '@/storage/dreamStorage'
 
-export function AddDreamPage() {
+interface AddDreamPageProps {
+  desktopMode?: boolean
+  onSaved?: () => void
+}
+
+export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps = {}) {
   const navigate = useNavigate()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -23,32 +28,48 @@ export function AddDreamPage() {
     }
     setError('')
     saveDream({ title: title.trim(), description, tags })
-    navigate('/home', { replace: true })
+    if (desktopMode && onSaved) {
+      onSaved()
+    } else {
+      navigate('/home', { replace: true })
+    }
   }
 
   return (
-    <div className="min-h-screen flex flex-col animate-slide-in-right">
-      {/* Header */}
-      <div className="flex items-center gap-2 pt-12 px-4 pb-4">
-        <button
-          onClick={() => navigate(-1)}
-          className="font-ui flex items-center gap-1 text-[#6b5f80] hover:text-[#2d2440] transition-colors py-2 pr-3 text-sm font-light tracking-wide"
-        >
-          <ChevronLeft size={20} />
-          <span className="text-sm">wróć</span>
-        </button>
-      </div>
+    <div className={desktopMode ? 'flex flex-col h-full' : 'min-h-screen flex flex-col animate-slide-in-right'}>
+      {/* Header – tylko mobile */}
+      {!desktopMode && (
+        <>
+          <div className="flex items-center gap-2 pt-12 px-4 pb-4">
+            <button
+              onClick={() => navigate(-1)}
+              className="font-ui flex items-center gap-1 text-[#6b5f80] hover:text-[#2d2440] transition-colors py-2 pr-3 text-sm font-light tracking-wide"
+            >
+              <ChevronLeft size={20} />
+              <span className="text-sm">wróć</span>
+            </button>
+          </div>
+          <div className="px-5 pb-6">
+            <h1 className="font-display text-[#2d2440] text-4xl">Nowy sen</h1>
+            <p className="font-ui text-[#6b5f80] text-[0.85rem] font-light mt-1 tracking-wide">
+              Zapisz zanim zniknie
+            </p>
+          </div>
+        </>
+      )}
 
-      {/* Tytuł ekranu */}
-      <div className="px-5 pb-6">
-        <h1 className="font-display text-[#2d2440] text-4xl">Nowy sen</h1>
-        <p className="font-ui text-[#6b5f80] text-[0.85rem] font-light mt-1 tracking-wide">
-          Zapisz zanim zniknie
-        </p>
-      </div>
+      {/* Tytuł ekranu – desktop */}
+      {desktopMode && (
+        <div className="px-8 pt-12 pb-6">
+          <h1 className="font-display text-[#2d2440] text-4xl">Nowy sen</h1>
+          <p className="font-ui text-[#6b5f80] text-[0.85rem] font-light mt-1 tracking-wide">
+            Zapisz zanim zniknie
+          </p>
+        </div>
+      )}
 
       {/* Formularz */}
-      <div className="flex-1 px-5 space-y-2 pb-36">
+      <div className={`flex-1 space-y-2 ${desktopMode ? 'px-8 overflow-y-auto pb-8' : 'px-5 pb-36'}`}>
 
         {/* Tytuł */}
         <div className="space-y-2">
@@ -68,9 +89,13 @@ export function AddDreamPage() {
           )}
         </div>
 
-        {/* Tagi */}
-        <div className="space-y-3">
+        {/* Opis */}
+        <div className="space-y-2">
+          <DreamEditor value={description} onChange={setDescription} />
+        </div>
 
+        {/* Tagi */}
+        <div className="space-y-3 pt-1">
           {tags.length > 0 ? (
             <div className="flex flex-wrap gap-2 items-center">
               {tags.map(tag => (
@@ -107,16 +132,13 @@ export function AddDreamPage() {
             </button>
           )}
         </div>
-
-        {/* Opis */}
-        <div className="space-y-2">
-          <DreamEditor value={description} onChange={setDescription} />
-        </div>
       </div>
 
-      {/* Przycisk zapisu – sticky bottom */}
-      <div className="sticky bottom-0 p-4 pb-8
-                      bg-gradient-to-t from-[#f0e8ff]/90 to-transparent">
+      {/* Przycisk zapisu */}
+      <div className={desktopMode
+        ? 'px-8 pb-10 pt-4'
+        : 'sticky bottom-0 p-4 pb-8 bg-gradient-to-t from-[#f0e8ff]/90 to-transparent'
+      }>
         <Button
           onClick={handleSave}
           className="font-ui w-full h-14 rounded-full bg-gradient-to-r from-[#533483] to-[#6a44a0]

@@ -100,8 +100,13 @@ export function EditDreamPage() {
           )}
         </div>
 
+        {/* Opis */}
+        <div className="space-y-2">
+          <DreamEditor value={description} onChange={setDescription} />
+        </div>
+
         {/* Motywy */}
-        <div className="space-y-3">
+        <div className="space-y-3 pt-1">
           {tags.length > 0 ? (
             <div className="flex flex-wrap gap-2 items-center">
               {tags.map(tag => (
@@ -137,11 +142,6 @@ export function EditDreamPage() {
               Dodaj motyw
             </button>
           )}
-        </div>
-
-        {/* Opis */}
-        <div className="space-y-2">
-          <DreamEditor value={description} onChange={setDescription} />
         </div>
       </div>
 
