@@ -41,7 +41,6 @@ export function AddDreamPage() {
 
       {/* Tytuł ekranu */}
       <div className="px-5 pb-6">
-        <p className="label-caps mb-2">Nowy wpis</p>
         <h1 className="font-display text-[#2d2440] text-4xl">Nowy sen</h1>
         <p className="font-ui text-[#6b5f80] text-[0.85rem] font-light mt-1 tracking-wide">
           Zapisz zanim zniknie
