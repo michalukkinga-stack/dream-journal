@@ -26,7 +26,7 @@ export function HomePage() {
           Łapacz snów
         </h1>
         <p className="font-ui text-[#6b5f80] text-[0.95rem] font-light mt-1 tracking-wide">
-          Cześć Kinga,
+          Cześć {localStorage.getItem('userName') ?? 'nieznajomy'},
         </p>
         <p className="font-ui text-[#6b5f80] text-[0.95rem] font-light tracking-wide">
           {dreams.length === 1
