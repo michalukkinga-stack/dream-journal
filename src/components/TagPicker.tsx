@@ -9,7 +9,6 @@ interface TagPickerProps {
 }
 
 export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
-  // Blokuj scroll body gdy sheet jest otwarty
   useEffect(() => {
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = '' }
@@ -31,28 +30,29 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
         onClick={onClose}
       />
 
-      {/* Bottom sheet — sięga wysoko */}
+      {/* Bottom sheet — zajmuje dolne 2/3 ekranu, stała wysokość */}
       <div
         className="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto z-50
-                   rounded-t-3xl border-t border-white/10
-                   animate-slide-up relative min-h-[80vh]"
+                   rounded-t-3xl border-t border-white/10 animate-slide-up
+                   flex flex-col"
         style={{
+          height: '67vh',
           background: 'linear-gradient(180deg, rgba(245,238,255,0.97) 0%, rgba(252,232,244,0.97) 100%)',
           backdropFilter: 'blur(20px)',
         }}
       >
-        {/* X — absolutnie w rogu, na wierzchu tagów */}
+        {/* X — absolutnie w rogu */}
         <button
           onClick={onClose}
           className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/5
-                     flex items-center justify-center
-                     text-[#6b5f80] hover:text-[#2d2440] transition-colors z-10"
+                     flex items-center justify-center z-10
+                     text-[#6b5f80] hover:text-[#2d2440] transition-colors"
         >
           <X size={16} />
         </button>
 
-        {/* Tag grid — zaczyna się od góry bez pustej przestrzeni */}
-        <div className="px-5 pt-4 pb-4 overflow-y-auto" style={{ maxHeight: '68vh' }}>
+        {/* Tagi — przewijalna strefa, wypełnia dostępne miejsce */}
+        <div className="flex-1 overflow-y-auto px-5 pt-4 pb-2">
           <div className="flex flex-wrap gap-1.5">
             {DREAM_TAGS.map(tag => {
               const isSelected = selected.includes(tag)
@@ -75,17 +75,16 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="px-5 pt-3 pb-10 border-t border-purple-100/50">
+        {/* Footer — przyklejony do dołu */}
+        <div className="px-5 pt-3 pb-8 border-t border-purple-100/50 shrink-0">
           <button
             onClick={onClose}
-            className="font-ui w-full h-13 rounded-full
+            className="font-ui w-full rounded-full py-3.5
                        bg-gradient-to-r from-[#533483] to-[#6a44a0]
                        text-white font-medium text-[0.95rem] tracking-wide
                        shadow-lg shadow-purple-900/40
                        hover:from-[#6a44a0] hover:to-[#7d55b8]
-                       active:scale-[0.98] transition-all duration-150
-                       py-3.5"
+                       active:scale-[0.98] transition-all duration-150"
           >
             Zapisz
           </button>

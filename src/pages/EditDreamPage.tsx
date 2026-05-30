@@ -16,6 +16,7 @@ export function EditDreamPage() {
   const [description, setDescription] = useState(dream?.description ?? '')
   const [tags, setTags] = useState<string[]>(dream?.tags ?? [])
   const [showPicker, setShowPicker] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
   const [error, setError] = useState('')
 
   if (!dream) {
@@ -24,13 +25,26 @@ export function EditDreamPage() {
         <p className="text-4xl mb-4">🌫️</p>
         <p className="text-[#6b5f80]">Ten sen znikł jak mgła...</p>
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/home')}
           className="mt-6 text-purple-500 text-sm underline underline-offset-4"
         >
           Wróć do listy
         </button>
       </div>
     )
+  }
+
+  const isDirty =
+    title.trim() !== dream.title ||
+    description !== dream.description ||
+    JSON.stringify(tags) !== JSON.stringify(dream.tags)
+
+  function handleBack() {
+    if (isDirty) {
+      setShowConfirm(true)
+    } else {
+      navigate(-1)
+    }
   }
 
   function handleSave() {
@@ -48,7 +62,7 @@ export function EditDreamPage() {
       {/* Header */}
       <div className="flex items-center gap-2 pt-12 px-4 pb-4">
         <button
-          onClick={() => navigate(-1)}
+          onClick={handleBack}
           className="font-ui flex items-center gap-1 text-[#6b5f80] hover:text-[#2d2440] transition-colors py-2 pr-3 text-sm font-light tracking-wide"
         >
           <ChevronLeft size={20} />
@@ -86,7 +100,7 @@ export function EditDreamPage() {
           )}
         </div>
 
-        {/* Tagi */}
+        {/* Motywy */}
         <div className="space-y-3">
           {tags.length > 0 ? (
             <div className="flex flex-wrap gap-2 items-center">
@@ -120,7 +134,7 @@ export function EditDreamPage() {
                          transition-all duration-150 active:scale-95"
             >
               <Plus size={14} />
-              Dodaj tagi
+              Dodaj motyw
             </button>
           )}
         </div>
@@ -131,9 +145,8 @@ export function EditDreamPage() {
         </div>
       </div>
 
-      {/* Przycisk zapisu – sticky bottom */}
-      <div className="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto p-4 pb-8
-                      bg-gradient-to-t from-[#f0e8ff]/90 to-transparent">
+      {/* Przycisk zapisu */}
+      <div className="sticky bottom-0 p-4 pb-8 bg-gradient-to-t from-[#f0e8ff]/90 to-transparent">
         <Button
           onClick={handleSave}
           className="font-ui w-full h-14 rounded-full bg-gradient-to-r from-[#533483] to-[#6a44a0]
@@ -146,13 +159,55 @@ export function EditDreamPage() {
         </Button>
       </div>
 
-      {/* Tag picker bottom sheet */}
+      {/* Tag picker */}
       {showPicker && (
         <TagPicker
           selected={tags}
           onChange={setTags}
           onClose={() => setShowPicker(false)}
         />
+      )}
+
+      {/* Dialog potwierdzenia cofnięcia */}
+      {showConfirm && (
+        <>
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-8">
+            <div
+              className="w-full rounded-3xl p-7 text-center"
+              style={{
+                background: 'linear-gradient(160deg, rgba(245,238,255,0.98) 0%, rgba(252,232,244,0.98) 100%)',
+                backdropFilter: 'blur(20px)',
+              }}
+            >
+              <p className="font-display text-[#2d2440] text-2xl leading-snug mb-2">
+                Porzucić zmiany?
+              </p>
+              <p className="font-ui text-[#6b5f80] text-sm font-light mb-7">
+                Niezapisane zmiany w tym śnie przepadną.
+              </p>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => navigate(-1)}
+                  className="w-full rounded-full py-3.5 font-ui font-medium text-[0.95rem]
+                             bg-gradient-to-r from-[#533483] to-[#6a44a0]
+                             text-white shadow-lg shadow-purple-900/40
+                             active:scale-[0.98] transition-all duration-150"
+                >
+                  Tak, wróć bez zapisywania
+                </button>
+                <button
+                  onClick={() => setShowConfirm(false)}
+                  className="w-full rounded-full py-3.5 font-ui font-light text-[0.95rem]
+                             text-[#6b5f80] border border-purple-200/60 bg-white/40
+                             active:scale-[0.98] transition-all duration-150"
+                >
+                  Zostań i edytuj dalej
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   )
