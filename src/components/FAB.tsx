@@ -1,7 +1,11 @@
 import { useNavigate } from 'react-router-dom'
 import { Plus } from 'lucide-react'
 
-export function FAB() {
+interface FABProps {
+  label?: string
+}
+
+export function FAB({ label = 'Złapmy następny!' }: FABProps) {
   const navigate = useNavigate()
 
   return (
@@ -17,7 +21,7 @@ export function FAB() {
                    active:scale-[0.98] transition-all duration-150"
       >
         <Plus size={20} strokeWidth={2.5} />
-        Złapmy następny!
+        {label}
       </button>
     </div>
   )

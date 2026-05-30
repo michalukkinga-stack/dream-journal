@@ -57,22 +57,23 @@ export function HomePage() {
         )}
       </div>
 
-      {/* Lista snów */}
-      <div className="flex-1 px-5 pb-36 space-y-3">
-        {dreams.length === 0 ? (
-          <div className="text-center py-16 text-[#94a3b8]">
-            <p className="text-4xl mb-4">🌙</p>
-            <p className="text-base">Twoja noc jest jeszcze pusta.</p>
-            <p className="text-sm mt-1 opacity-70">Dodaj pierwszy sen.</p>
-          </div>
-        ) : (
-          dreams.map((dream) => (
+      {/* Lista snów / Empty state */}
+      {dreams.length === 0 ? (
+        <div className="flex-1 flex items-center justify-center px-8 pb-36">
+          <p className="font-display text-[#2d2440] text-3xl text-center leading-snug">
+            Cześć {localStorage.getItem('userName') ?? 'nieznajomy'},<br />
+            żaden sen nie został<br />jeszcze złapany.
+          </p>
+        </div>
+      ) : (
+        <div className="flex-1 px-5 pb-36 space-y-3">
+          {dreams.map((dream) => (
             <DreamCard key={dream.id} dream={dream} />
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
 
-      <FAB />
+      <FAB label={dreams.length === 0 ? 'Złapmy pierwszy sen.' : 'Złapmy następny!'} />
     </div>
   )
 }
