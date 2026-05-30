@@ -92,7 +92,7 @@ function SheetContent({
       </button>
 
       {/* Wyszukiwarka */}
-      <div className="px-5 pt-5 pb-3 shrink-0">
+      <div className="pl-5 pr-14 pt-5 pb-3 shrink-0">
         <div className="relative">
           <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9d90b0]" />
           <input
