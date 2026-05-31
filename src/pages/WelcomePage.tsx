@@ -4,6 +4,7 @@ import { Mic, MicOff } from 'lucide-react'
 import { storage } from '@/storage/dreamStorage'
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition'
 import { cn } from '@/lib/utils'
+import { MoonIcon } from '@/components/MoonIcon'
 
 export function WelcomePage() {
   const [name, setName] = useState('')
@@ -39,7 +40,7 @@ export function WelcomePage() {
 
       {/* Ikona łapacza snów — centrum ekranu */}
       <div className="flex-1 min-h-0 flex items-center justify-center py-2">
-        <MoonIcon />
+        <MoonIcon className="w-auto h-full max-h-[380px]" />
       </div>
 
       {/* Pole na imię */}
@@ -98,58 +99,5 @@ export function WelcomePage() {
       </div>
     </div>
     </div>
-  )
-}
-
-/* ── Ikona księżyca (sierp) ─────────────────────────────────── */
-
-/* Pomocnicza gwiazdka 4-ramienna (sparkle) */
-function Sparkle({ cx, cy, r }: { cx: number; cy: number; r: number }) {
-  const i = r * 0.18 // szerokość talii
-  return (
-    <path
-      d={`M ${cx} ${cy - r}
-          L ${cx + i} ${cy - i}
-          L ${cx + r} ${cy}
-          L ${cx + i} ${cy + i}
-          L ${cx} ${cy + r}
-          L ${cx - i} ${cy + i}
-          L ${cx - r} ${cy}
-          L ${cx - i} ${cy - i}
-          Z`}
-      fill="white"
-    />
-  )
-}
-
-function MoonIcon() {
-  return (
-    <svg
-      viewBox="0 0 200 200"
-      aria-label="Księżyc"
-      className="w-auto h-full max-h-[380px]"
-      style={{ filter: 'drop-shadow(0 4px 24px rgba(100,70,160,0.18))' }}
-    >
-      <defs>
-        <mask id="moon-mask">
-          <rect width="200" height="200" fill="white" />
-          <circle cx="66" cy="100" r="72" fill="black" />
-        </mask>
-      </defs>
-
-      {/* Sierp księżyca — półprzezroczysty */}
-      <g opacity="0.5">
-        <circle cx="100" cy="100" r="80" fill="white" mask="url(#moon-mask)" />
-        <circle cx="100" cy="100" r="80" fill="none" stroke="white" strokeWidth="1.7" />
-      </g>
-
-      {/* Gwiazdki — pełna widoczność, większe */}
-      <g opacity="0.92">
-        <Sparkle cx={148} cy={93}  r={18} />
-        <Sparkle cx={126} cy={62}  r={10} />
-        <Sparkle cx={164} cy={128} r={7}  />
-        <Sparkle cx={88}  cy={100} r={8}  />
-      </g>
-    </svg>
   )
 }

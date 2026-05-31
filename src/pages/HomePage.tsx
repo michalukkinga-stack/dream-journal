@@ -3,6 +3,7 @@ import { getDreams, storage } from '@/storage/dreamStorage'
 import { Dream } from '@/types/dream'
 import { DreamCard } from '@/components/DreamCard'
 import { FAB } from '@/components/FAB'
+import { MoonIcon } from '@/components/MoonIcon'
 
 export function HomePage() {
   const [dreams, setDreams] = useState<Dream[]>([])
@@ -34,10 +35,11 @@ export function HomePage() {
       )}
 
       {dreams.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center px-8 pb-36">
+        <div className="flex-1 flex flex-col items-center justify-center px-8 pb-36 gap-6">
           <p className="font-ui text-white/90 text-[1.05rem] font-light text-center leading-relaxed tracking-wide">
             Cześć {storage.get('userName') ?? 'nieznajomy'}!<br />Zapisz pierwszy sen, zanim ucieknie!
           </p>
+          <MoonIcon className="w-40 h-40" />
         </div>
       ) : (
         <div className="flex-1 px-5 pb-36 space-y-3">
