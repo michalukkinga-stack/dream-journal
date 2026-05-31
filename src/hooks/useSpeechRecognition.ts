@@ -1,6 +1,23 @@
 import { useState, useRef, useCallback } from 'react'
 
-type SpeechRecognitionConstructor = new () => SpeechRecognition
+interface ISpeechRecognitionEvent {
+  resultIndex: number
+  results: { length: number; [index: number]: { isFinal: boolean; 0: { transcript: string } } }
+}
+
+interface ISpeechRecognition {
+  lang: string
+  interimResults: boolean
+  continuous: boolean
+  onstart: (() => void) | null
+  onresult: ((event: ISpeechRecognitionEvent) => void) | null
+  onerror: (() => void) | null
+  onend: (() => void) | null
+  start(): void
+  stop(): void
+}
+
+type SpeechRecognitionConstructor = new () => ISpeechRecognition
 
 declare global {
   interface Window {
@@ -20,7 +37,7 @@ interface UseSpeechRecognitionResult {
 export function useSpeechRecognition(): UseSpeechRecognitionResult {
   const [isListening, setIsListening] = useState(false)
   const [interim, setInterim] = useState('')
-  const recognitionRef = useRef<SpeechRecognition | null>(null)
+  const recognitionRef = useRef<ISpeechRecognition | null>(null)
   const onResultRef = useRef<((text: string) => void) | null>(null)
 
   const Ctor = typeof window !== 'undefined'
