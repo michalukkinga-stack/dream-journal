@@ -103,7 +103,7 @@ function SheetContent({
     : DREAM_TAGS
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col h-full min-h-0">
       {/* Header: wyszukiwarka + X */}
       <div className="shrink-0 pl-5 pr-14 pt-5 pb-3 relative">
         <button
@@ -142,7 +142,7 @@ function SheetContent({
       </div>
 
       {/* Tagi */}
-      <div className="overflow-y-auto px-5 pb-5">
+      <div className="flex-1 overflow-y-auto min-h-0 px-5 pb-5">
         {filtered.length === 0 ? (
           <p className="font-ui text-white/50 text-sm font-light text-center py-8 tracking-wide">
             Brak pasujących motywów
