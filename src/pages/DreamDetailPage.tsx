@@ -79,7 +79,7 @@ export function DreamDetailPage() {
   return (
     <div className="min-h-screen flex flex-col animate-slide-in-right">
       {/* Header */}
-      <div className="flex items-center justify-between pt-12 px-4 pb-4">
+      <div className="flex items-center justify-between pt-12 px-4 pb-4 md:max-w-[900px] md:mx-auto md:w-full md:px-8">
         <button
           onClick={() => navigate('/home')}
           className="font-ui flex items-center gap-1 text-white/70 hover:text-white transition-colors py-2 pr-3 text-sm font-light tracking-wide"
@@ -109,7 +109,7 @@ export function DreamDetailPage() {
       </div>
 
       {/* Treść snu */}
-      <div className="flex-1 px-5 pb-16 max-w-[900px] mx-auto w-full">
+      <div className="flex-1 px-5 md:px-8 pb-16 max-w-[900px] mx-auto w-full">
         <p className="label-caps mb-4">
           {formatDate(dream.createdAt)}
         </p>

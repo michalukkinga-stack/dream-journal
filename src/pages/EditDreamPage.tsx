@@ -60,7 +60,7 @@ export function EditDreamPage() {
   return (
     <div className="min-h-screen flex flex-col animate-slide-in-right">
       {/* Header */}
-      <div className="flex items-center gap-2 pt-12 px-4 pb-4">
+      <div className="flex items-center gap-2 pt-12 px-4 pb-4 md:max-w-[900px] md:mx-auto md:w-full md:px-8">
         <button
           onClick={handleBack}
           className="font-ui flex items-center gap-1 text-white/70 hover:text-white transition-colors py-2 pr-3 text-sm font-light tracking-wide"
@@ -71,7 +71,7 @@ export function EditDreamPage() {
       </div>
 
       {/* Tytuł ekranu */}
-      <div className="px-5 pb-6 max-w-[900px] mx-auto w-full">
+      <div className="px-5 md:px-8 pb-6 max-w-[900px] mx-auto w-full">
         <p className="label-caps mb-2">Edycja</p>
         <h1 className="font-display text-white text-4xl">Edytuj sen</h1>
         <p className="font-ui text-white/85 text-[0.85rem] font-light mt-1 tracking-wide">
@@ -80,7 +80,7 @@ export function EditDreamPage() {
       </div>
 
       {/* Formularz */}
-      <div className="flex-1 px-5 space-y-2 pb-36 max-w-[900px] mx-auto w-full">
+      <div className="flex-1 px-5 md:px-8 space-y-2 pb-36 max-w-[900px] mx-auto w-full">
 
         {/* Tytuł */}
         <div className="space-y-2">

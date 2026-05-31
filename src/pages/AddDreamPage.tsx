@@ -22,7 +22,7 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
 
   function handleSave() {
     if (!title.trim()) {
-      setError('Tytuł snu jest wymagany.')
+      setError('Nazwij swój sen zanim go zapiszemy.')
       return
     }
     setError('')
