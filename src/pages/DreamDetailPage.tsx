@@ -111,11 +111,9 @@ export function DreamDetailPage() {
           {formatDate(dream.createdAt)}
         </p>
 
-        <h1 className="font-display text-white text-4xl leading-tight mb-6">
+        <h1 className="font-display text-white text-4xl leading-tight mb-5">
           {dream.title}
         </h1>
-
-        <div className="h-px w-12 bg-gradient-to-r from-white/25 to-transparent mb-6" />
 
         {dream.description ? (
           <div
@@ -127,7 +125,7 @@ export function DreamDetailPage() {
         )}
 
         {dream.tags && dream.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-6">
+          <div className="flex flex-wrap gap-2 mt-5">
             {dream.tags.map(tag => (
               <span
                 key={tag}
