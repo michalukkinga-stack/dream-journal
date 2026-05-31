@@ -98,9 +98,11 @@
 }
 
 /* TipTap editor */
-.dream-editor .ProseMirror {
+.dream-editor .ProseMirror,
+.dream-editor-content {
   outline: none;
   color: rgba(255, 255, 255, 0.9);
+  font-family: 'Instrument Sans', system-ui, sans-serif !important;
 }
 
 .dream-editor .ProseMirror p {

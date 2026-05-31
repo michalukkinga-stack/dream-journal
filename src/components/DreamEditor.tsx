@@ -36,7 +36,7 @@ export function DreamEditor({ value, onChange, className }: DreamEditorProps) {
     },
     editorProps: {
       attributes: {
-        class: 'min-h-[180px] outline-none p-4 text-sm leading-relaxed',
+        class: 'min-h-[180px] outline-none p-4 text-sm leading-relaxed dream-editor-content',
       },
     },
   })
