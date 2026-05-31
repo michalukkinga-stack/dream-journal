@@ -75,11 +75,6 @@ export function EditDreamPage() {
 
       {/* Tytuł ekranu */}
       <div className="px-5 md:px-8 pb-6 max-w-[900px] mx-auto w-full">
-        <p className="label-caps mb-2">Edycja</p>
-        <h1 className="font-display text-white text-4xl">Edytuj sen</h1>
-        <p className="font-ui text-white/85 text-[0.85rem] font-light mt-1 tracking-wide">
-          Popraw, co chcesz zmienić
-        </p>
       </div>
 
       {/* Formularz */}

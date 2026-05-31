@@ -61,7 +61,7 @@ export function DreamEditor({ value, onChange, className }: DreamEditorProps) {
             editor.commands.insertContent(text + ' ')
           }
         },
-        (interimText) => {
+        (interimText: string) => {
           if (editor) {
             if (interimLengthRef.current > 0) {
               const pos = editor.state.selection.from

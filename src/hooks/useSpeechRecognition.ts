@@ -30,7 +30,7 @@ interface UseSpeechRecognitionResult {
   isSupported: boolean
   isListening: boolean
   interim: string
-  start: (onResult: (text: string) => void) => void
+  start: (onResult: (text: string) => void, onInterim?: (text: string) => void) => void
   stop: () => void
 }
 
