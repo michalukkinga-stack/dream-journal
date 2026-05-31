@@ -1,17 +1,20 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ChevronLeft, Plus, X } from 'lucide-react'
+import { ChevronLeft, Plus, X, Mic, MicOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DreamEditor } from '@/components/DreamEditor'
 import { TagPicker } from '@/components/TagPicker'
 import { getDreamById, updateDream } from '@/storage/dreamStorage'
+import { useSpeechRecognition } from '@/hooks/useSpeechRecognition'
+import { cn } from '@/lib/utils'
 
 export function EditDreamPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const dream = id ? getDreamById(id) : undefined
 
+  const titleMic = useSpeechRecognition()
   const [title, setTitle] = useState(dream?.title ?? '')
   const [description, setDescription] = useState(dream?.description ?? '')
   const [tags, setTags] = useState<string[]>(dream?.tags ?? [])
@@ -84,19 +87,53 @@ export function EditDreamPage() {
 
         {/* Tytuł */}
         <div className="space-y-2">
-          <Input
-            value={title}
-            onChange={(e) => {
-              setTitle(e.target.value)
-              if (e.target.value.trim()) setError('')
-            }}
-            placeholder="Nazwij swój sen"
-            className="font-ui text-white placeholder:text-white/40
-                       focus-visible:ring-white/20 focus-visible:border-white/30
-                       rounded-xl h-12 text-[0.95rem] font-light tracking-wide
-                       [background:rgba(255,255,255,0.07)] [border-color:rgba(255,255,255,0.12)]
-                       [box-shadow:0_4px_20px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)]"
-          />
+          <div className="relative">
+            <Input
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value)
+                if (e.target.value.trim()) setError('')
+              }}
+              placeholder="Nazwij swój sen"
+              className={cn(
+                'font-ui text-white placeholder:text-white/40',
+                'focus-visible:ring-white/20 focus-visible:border-white/30',
+                'rounded-xl h-12 text-[0.95rem] font-light tracking-wide',
+                '[background:rgba(255,255,255,0.07)] [border-color:rgba(255,255,255,0.12)]',
+                '[box-shadow:0_4px_20px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)]',
+                titleMic.isSupported && 'pr-12'
+              )}
+            />
+            {titleMic.isSupported && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (titleMic.isListening) {
+                    titleMic.stop()
+                  } else {
+                    titleMic.start((text) => {
+                      setTitle(prev => (prev.trim() ? prev.trim() + ' ' : '') + text)
+                      setError('')
+                    })
+                  }
+                }}
+                className={cn(
+                  'absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-150 active:scale-95',
+                  titleMic.isListening
+                    ? 'bg-red-500/25 text-red-300'
+                    : 'text-white/40 hover:text-white/70 hover:bg-white/10'
+                )}
+              >
+                {titleMic.isListening
+                  ? <MicOff size={14} />
+                  : <Mic size={14} />
+                }
+              </button>
+            )}
+          </div>
+          {titleMic.isListening && titleMic.interim && (
+            <p className="text-white/40 text-xs italic px-1">{titleMic.interim}</p>
+          )}
           {error && (
             <p className="text-red-400 text-xs mt-1">{error}</p>
           )}

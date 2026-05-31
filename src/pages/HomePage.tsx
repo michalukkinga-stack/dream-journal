@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getDreams, formatDate, storage } from '@/storage/dreamStorage'
+import { getDreams, storage } from '@/storage/dreamStorage'
 import { Dream } from '@/types/dream'
 import { DreamCard } from '@/components/DreamCard'
 import { FAB } from '@/components/FAB'
@@ -17,7 +17,6 @@ export function HomePage() {
     return () => window.removeEventListener('focus', onFocus)
   }, [])
 
-  const lastDream = dreams[0]
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -31,11 +30,6 @@ export function HomePage() {
               ? 'razem złapaliśmy już 1 sen.'
               : `razem złapaliśmy już ${dreams.length} sny.`}
           </p>
-          {lastDream && (
-            <p className="font-ui text-white/70 text-xs font-light tracking-wide mt-2">
-              ostatni zapis {formatDate(lastDream.createdAt)}
-            </p>
-          )}
         </div>
       )}
 
@@ -53,7 +47,7 @@ export function HomePage() {
         </div>
       )}
 
-      <FAB label="Zapisz sen" />
+      <FAB label="Zapisz nowy sen" />
     </div>
   )
 }
