@@ -80,19 +80,17 @@ function SheetContent({
     : DREAM_TAGS
 
   return (
-    <>
-      {/* X */}
-      <button
-        onClick={onClose}
-        className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/10
-                   flex items-center justify-center z-10
-                   text-white/60 hover:text-white transition-colors"
-      >
-        <X size={16} />
-      </button>
-
-      {/* Wyszukiwarka */}
-      <div className="pl-5 pr-14 pt-5 pb-3 shrink-0">
+    <div className="flex flex-col h-full">
+      {/* Sticky header: wyszukiwarka + X */}
+      <div className="shrink-0 pl-5 pr-14 pt-5 pb-3 relative">
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/10
+                     flex items-center justify-center z-10
+                     text-white/60 hover:text-white transition-colors"
+        >
+          <X size={16} />
+        </button>
         <div className="relative">
           <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
           <input
@@ -120,8 +118,8 @@ function SheetContent({
         </div>
       </div>
 
-      {/* Tagi */}
-      <div className="flex-1 overflow-y-auto px-5 pb-2">
+      {/* Tagi — przewijana zawartość */}
+      <div className="flex-1 overflow-y-auto px-5 pb-6">
         {filtered.length === 0 ? (
           <p className="font-ui text-white/50 text-sm font-light text-center py-8 tracking-wide">
             Brak pasujących motywów
@@ -154,21 +152,6 @@ function SheetContent({
           </div>
         )}
       </div>
-
-      {/* Footer */}
-      <div className="px-5 pt-3 pb-6 border-t border-white/10 shrink-0">
-        <button
-          onClick={onClose}
-          className="font-ui w-full rounded-full py-3.5
-                     bg-gradient-to-r from-[#533483] to-[#6a44a0]
-                     text-white font-medium text-[0.95rem] tracking-wide
-                     shadow-lg shadow-purple-900/40
-                     hover:from-[#6a44a0] hover:to-[#7d55b8]
-                     active:scale-[0.98] transition-all duration-150"
-        >
-          Zapisz
-        </button>
-      </div>
-    </>
+    </div>
   )
 }
