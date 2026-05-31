@@ -35,10 +35,10 @@ export function MoonIcon({ className }: { className?: string }) {
         <circle cx="100" cy="100" r="80" fill="none" stroke="white" strokeWidth="1.7" />
       </g>
       <g opacity="0.92">
-        <Sparkle cx={148} cy={93}  r={18} />
-        <Sparkle cx={126} cy={62}  r={10} />
-        <Sparkle cx={164} cy={128} r={7}  />
-        <Sparkle cx={88}  cy={100} r={8}  />
+        <Sparkle cx={148} cy={133} r={18} />
+        <Sparkle cx={126} cy={102} r={10} />
+        <Sparkle cx={164} cy={168} r={7}  />
+        <Sparkle cx={88}  cy={140} r={8}  />
       </g>
     </svg>
   )

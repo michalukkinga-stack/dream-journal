@@ -31,7 +31,7 @@ export function WelcomePage() {
       {/* Tytuł i podtytuł */}
       <div className="pt-12 px-8 text-center shrink-0">
         <h1 className="font-display text-white text-4xl mb-3">
-          Łapacz snów
+          Dziennik snów
         </h1>
         <p className="font-ui text-white/65 text-base font-light">
           Miejsce na sny, które warto zapamiętać.
