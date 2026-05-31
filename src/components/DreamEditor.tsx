@@ -53,12 +53,13 @@ export function DreamEditor({ value, onChange, className }: DreamEditorProps) {
   }
 
   return (
-    <div className={cn('space-y-1', className)}>
+    <div className={cn('relative', className)}>
       <div
         className={cn(
           'dream-editor rounded-xl backdrop-blur-sm transition-shadow',
           '[background:rgba(255,255,255,0.07)] [border:1px_solid_rgba(255,255,255,0.12)] [box-shadow:0_4px_20px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)]',
           'focus-within:[border-color:rgba(255,255,255,0.25)] focus-within:[box-shadow:0_4px_20px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.15),inset_0_1px_0_rgba(255,255,255,0.06)]',
+          isSupported && 'pb-8',
         )}
       >
         <EditorContent editor={editor} />
@@ -68,20 +69,18 @@ export function DreamEditor({ value, onChange, className }: DreamEditorProps) {
       </div>
 
       {isSupported && (
-        <div className="flex justify-end pr-1">
-          <button
-            type="button"
-            onClick={toggleMic}
-            className={cn(
-              'w-7 h-7 rounded-full flex items-center justify-center transition-all duration-150 active:scale-95',
-              isListening
-                ? 'bg-red-500/25 text-red-300'
-                : 'text-white/40 hover:text-white/70 hover:bg-white/10'
-            )}
-          >
-            {isListening ? <MicOff size={14} /> : <Mic size={14} />}
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={toggleMic}
+          className={cn(
+            'absolute bottom-2 right-2 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-150 active:scale-95',
+            isListening
+              ? 'bg-red-500/25 text-red-300'
+              : 'text-white/40 hover:text-white/70 hover:bg-white/10'
+          )}
+        >
+          {isListening ? <MicOff size={14} /> : <Mic size={14} />}
+        </button>
       )}
     </div>
   )
