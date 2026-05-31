@@ -36,8 +36,8 @@ function DesktopSidebar({ dreams }: { dreams: Dream[] }) {
       {/* Dream list */}
       <div className="flex-1 overflow-y-auto px-3 pt-5 pb-3 space-y-2">
         {dreams.length === 0 ? (
-          <p className="font-ui text-white/75 text-xs font-light text-center py-8 tracking-wide">
-            Cześć {userName}! Sny szybko uciekają.<br />Złap pierwszy, który pamiętasz.
+          <p className="font-ui text-white/90 text-[0.95rem] font-light text-center py-8 leading-relaxed tracking-wide">
+            Cześć {userName}!<br />Zapisz pierwszy sen, zanim ucieknie!
           </p>
         ) : (
           dreams.map((dream) => (
