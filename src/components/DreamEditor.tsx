@@ -1,7 +1,8 @@
+import { useRef } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
-import { Mic, MicOff } from 'lucide-react'
+import { Mic } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition'
 
@@ -12,7 +13,8 @@ interface DreamEditorProps {
 }
 
 export function DreamEditor({ value, onChange, className }: DreamEditorProps) {
-  const { isSupported, isListening, interim, start, stop } = useSpeechRecognition()
+  const { isSupported, isListening, start, stop } = useSpeechRecognition()
+  const interimLengthRef = useRef(0)
 
   const editor = useEditor({
     extensions: [
@@ -42,13 +44,34 @@ export function DreamEditor({ value, onChange, className }: DreamEditorProps) {
   function toggleMic() {
     if (isListening) {
       stop()
+      if (editor && interimLengthRef.current > 0) {
+        const pos = editor.state.selection.from
+        editor.commands.deleteRange({ from: pos - interimLengthRef.current, to: pos })
+        interimLengthRef.current = 0
+      }
     } else {
-      start((text) => {
-        if (editor) {
-          editor.commands.focus()
-          editor.commands.insertContent(text + ' ')
+      start(
+        (text) => {
+          if (editor) {
+            if (interimLengthRef.current > 0) {
+              const pos = editor.state.selection.from
+              editor.commands.deleteRange({ from: pos - interimLengthRef.current, to: pos })
+              interimLengthRef.current = 0
+            }
+            editor.commands.insertContent(text + ' ')
+          }
+        },
+        (interimText) => {
+          if (editor) {
+            if (interimLengthRef.current > 0) {
+              const pos = editor.state.selection.from
+              editor.commands.deleteRange({ from: pos - interimLengthRef.current, to: pos })
+            }
+            editor.commands.insertContent(interimText)
+            interimLengthRef.current = interimText.length
+          }
         }
-      })
+      )
     }
   }
 
@@ -63,9 +86,6 @@ export function DreamEditor({ value, onChange, className }: DreamEditorProps) {
         )}
       >
         <EditorContent editor={editor} />
-        {interim && (
-          <p className="px-4 pb-3 text-sm text-white/40 italic">{interim}</p>
-        )}
       </div>
 
       {isSupported && (
@@ -79,7 +99,7 @@ export function DreamEditor({ value, onChange, className }: DreamEditorProps) {
               : 'text-white/40 hover:text-white/70 hover:bg-white/10'
           )}
         >
-          {isListening ? <MicOff size={14} /> : <Mic size={14} />}
+          <Mic size={14} />
         </button>
       )}
     </div>

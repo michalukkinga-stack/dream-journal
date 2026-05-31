@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Mic, MicOff } from 'lucide-react'
+import { Mic } from 'lucide-react'
 import { storage } from '@/storage/dreamStorage'
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition'
 import { cn } from '@/lib/utils'
@@ -49,8 +49,8 @@ export function WelcomePage() {
           <input
             type="text"
             placeholder="Twoje imię"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={mic.isListening ? (name ? name + ' ' : '') + (mic.interim || '') : name}
+            onChange={(e) => { if (!mic.isListening) setName(e.target.value) }}
             onKeyDown={(e) => e.key === 'Enter' && handleStart()}
             className={cn(
               'w-full border border-white/20 rounded-xl px-4 py-3 font-ui text-white placeholder:text-white/35 bg-white/10 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-white/25',
@@ -74,7 +74,7 @@ export function WelcomePage() {
                   : 'text-white/40 hover:text-white/70 hover:bg-white/10'
               )}
             >
-              {mic.isListening ? <MicOff size={14} /> : <Mic size={14} />}
+              <Mic size={14} />
             </button>
           )}
         </div>

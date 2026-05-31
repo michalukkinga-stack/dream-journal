@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronLeft, Plus, X, Mic, MicOff } from 'lucide-react'
+import { ChevronLeft, Plus, X, Mic } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DreamEditor } from '@/components/DreamEditor'
@@ -77,10 +77,12 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
         <div className="space-y-2">
           <div className="relative">
             <Input
-              value={title}
+              value={titleMic.isListening ? (title ? title + ' ' : '') + (titleMic.interim || '') : title}
               onChange={(e) => {
-                setTitle(e.target.value)
-                if (e.target.value.trim()) setError('')
+                if (!titleMic.isListening) {
+                  setTitle(e.target.value)
+                  if (e.target.value.trim()) setError('')
+                }
               }}
               placeholder="Nazwij swój sen"
               className={cn(
@@ -112,16 +114,10 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
                     : 'text-white/40 hover:text-white/70 hover:bg-white/10'
                 )}
               >
-                {titleMic.isListening
-                  ? <MicOff size={14} />
-                  : <Mic size={14} />
-                }
+                <Mic size={14} />
               </button>
             )}
           </div>
-          {titleMic.isListening && titleMic.interim && (
-            <p className="text-white/40 text-xs italic px-1">{titleMic.interim}</p>
-          )}
           {error && (
             <p className="text-red-400 text-xs mt-1">{error}</p>
           )}

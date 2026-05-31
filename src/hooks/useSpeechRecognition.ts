@@ -50,7 +50,7 @@ export function useSpeechRecognition(): UseSpeechRecognitionResult {
     recognitionRef.current?.stop()
   }, [])
 
-  const start = useCallback((onResult: (text: string) => void) => {
+  const start = useCallback((onResult: (text: string) => void, onInterim?: (text: string) => void) => {
     if (!Ctor) return
     stop()
 
@@ -77,7 +77,10 @@ export function useSpeechRecognition(): UseSpeechRecognitionResult {
           interimText += result[0].transcript
         }
       }
-      setInterim(interimText)
+      if (interimText) {
+        setInterim(interimText)
+        onInterim?.(interimText)
+      }
       if (finalText) {
         onResultRef.current?.(finalText.trim())
         setInterim('')
