@@ -35,7 +35,7 @@ export function WelcomePage() {
 
       {/* Ikona łapacza snów — centrum ekranu */}
       <div className="flex-1 min-h-0 flex items-center justify-center py-2">
-        <NightSphereIcon />
+        <MoonIcon />
       </div>
 
       {/* Pole na imię */}
@@ -72,48 +72,23 @@ export function WelcomePage() {
   )
 }
 
-/* ── Ikona księżyca ─────────────────────────────────────────── */
+/* ── Ikona księżyca (sierp) ─────────────────────────────────── */
 
-function sp(cx: number, cy: number, r: number) {
-  const s = r * 0.28
-  return `M${cx},${cy-r} C${cx+s},${cy-s} ${cx+s},${cy-s} ${cx+r},${cy} C${cx+s},${cy+s} ${cx+s},${cy+s} ${cx},${cy+r} C${cx-s},${cy+s} ${cx-s},${cy+s} ${cx-r},${cy} C${cx-s},${cy-s} ${cx-s},${cy-s} ${cx},${cy-r} Z`
-}
-
-function dot(cx: number, cy: number, r: number) {
-  return `M${cx-r},${cy} a${r},${r} 0 1,0 ${2*r},0 a${r},${r} 0 1,0 ${-2*r},0 Z`
-}
-
-function NightSphereIcon() {
-  // Iskierki dookoła koła (pełny okrąg, równomiernie + kilka dodatkowych)
-  const outer = [
-    { cx: 100, cy: -12, r: 5   },
-    { cx: 155, cy: 5,   r: 3.5 },
-    { cx: 196, cy: 52,  r: 4.5 },
-    { cx: 210, cy: 100, r: 6   },
-    { cx: 196, cy: 150, r: 4   },
-    { cx: 158, cy: 196, r: 5   },
-    { cx: 100, cy: 212, r: 3.5 },
-    { cx: 44,  cy: 196, r: 4.5 },
-    { cx: 4,   cy: 150, r: 3.5 },
-    { cx: -10, cy: 100, r: 5   },
-    { cx: 4,   cy: 50,  r: 4   },
-    { cx: 44,  cy: 6,   r: 3.5 },
-  ]
-
+function MoonIcon() {
   return (
     <svg
-      viewBox="-24 -24 248 248"
-      aria-label="Nocne niebo"
+      viewBox="0 0 200 200"
+      aria-label="Księżyc"
       className="w-auto h-full max-h-[220px]"
-      style={{ filter: 'drop-shadow(0 4px 24px rgba(100,70,160,0.25))', opacity: 0.5 }}
+      style={{ filter: 'drop-shadow(0 4px 24px rgba(100,70,160,0.18))', opacity: 0.5 }}
     >
-      {/* Pełne białe koło */}
-      <circle cx="100" cy="100" r="90" fill="white" />
-
-      {/* Białe iskierki dookoła */}
-      {outer.map(({ cx, cy, r }, i) => (
-        <path key={i} d={sp(cx, cy, r)} fill="white" />
-      ))}
+      <defs>
+        <mask id="moon-mask">
+          <rect width="200" height="200" fill="white" />
+          <circle cx="134" cy="100" r="72" fill="black" />
+        </mask>
+      </defs>
+      <circle cx="100" cy="100" r="80" fill="white" mask="url(#moon-mask)" />
     </svg>
   )
 }

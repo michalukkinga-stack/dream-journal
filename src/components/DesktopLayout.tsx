@@ -129,7 +129,7 @@ export function DesktopLayout() {
                             bg-white/20 backdrop-blur-sm text-white font-ui text-[1.75rem] font-medium tracking-wide
                             border border-white/30 shadow-lg
                             animate-fade-in">
-              Zapisano ✓
+              Sen zapisany ✓
             </div>
           )}
           {showAddForm

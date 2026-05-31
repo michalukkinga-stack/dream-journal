@@ -6,21 +6,18 @@ import { getDreamById, formatDate, deleteDream } from '@/storage/dreamStorage'
 function DeleteContent({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
   return (
     <>
-      {/* Nagłówek z krzyżykiem */}
-      <div className="flex items-start justify-between mb-3">
-        <p className="font-display text-white text-xl leading-snug">
-          Na pewno usuwamy ten sen.
-        </p>
-        <button
-          onClick={onCancel}
-          className="ml-4 shrink-0 w-8 h-8 rounded-full flex items-center justify-center
-                     text-white/60 hover:text-white hover:bg-white/10
-                     transition-all duration-150"
-        >
-          <X size={18} />
-        </button>
-      </div>
-      <p className="font-ui text-white/75 text-sm font-light mb-8">
+      <button
+        onClick={onCancel}
+        className="absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center
+                   text-white/60 hover:text-white hover:bg-white/10
+                   transition-all duration-150"
+      >
+        <X size={18} />
+      </button>
+      <p className="font-display text-white text-xl leading-snug font-bold">
+        Na pewno chcesz usunąć ten sen?
+      </p>
+      <p className="font-ui text-white/75 text-sm font-light mb-8" style={{ marginTop: '4px' }}>
         Nie można tego cofnąć.
       </p>
       <div className="flex gap-3">
@@ -134,8 +131,8 @@ export function DreamDetailPage() {
             {dream.tags.map(tag => (
               <span
                 key={tag}
-                className="font-ui px-3 py-1.5 rounded-full text-xs font-light tracking-wide
-                           border border-white/25 text-white/90 bg-white/10"
+                className="font-ui px-4 h-7 flex items-center rounded-full text-sm font-light tracking-wide
+                           border border-[#2a1a4a] text-[#2a1a4a] bg-white/60"
               >
                 {tag}
               </span>
@@ -154,7 +151,7 @@ export function DreamDetailPage() {
 
           {/* Mobile – sheet od dołu */}
           <div
-            className="md:hidden fixed bottom-0 left-0 right-0 z-50
+            className="md:hidden fixed bottom-0 left-0 right-0 z-50 relative
                        rounded-t-3xl border-t border-white/10 p-5 pb-10"
             style={{ background: '#3D4254' }}
           >
@@ -167,7 +164,7 @@ export function DreamDetailPage() {
           {/* Desktop – modal wyśrodkowany */}
           <div className="hidden md:flex fixed inset-0 z-50 items-center justify-center p-6">
             <div
-              className="w-full max-w-sm rounded-2xl shadow-xl p-5"
+              className="relative w-full max-w-sm rounded-2xl shadow-xl p-5"
               style={{
                 background: '#3D4254',
                 border: '1px solid rgba(255,255,255,0.12)',
