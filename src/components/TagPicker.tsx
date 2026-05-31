@@ -48,7 +48,7 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
       {/* ── DESKTOP centered dialog ── */}
       <div className="hidden md:flex fixed inset-0 z-50 items-center justify-center p-6">
         <div
-          className="relative w-full max-w-lg rounded-2xl shadow-xl flex flex-col"
+          className="relative w-full max-w-[900px] rounded-2xl shadow-xl flex flex-col"
           style={{
             height: '72vh',
             background: '#3D4254',
