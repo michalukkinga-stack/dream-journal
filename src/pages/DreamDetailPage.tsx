@@ -166,7 +166,7 @@ export function DreamDetailPage() {
             <div
               className="relative w-full max-w-sm rounded-2xl shadow-xl p-5"
               style={{
-                background: 'linear-gradient(170deg, #3D4254 0%, #7A465B 50%, #16323F 100%)',
+                background: '#7A465B',
                 border: '1px solid rgba(255,255,255,0.12)',
                 backdropFilter: 'blur(24px)',
               }}
