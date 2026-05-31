@@ -53,9 +53,6 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
           </div>
           <div className="px-5 pb-6">
             <h1 className="font-display text-white text-4xl">Nowy sen</h1>
-            <p className="font-ui text-white/85 text-[0.85rem] font-light mt-1 tracking-wide">
-              Zapisz zanim zniknie
-            </p>
           </div>
         </>
       )}
@@ -64,9 +61,6 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
       {desktopMode && (
         <div className="w-full max-w-[900px] mx-auto px-8 pt-6 pb-4">
           <h1 className="font-display text-white text-4xl">Nowy sen</h1>
-          <p className="font-ui text-white/85 text-[0.85rem] font-light mt-1 tracking-wide">
-            Zapisz zanim zniknie
-          </p>
         </div>
       )}
 
