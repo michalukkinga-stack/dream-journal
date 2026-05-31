@@ -10,17 +10,29 @@ interface TagPickerProps {
 }
 
 export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
+  const [desktopSelected, setDesktopSelected] = useState(selected)
+
   useEffect(() => {
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = '' }
   }, [])
 
-  function toggle(tag: string) {
-    if (selected.includes(tag)) {
-      onChange(selected.filter(t => t !== tag))
-    } else {
-      onChange([...selected, tag])
-    }
+  function toggleMobile(tag: string) {
+    const next = selected.includes(tag)
+      ? selected.filter(t => t !== tag)
+      : [...selected, tag]
+    onChange(next)
+  }
+
+  function toggleDesktop(tag: string) {
+    setDesktopSelected(prev =>
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    )
+  }
+
+  function handleDesktopSave() {
+    onChange(desktopSelected)
+    onClose()
   }
 
   return (
@@ -41,7 +53,7 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
           backdropFilter: 'blur(20px)',
         }}
       >
-        <SheetContent selected={selected} onClose={onClose} toggle={toggle} />
+        <SheetContent selected={selected} onClose={onClose} toggle={toggleMobile} />
       </div>
 
       {/* ── DESKTOP centered dialog ── */}
@@ -55,7 +67,12 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          <SheetContent selected={selected} onClose={onClose} toggle={toggle} />
+          <SheetContent
+            selected={desktopSelected}
+            onClose={onClose}
+            toggle={toggleDesktop}
+            onSave={handleDesktopSave}
+          />
         </div>
       </div>
     </>
@@ -66,10 +83,12 @@ function SheetContent({
   selected,
   onClose,
   toggle,
+  onSave,
 }: {
   selected: string[]
   onClose: () => void
   toggle: (tag: string) => void
+  onSave?: () => void
 }) {
   const [query, setQuery] = useState('')
 
@@ -79,7 +98,7 @@ function SheetContent({
 
   return (
     <div className="flex flex-col">
-      {/* Sticky header: wyszukiwarka + X */}
+      {/* Header: wyszukiwarka + X */}
       <div className="shrink-0 pl-5 pr-14 pt-5 pb-3 relative">
         <button
           onClick={onClose}
@@ -116,7 +135,7 @@ function SheetContent({
         </div>
       </div>
 
-      {/* Tagi — przewijana zawartość */}
+      {/* Tagi */}
       <div className="overflow-y-auto px-5 pb-5">
         {filtered.length === 0 ? (
           <p className="font-ui text-white/50 text-sm font-light text-center py-8 tracking-wide">
@@ -150,6 +169,23 @@ function SheetContent({
           </div>
         )}
       </div>
+
+      {/* Przycisk Zapisz — tylko desktop */}
+      {onSave && (
+        <div className="shrink-0 flex justify-end px-5 pb-5">
+          <button
+            onClick={onSave}
+            className="font-ui h-14 px-8 rounded-full
+                       bg-gradient-to-r from-[#533483] to-[#6a44a0]
+                       text-white font-medium text-[0.95rem] tracking-wide
+                       shadow-lg shadow-purple-900/50
+                       hover:from-[#6a44a0] hover:to-[#7d55b8]
+                       active:scale-[0.98] transition-all duration-150"
+          >
+            Zapisz
+          </button>
+        </div>
+      )}
     </div>
   )
 }
