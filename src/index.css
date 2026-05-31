@@ -118,7 +118,7 @@
   float: left;
   height: 0;
   white-space: pre-line;
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: 'Instrument Sans', system-ui, sans-serif;
 }
 
 /* Prose content w szczegółach snu */

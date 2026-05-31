@@ -91,7 +91,14 @@ function DesktopSidebar({ dreams }: { dreams: Dream[] }) {
 export function DesktopLayout() {
   const isDesktop = useIsDesktop()
   const location = useLocation()
+  const navigate = useNavigate()
   const [dreams, setDreams] = useState<Dream[]>(() => getDreams())
+
+  useEffect(() => {
+    if (!storage.get('userName')) {
+      navigate('/', { replace: true })
+    }
+  }, [])
   const [formKey, setFormKey] = useState(0)
   const [showSaved, setShowSaved] = useState(false)
 
