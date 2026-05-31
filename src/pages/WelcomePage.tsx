@@ -148,6 +148,7 @@ function MoonIcon() {
         <Sparkle cx={148} cy={93}  r={18} />
         <Sparkle cx={126} cy={62}  r={10} />
         <Sparkle cx={164} cy={128} r={7}  />
+        <Sparkle cx={88}  cy={100} r={8}  />
       </g>
     </svg>
   )
