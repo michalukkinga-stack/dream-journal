@@ -177,6 +177,12 @@ function SheetContent({
       </div>
 
       {onSave && (
+        <div
+          className="shrink-0 h-8 pointer-events-none"
+          style={{ background: 'linear-gradient(to bottom, transparent, #3D4254)' }}
+        />
+      )}
+      {onSave && (
         <div className={`shrink-0 px-5 pb-5 ${fullWidth ? '' : 'flex justify-end'}`}>
           <button
             onClick={onSave}
