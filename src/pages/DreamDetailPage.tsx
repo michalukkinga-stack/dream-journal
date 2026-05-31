@@ -153,7 +153,7 @@ export function DreamDetailPage() {
           <div
             className="md:hidden fixed bottom-0 left-0 right-0 z-50 relative
                        rounded-t-3xl border-t border-white/10 p-5 pb-10"
-            style={{ background: 'linear-gradient(170deg, #3D4254 0%, #7A465B 50%, #16323F 100%)' }}
+            style={{ background: '#3D4254' }}
           >
             <div className="flex justify-center mb-5">
               <div className="w-10 h-1 rounded-full bg-white/20" />
@@ -166,7 +166,7 @@ export function DreamDetailPage() {
             <div
               className="relative w-full max-w-sm rounded-2xl shadow-xl p-5"
               style={{
-                background: '#16323F',
+                background: '#3D4254',
                 border: '1px solid rgba(255,255,255,0.12)',
                 backdropFilter: 'blur(24px)',
               }}
