@@ -37,14 +37,14 @@ export function DreamCard({ dream }: DreamCardProps) {
               <span
                 key={tag}
                 className="font-ui px-2.5 py-1 rounded-full text-[0.7rem] font-light tracking-wide whitespace-nowrap
-                           border border-white/25 text-white/90 bg-white/10"
+                           border border-[#2a1a4a] text-[#2a1a4a] bg-white/60"
               >
                 {tag}
               </span>
             ))}
             {overflow > 0 && (
               <span className="font-ui px-2.5 py-1 rounded-full text-[0.7rem] font-medium whitespace-nowrap
-                               border border-white/25 text-white/90 bg-white/10">
+                               border border-[#2a1a4a] text-[#2a1a4a] bg-white/60">
                 +{overflow}
               </span>
             )}

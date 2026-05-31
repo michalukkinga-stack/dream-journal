@@ -42,7 +42,7 @@ export function HomePage() {
       {dreams.length === 0 ? (
         <div className="flex-1 flex items-center justify-center px-8 pb-36">
           <p className="font-ui text-white/90 text-[1.05rem] font-light text-center leading-relaxed tracking-wide">
-            Cześć {storage.get('userName') ?? 'nieznajomy'}! Sny szybko uciekają.<br />Złap pierwszy, który pamiętasz.
+            Cześć {storage.get('userName') ?? 'nieznajomy'}!<br />Zapisz pierwszy sen, zanim ucieknie!
           </p>
         </div>
       ) : (
@@ -53,7 +53,7 @@ export function HomePage() {
         </div>
       )}
 
-      <FAB label={dreams.length === 0 ? 'Złapmy pierwszy sen' : 'Złapmy następny!'} />
+      <FAB label="Zapisz sen" />
     </div>
   )
 }

@@ -79,16 +79,17 @@ function MoonIcon() {
     <svg
       viewBox="0 0 200 200"
       aria-label="Księżyc"
-      className="w-auto h-full max-h-[220px]"
+      className="w-auto h-full max-h-[380px]"
       style={{ filter: 'drop-shadow(0 4px 24px rgba(100,70,160,0.18))', opacity: 0.5 }}
     >
       <defs>
         <mask id="moon-mask">
           <rect width="200" height="200" fill="white" />
-          <circle cx="134" cy="100" r="72" fill="black" />
+          <circle cx="66" cy="100" r="72" fill="black" />
         </mask>
       </defs>
       <circle cx="100" cy="100" r="80" fill="white" mask="url(#moon-mask)" />
+      <circle cx="100" cy="100" r="80" fill="none" stroke="white" strokeWidth="1.7" />
     </svg>
   )
 }

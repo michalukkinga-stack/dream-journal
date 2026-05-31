@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronLeft, Plus } from 'lucide-react'
+import { ChevronLeft, Plus, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DreamEditor } from '@/components/DreamEditor'
@@ -100,20 +100,24 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
           {tags.length > 0 ? (
             <div className="flex flex-wrap gap-2 items-center">
               {tags.map(tag => (
-                <span
+                <button
                   key={tag}
-                  className="font-ui px-3 py-1.5 rounded-full text-xs font-light tracking-wide
-                             border border-white/25 text-white/90 bg-white/10"
+                  type="button"
+                  onClick={() => setTags(tags.filter(t => t !== tag))}
+                  className="font-ui flex items-center gap-1.5 pl-4 pr-3 h-7 rounded-full text-sm font-light tracking-wide
+                             border border-[#2a1a4a] text-[#2a1a4a] bg-white/60
+                             hover:bg-white/80 transition-all duration-150 active:scale-95"
                 >
                   {tag}
-                </span>
+                  <X size={11} className="opacity-60 shrink-0" />
+                </button>
               ))}
               <button
                 type="button"
                 onClick={() => setShowPicker(true)}
-                className="w-7 h-7 rounded-full border border-white/25 text-white/90
-                           flex items-center justify-center bg-white/10
-                           hover:bg-white/20 transition-all duration-150 active:scale-95"
+                className="w-7 h-7 rounded-full border border-[#2a1a4a] text-[#2a1a4a]
+                           flex items-center justify-center bg-white/60
+                           hover:bg-white/80 transition-all duration-150 active:scale-95"
               >
                 <Plus size={13} />
               </button>
@@ -122,9 +126,9 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
             <button
               type="button"
               onClick={() => setShowPicker(true)}
-              className="font-ui flex items-center gap-2 px-4 py-2.5 rounded-full
-                         border border-white/25 text-white/90 text-sm font-light tracking-wide
-                         bg-white/10 hover:bg-white/20
+              className="font-ui flex items-center gap-2 px-4 h-7 rounded-full
+                         border border-[#2a1a4a] text-[#2a1a4a] text-[0.95rem] font-medium tracking-wide
+                         bg-white/60 hover:bg-white/80
                          transition-all duration-150 active:scale-95"
             >
               <Plus size={14} />
@@ -132,24 +136,40 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
             </button>
           )}
         </div>
+
+        {/* Przycisk zapisu – tylko desktop, pod motywami, wyrównany do prawej */}
+        {desktopMode && (
+          <div className="flex justify-end pt-4">
+            <Button
+              onClick={handleSave}
+              className="font-ui h-12 rounded-full bg-gradient-to-r from-[#533483] to-[#6a44a0]
+                         text-white font-medium text-[0.95rem] tracking-wide
+                         shadow-lg shadow-purple-900/50
+                         hover:from-[#6a44a0] hover:to-[#7d55b8]
+                         active:scale-[0.98] transition-all duration-150 border-0"
+              style={{ paddingLeft: '20px', paddingRight: '20px' }}
+            >
+              Zapisz sen
+            </Button>
+          </div>
+        )}
       </div>
 
-      {/* Przycisk zapisu */}
-      <div className={desktopMode
-        ? 'w-full max-w-[900px] mx-auto px-8 pb-10 pt-4'
-        : 'sticky bottom-0 p-4 pb-8 bg-gradient-to-t from-black/40 to-transparent'
-      }>
-        <Button
-          onClick={handleSave}
-          className="font-ui w-full h-14 rounded-full bg-gradient-to-r from-[#533483] to-[#6a44a0]
-                     text-white font-medium text-[0.95rem] tracking-wide
-                     shadow-lg shadow-purple-900/50
-                     hover:from-[#6a44a0] hover:to-[#7d55b8]
-                     active:scale-[0.98] transition-all duration-150 border-0"
-        >
-          Zapisz sen
-        </Button>
-      </div>
+      {/* Przycisk zapisu – mobile */}
+      {!desktopMode && (
+        <div className="sticky bottom-0 p-4 pb-8 bg-gradient-to-t from-black/40 to-transparent">
+          <Button
+            onClick={handleSave}
+            className="font-ui w-full h-14 rounded-full bg-gradient-to-r from-[#533483] to-[#6a44a0]
+                       text-white font-medium text-[0.95rem] tracking-wide
+                       shadow-lg shadow-purple-900/50
+                       hover:from-[#6a44a0] hover:to-[#7d55b8]
+                       active:scale-[0.98] transition-all duration-150 border-0"
+          >
+            Zapisz sen
+          </Button>
+        </div>
+      )}
 
       {showPicker && (
         <TagPicker

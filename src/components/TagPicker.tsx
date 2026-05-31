@@ -135,11 +135,11 @@ function SheetContent({
                   key={tag}
                   onClick={() => toggle(tag)}
                   className={[
-                    'px-4 py-2 rounded-full text-sm font-ui font-light tracking-wide',
+                    'px-4 h-7 rounded-full text-sm font-ui tracking-wide',
                     'border transition-all duration-150 active:scale-95',
                     isSelected
-                      ? 'border-white/60 text-white bg-white/20 font-medium'
-                      : 'border-white/22 text-white/85 bg-white/8 hover:border-white/40 hover:text-white',
+                      ? 'border-[#2a1a4a] text-[#2a1a4a] bg-white/90 font-medium'
+                      : 'border-[#2a1a4a]/50 text-[#2a1a4a] bg-white/60 font-light hover:bg-white/80',
                   ].join(' ')}
                 >
                   <Highlighter

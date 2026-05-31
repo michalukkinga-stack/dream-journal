@@ -66,14 +66,14 @@ function DesktopSidebar({ dreams }: { dreams: Dream[] }) {
                       <span
                         key={tag}
                         className="font-ui px-2 py-0.5 rounded-full text-[0.65rem] font-light whitespace-nowrap
-                                   border border-white/25 text-white/90 bg-white/10"
+                                   border border-[#2a1a4a] text-[#2a1a4a] bg-white/60"
                       >
                         {tag}
                       </span>
                     ))}
                     {dream.tags.length > 3 && (
                       <span className="font-ui px-2 py-0.5 rounded-full text-[0.65rem] font-medium whitespace-nowrap
-                                       border border-white/25 text-white/90 bg-white/10">
+                                       border border-[#2a1a4a] text-[#2a1a4a] bg-white/60">
                         +{dream.tags.length - 3}
                       </span>
                     )}
