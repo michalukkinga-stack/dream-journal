@@ -75,7 +75,7 @@ export function DreamEditor({ value, onChange, className }: DreamEditorProps) {
           className={cn(
             'absolute bottom-2 right-2 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-150 active:scale-95',
             isListening
-              ? 'bg-red-500/25 text-red-300'
+              ? 'bg-green-500/20 text-green-400 shadow-[0_0_8px_2px_rgba(74,222,128,0.35)] animate-pulse'
               : 'text-white/40 hover:text-white/70 hover:bg-white/10'
           )}
         >

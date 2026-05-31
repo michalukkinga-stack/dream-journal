@@ -69,7 +69,7 @@ export function WelcomePage() {
               className={cn(
                 'absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-150 active:scale-95',
                 mic.isListening
-                  ? 'bg-red-500/25 text-red-300'
+                  ? 'bg-green-500/20 text-green-400 shadow-[0_0_8px_2px_rgba(74,222,128,0.35)] animate-pulse'
                   : 'text-white/40 hover:text-white/70 hover:bg-white/10'
               )}
             >
