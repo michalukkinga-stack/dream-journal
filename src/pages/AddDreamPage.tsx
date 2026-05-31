@@ -42,7 +42,7 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
       {/* Header – tylko mobile */}
       {!desktopMode && (
         <>
-          <div className="flex items-center gap-2 pt-12 px-4 pb-4">
+          <div className="flex items-center gap-2 pt-12 px-4 pb-5">
             <button
               onClick={() => navigate(-1)}
               className="font-ui flex items-center gap-1 text-white/70 hover:text-white transition-colors py-2 pr-3 text-sm font-light tracking-wide"

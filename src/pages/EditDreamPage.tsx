@@ -63,7 +63,7 @@ export function EditDreamPage() {
   return (
     <div className="min-h-screen flex flex-col animate-slide-in-right">
       {/* Header */}
-      <div className="flex items-center gap-2 pt-12 px-4 pb-4 md:max-w-[900px] md:mx-auto md:w-full md:px-8">
+      <div className="flex items-center gap-2 pt-12 px-4 pb-5 md:max-w-[900px] md:mx-auto md:w-full md:px-8">
         <button
           onClick={handleBack}
           className="font-ui flex items-center gap-1 text-white/70 hover:text-white transition-colors py-2 pr-3 text-sm font-light tracking-wide"
