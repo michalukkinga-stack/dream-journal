@@ -49,7 +49,7 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
                    rounded-t-3xl border-t border-white/10 animate-slide-up
                    flex flex-col max-h-[67vh]"
         style={{
-          background: '#7A465B',
+          background: '#16323F',
           backdropFilter: 'blur(20px)',
         }}
       >
@@ -61,7 +61,7 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
         <div
           className="relative w-full max-w-[900px] rounded-2xl shadow-xl flex flex-col max-h-[72vh]"
           style={{
-            background: '#7A465B',
+            background: '#16323F',
             backdropFilter: 'blur(24px)',
             border: '1px solid rgba(255,255,255,0.12)',
           }}
