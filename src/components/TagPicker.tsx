@@ -178,10 +178,13 @@ function SheetContent({
         </div>
 
         {onSave && (
-          <div className={`absolute bottom-0 left-0 right-0 z-10 px-5 pb-5 ${fullWidth ? '' : 'flex justify-end'}`}>
+          <div
+            className={`absolute bottom-0 left-0 right-0 z-10 px-5 pb-5 ${fullWidth ? '' : 'flex justify-end'}`}
+            style={{ background: '#3D4254' }}
+          >
             <div
-              className="absolute bottom-0 left-0 right-0 pointer-events-none"
-              style={{ height: '80px', background: 'linear-gradient(to bottom, transparent, #3D4254)', top: '-80px' }}
+              className="absolute left-0 right-0 pointer-events-none"
+              style={{ height: '60px', background: 'linear-gradient(to bottom, transparent, #3D4254)', top: '-60px' }}
             />
             <button
               onClick={onSave}
