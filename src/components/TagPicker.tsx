@@ -143,7 +143,7 @@ function SheetContent({
 
       {/* Tagi */}
       <div className="flex-1 min-h-0 relative">
-        <div className="h-full overflow-y-auto px-5 pb-5">
+        <div className={`h-full overflow-y-auto px-5 ${onSave ? 'pb-24' : 'pb-5'}`}>
           {filtered.length === 0 ? (
             <p className="font-ui text-white/50 text-sm font-light text-center py-8 tracking-wide">
               Brak pasujących motywów
@@ -176,31 +176,27 @@ function SheetContent({
             </div>
           )}
         </div>
+
         {onSave && (
-          <div
-            className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none"
-            style={{ background: 'linear-gradient(to bottom, transparent, #3D4254)' }}
-          />
+          <div className={`absolute bottom-0 left-0 right-0 z-10 px-5 pb-5 ${fullWidth ? '' : 'flex justify-end'}`}>
+            <div
+              className="absolute bottom-0 left-0 right-0 pointer-events-none"
+              style={{ height: '80px', background: 'linear-gradient(to bottom, transparent, #3D4254)', top: '-80px' }}
+            />
+            <button
+              onClick={onSave}
+              className={`relative font-ui h-14 rounded-full
+                         bg-gradient-to-r from-[#533483] to-[#6a44a0]
+                         text-white font-medium text-[0.95rem] tracking-wide
+                         shadow-lg shadow-purple-900/50
+                         hover:from-[#6a44a0] hover:to-[#7d55b8]
+                         active:scale-[0.98] transition-all duration-150
+                         ${fullWidth ? 'w-full' : 'px-8'}`}
+            >
+              Zapisz
+            </button>
+          </div>
         )}
       </div>
-
-      {onSave && (
-        <div className={`shrink-0 px-5 pb-5 ${fullWidth ? '' : 'flex justify-end'}`}
-        >
-          <button
-            onClick={onSave}
-            className={`font-ui h-14 rounded-full
-                       bg-gradient-to-r from-[#533483] to-[#6a44a0]
-                       text-white font-medium text-[0.95rem] tracking-wide
-                       shadow-lg shadow-purple-900/50
-                       hover:from-[#6a44a0] hover:to-[#7d55b8]
-                       active:scale-[0.98] transition-all duration-150
-                       ${fullWidth ? 'w-full' : 'px-8'}`}
-          >
-            Zapisz
-          </button>
-        </div>
-      )}
-    </div>
   )
 }
