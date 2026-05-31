@@ -1,7 +1,52 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ChevronLeft, Pencil, Trash2 } from 'lucide-react'
+import { ChevronLeft, Pencil, Trash2, X } from 'lucide-react'
 import { getDreamById, formatDate, deleteDream } from '@/storage/dreamStorage'
+
+function DeleteContent({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
+  return (
+    <>
+      {/* Nagłówek z krzyżykiem */}
+      <div className="flex items-start justify-between mb-3">
+        <p className="font-display text-white text-xl leading-snug">
+          Na pewno usuwamy ten sen.
+        </p>
+        <button
+          onClick={onCancel}
+          className="ml-4 shrink-0 w-8 h-8 rounded-full flex items-center justify-center
+                     text-white/60 hover:text-white hover:bg-white/10
+                     transition-all duration-150"
+        >
+          <X size={18} />
+        </button>
+      </div>
+      <p className="font-ui text-white/75 text-sm font-light mb-8">
+        Nie można tego cofnąć.
+      </p>
+      <div className="flex gap-3">
+        <button
+          onClick={onCancel}
+          className="font-ui flex-1 h-12 rounded-full border border-white/20
+                     text-white/90 text-sm font-light tracking-wide
+                     hover:border-white/50 hover:text-white
+                     transition-all duration-150 active:scale-[0.98]"
+        >
+          Nie
+        </button>
+        <button
+          onClick={onConfirm}
+          className="font-ui flex-1 h-12 rounded-full
+                     bg-gradient-to-r from-red-700/80 to-red-600/80
+                     text-white text-sm font-medium tracking-wide
+                     hover:from-red-600/90 hover:to-red-500/90
+                     transition-all duration-150 active:scale-[0.98]"
+        >
+          Tak, usuń
+        </button>
+      </div>
+    </>
+  )
+}
 
 export function DreamDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -36,7 +81,7 @@ export function DreamDetailPage() {
       {/* Header */}
       <div className="flex items-center justify-between pt-12 px-4 pb-4">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/home')}
           className="font-ui flex items-center gap-1 text-white/70 hover:text-white transition-colors py-2 pr-3 text-sm font-light tracking-wide"
         >
           <ChevronLeft size={20} />
@@ -103,43 +148,34 @@ export function DreamDetailPage() {
       {confirmDelete && (
         <>
           <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
             onClick={() => setConfirmDelete(false)}
           />
+
+          {/* Mobile – sheet od dołu */}
           <div
-            className="fixed bottom-0 left-0 right-0 z-50 md:left-[320px]
-                       rounded-t-3xl border-t border-white/10 px-5 pt-6 pb-10"
-            style={{ background: 'rgba(20, 10, 40, 0.97)', backdropFilter: 'blur(20px)' }}
+            className="md:hidden fixed bottom-0 left-0 right-0 z-50
+                       rounded-t-3xl border-t border-white/10 p-5 pb-10"
+            style={{ background: '#3D4254' }}
           >
-            <div className="flex justify-center mb-4">
+            <div className="flex justify-center mb-5">
               <div className="w-10 h-1 rounded-full bg-white/20" />
             </div>
-            <p className="font-display text-white text-xl text-center mb-2">
-              Usunąć ten sen?
-            </p>
-            <p className="font-ui text-white/85 text-sm text-center font-light mb-8">
-              Tej operacji nie można cofnąć.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setConfirmDelete(false)}
-                className="font-ui flex-1 h-12 rounded-full border border-white/20
-                           text-white/90 text-sm font-light tracking-wide
-                           hover:border-white/50 hover:text-white
-                           transition-all duration-150 active:scale-[0.98]"
-              >
-                Nie
-              </button>
-              <button
-                onClick={handleDelete}
-                className="font-ui flex-1 h-12 rounded-full
-                           bg-gradient-to-r from-red-700/80 to-red-600/80
-                           text-white text-sm font-medium tracking-wide
-                           hover:from-red-600/90 hover:to-red-500/90
-                           transition-all duration-150 active:scale-[0.98]"
-              >
-                Tak, usuń
-              </button>
+            <DeleteContent onCancel={() => setConfirmDelete(false)} onConfirm={handleDelete} />
+          </div>
+
+          {/* Desktop – modal wyśrodkowany */}
+          <div className="hidden md:flex fixed inset-0 z-50 items-center justify-center p-6">
+            <div
+              className="w-full max-w-sm rounded-2xl shadow-xl p-5"
+              style={{
+                background: '#3D4254',
+                border: '1px solid rgba(255,255,255,0.12)',
+                backdropFilter: 'blur(24px)',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <DeleteContent onCancel={() => setConfirmDelete(false)} onConfirm={handleDelete} />
             </div>
           </div>
         </>
