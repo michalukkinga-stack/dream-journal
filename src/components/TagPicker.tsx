@@ -136,7 +136,7 @@ function SheetContent({
                     'px-4 h-7 rounded-full text-sm font-ui tracking-wide',
                     'border transition-all duration-150 active:scale-95',
                     isSelected
-                      ? 'border-[#c084fc] text-[#2a1a4a] bg-white/90 font-medium shadow-[0_0_0_1px_rgba(192,132,252,0.4)]'
+                      ? 'border-2 border-[#c084fc] text-[#c084fc] bg-white/90 font-medium'
                       : 'border-[#2a1a4a]/50 text-[#2a1a4a] bg-white/60 font-light hover:bg-white/80',
                   ].join(' ')}
                 >
