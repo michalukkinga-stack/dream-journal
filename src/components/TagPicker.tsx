@@ -142,48 +142,51 @@ function SheetContent({
       </div>
 
       {/* Tagi */}
-      <div className="flex-1 overflow-y-auto min-h-0 px-5 pb-5">
-        {filtered.length === 0 ? (
-          <p className="font-ui text-white/50 text-sm font-light text-center py-8 tracking-wide">
-            Brak pasujących motywów
-          </p>
-        ) : (
-          <div className="flex flex-wrap gap-1.5">
-            {filtered.map(tag => {
-              const isSelected = selected.includes(tag)
-              return (
-                <button
-                  key={tag}
-                  onClick={() => toggle(tag)}
-                  className={[
-                    'px-4 h-7 rounded-full text-sm font-ui tracking-wide',
-                    'border transition-all duration-150 active:scale-95',
-                    isSelected
-                      ? 'border-2 border-[#6a44a0] text-[#6a44a0] bg-white/90 font-medium'
-                      : 'border-[#2a1a4a]/50 text-[#2a1a4a] bg-white/60 font-light hover:bg-white/80',
-                  ].join(' ')}
-                >
-                  <Highlighter
-                    searchWords={[query]}
-                    autoEscape
-                    textToHighlight={tag}
-                    highlightClassName="bg-transparent font-semibold text-white not-italic"
-                  />
-                </button>
-              )
-            })}
-          </div>
+      <div className="flex-1 min-h-0 relative">
+        <div className="h-full overflow-y-auto px-5 pb-5">
+          {filtered.length === 0 ? (
+            <p className="font-ui text-white/50 text-sm font-light text-center py-8 tracking-wide">
+              Brak pasujących motywów
+            </p>
+          ) : (
+            <div className="flex flex-wrap gap-1.5">
+              {filtered.map(tag => {
+                const isSelected = selected.includes(tag)
+                return (
+                  <button
+                    key={tag}
+                    onClick={() => toggle(tag)}
+                    className={[
+                      'px-4 h-7 rounded-full text-sm font-ui tracking-wide',
+                      'border transition-all duration-150 active:scale-95',
+                      isSelected
+                        ? 'border-2 border-[#6a44a0] text-[#6a44a0] bg-white/90 font-medium'
+                        : 'border-[#2a1a4a]/50 text-[#2a1a4a] bg-white/60 font-light hover:bg-white/80',
+                    ].join(' ')}
+                  >
+                    <Highlighter
+                      searchWords={[query]}
+                      autoEscape
+                      textToHighlight={tag}
+                      highlightClassName="bg-transparent font-semibold text-white not-italic"
+                    />
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </div>
+        {onSave && (
+          <div
+            className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none"
+            style={{ background: 'linear-gradient(to bottom, transparent, #3D4254)' }}
+          />
         )}
       </div>
 
       {onSave && (
-        <div
-          className="shrink-0 h-8 pointer-events-none"
-          style={{ background: 'linear-gradient(to bottom, transparent, #3D4254)' }}
-        />
-      )}
-      {onSave && (
-        <div className={`shrink-0 px-5 pb-5 ${fullWidth ? '' : 'flex justify-end'}`}>
+        <div className={`shrink-0 px-5 pb-5 ${fullWidth ? '' : 'flex justify-end'}`}
+        >
           <button
             onClick={onSave}
             className={`font-ui h-14 rounded-full
