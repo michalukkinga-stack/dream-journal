@@ -18,10 +18,14 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
   }, [])
 
   function toggleMobile(tag: string) {
-    const next = selected.includes(tag)
-      ? selected.filter(t => t !== tag)
-      : [...selected, tag]
-    onChange(next)
+    setDesktopSelected(prev =>
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    )
+  }
+
+  function handleMobileSave() {
+    onChange(desktopSelected)
+    onClose()
   }
 
   function toggleDesktop(tag: string) {
@@ -53,7 +57,7 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
           backdropFilter: 'blur(20px)',
         }}
       >
-        <SheetContent selected={selected} onClose={onClose} toggle={toggleMobile} />
+        <SheetContent selected={desktopSelected} onClose={onClose} toggle={toggleMobile} onSave={handleMobileSave} fullWidth />
       </div>
 
       {/* ── DESKTOP centered dialog ── */}
@@ -84,11 +88,13 @@ function SheetContent({
   onClose,
   toggle,
   onSave,
+  fullWidth = false,
 }: {
   selected: string[]
   onClose: () => void
   toggle: (tag: string) => void
   onSave?: () => void
+  fullWidth?: boolean
 }) {
   const [query, setQuery] = useState('')
 
@@ -170,17 +176,17 @@ function SheetContent({
         )}
       </div>
 
-      {/* Przycisk Zapisz — tylko desktop */}
       {onSave && (
-        <div className="shrink-0 flex justify-end px-5 pb-5">
+        <div className={`shrink-0 px-5 pb-5 ${fullWidth ? '' : 'flex justify-end'}`}>
           <button
             onClick={onSave}
-            className="font-ui h-14 px-8 rounded-full
+            className={`font-ui h-14 rounded-full
                        bg-gradient-to-r from-[#533483] to-[#6a44a0]
                        text-white font-medium text-[0.95rem] tracking-wide
                        shadow-lg shadow-purple-900/50
                        hover:from-[#6a44a0] hover:to-[#7d55b8]
-                       active:scale-[0.98] transition-all duration-150"
+                       active:scale-[0.98] transition-all duration-150
+                       ${fullWidth ? 'w-full' : 'px-8'}`}
           >
             Zapisz
           </button>
