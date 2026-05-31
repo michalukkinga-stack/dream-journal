@@ -131,11 +131,10 @@ export function DesktopLayout() {
         <DesktopSidebar dreams={dreams} />
         <main className="flex-1 overflow-y-auto relative">
           {showSaved && (
-            <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50
                             px-10 py-5 rounded-full
                             bg-white/20 backdrop-blur-sm text-white font-ui text-[1.75rem] font-medium tracking-wide
-                            border border-white/30 shadow-lg
-                            animate-fade-in">
+                            shadow-lg animate-fade-in">
               Sen zapisany ✓
             </div>
           )}
