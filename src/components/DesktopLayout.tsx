@@ -46,7 +46,7 @@ function DesktopSidebar({ dreams }: { dreams: Dream[] }) {
               onClick={() => navigate(`/dream/${dream.id}`)}
               className={`dream-card w-full text-left transition-all duration-150 ${
                 activeId === dream.id
-                  ? 'ring-2 ring-purple-400/50 !bg-white/15'
+                  ? 'dream-card--active !bg-white/15'
                   : ''
               }`}
             >
