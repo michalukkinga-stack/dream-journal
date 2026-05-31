@@ -35,9 +35,8 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
       <div
         className="md:hidden fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto z-50
                    rounded-t-3xl border-t border-white/10 animate-slide-up
-                   flex flex-col"
+                   flex flex-col max-h-[67vh]"
         style={{
-          height: '67vh',
           background: '#3D4254',
           backdropFilter: 'blur(20px)',
         }}
@@ -48,9 +47,8 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
       {/* ── DESKTOP centered dialog ── */}
       <div className="hidden md:flex fixed inset-0 z-50 items-center justify-center p-6">
         <div
-          className="relative w-full max-w-[900px] rounded-2xl shadow-xl flex flex-col"
+          className="relative w-full max-w-[900px] rounded-2xl shadow-xl flex flex-col max-h-[72vh]"
           style={{
-            height: '72vh',
             background: '#3D4254',
             backdropFilter: 'blur(24px)',
             border: '1px solid rgba(255,255,255,0.12)',
@@ -80,7 +78,7 @@ function SheetContent({
     : DREAM_TAGS
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col">
       {/* Sticky header: wyszukiwarka + X */}
       <div className="shrink-0 pl-5 pr-14 pt-5 pb-3 relative">
         <button
@@ -119,7 +117,7 @@ function SheetContent({
       </div>
 
       {/* Tagi — przewijana zawartość */}
-      <div className="flex-1 overflow-y-auto px-5 pb-6">
+      <div className="overflow-y-auto px-5 pb-5">
         {filtered.length === 0 ? (
           <p className="font-ui text-white/50 text-sm font-light text-center py-8 tracking-wide">
             Brak pasujących motywów
