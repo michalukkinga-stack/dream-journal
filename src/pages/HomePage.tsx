@@ -28,8 +28,8 @@ export function HomePage() {
           </p>
           <p className="font-ui text-white/90 text-[0.95rem] font-light tracking-wide mt-1">
             {dreams.length === 1
-              ? 'razem złapaliśmy już 1 sen.'
-              : `razem złapaliśmy już ${dreams.length} sny.`}
+              ? 'Razem złapaliśmy już 1 sen.'
+              : `Razem złapaliśmy już ${dreams.length} sny.`}
           </p>
         </div>
       )}
