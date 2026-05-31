@@ -26,7 +26,7 @@ export function EditDreamPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-5 text-center">
         <p className="text-4xl mb-4">🌫️</p>
-        <p className="text-white/65">Ten sen znikł jak mgła...</p>
+        <p className="font-ui text-white/65">Ten sen znikł jak mgła...</p>
         <button
           onClick={() => navigate('/home')}
           className="mt-6 text-white/70 text-sm underline underline-offset-4"
@@ -127,10 +127,10 @@ export function EditDreamPage() {
             )}
           </div>
           {titleMic.isListening && titleMic.interim && (
-            <p className="text-white/40 text-xs italic px-1">{titleMic.interim}</p>
+            <p className="font-ui text-white/40 text-xs italic px-1">{titleMic.interim}</p>
           )}
           {error && (
-            <p className="text-red-400 text-xs mt-1">{error}</p>
+            <p className="font-ui text-red-400 text-xs mt-1">{error}</p>
           )}
         </div>
 

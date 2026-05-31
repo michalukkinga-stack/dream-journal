@@ -113,7 +113,7 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
             )}
           </div>
           {error && (
-            <p className="text-red-400 text-xs mt-1">{error}</p>
+            <p className="font-ui text-red-400 text-xs mt-1">{error}</p>
           )}
         </div>
 

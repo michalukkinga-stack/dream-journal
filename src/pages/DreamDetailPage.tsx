@@ -62,7 +62,7 @@ export function DreamDetailPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-5 text-center">
         <p className="text-4xl mb-4">🌫️</p>
-        <p className="text-white/65">Ten sen znikł jak mgła...</p>
+        <p className="font-ui text-white/65">Ten sen znikł jak mgła...</p>
         <button
           onClick={() => navigate('/')}
           className="mt-6 text-white/70 text-sm underline underline-offset-4"
