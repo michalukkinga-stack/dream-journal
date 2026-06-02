@@ -14,30 +14,42 @@ declare global {
   }
 }
 
+function initButton(clientId: string, element: HTMLElement) {
+  window.google!.accounts.id.initialize({
+    client_id: clientId,
+    callback: async ({ credential }: { credential: string }) => {
+      await supabase.auth.signInWithIdToken({ provider: 'google', token: credential })
+    },
+  })
+  window.google!.accounts.id.renderButton(element, {
+    type: 'standard',
+    shape: 'pill',
+    theme: 'outline',
+    size: 'large',
+    text: 'signin_with',
+    locale: 'pl',
+    width: element.offsetWidth || 320,
+  })
+}
+
 export function GoogleSignInButton() {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string
-    if (!clientId || !window.google) return
+    if (!clientId || !ref.current) return
 
-    window.google.accounts.id.initialize({
-      client_id: clientId,
-      callback: async ({ credential }: { credential: string }) => {
-        await supabase.auth.signInWithIdToken({ provider: 'google', token: credential })
-      },
-    })
-
-    if (ref.current) {
-      window.google.accounts.id.renderButton(ref.current, {
-        type: 'standard',
-        shape: 'pill',
-        theme: 'outline',
-        size: 'large',
-        text: 'signin_with',
-        locale: 'pl',
-        width: ref.current.offsetWidth || 320,
-      })
+    if (window.google) {
+      // skrypt już załadowany
+      initButton(clientId, ref.current)
+    } else {
+      // poczekaj aż skrypt się załaduje
+      const script = document.querySelector('script[src*="accounts.google.com/gsi/client"]') as HTMLScriptElement | null
+      if (script) {
+        script.addEventListener('load', () => {
+          if (ref.current) initButton(clientId, ref.current)
+        })
+      }
     }
   }, [])
 
