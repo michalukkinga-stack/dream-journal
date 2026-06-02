@@ -5,7 +5,9 @@ import { Dream } from '@/types/dream'
 import { CalendarStrip, toDateKey } from '@/components/CalendarStrip'
 import { DreamEditor } from '@/components/DreamEditor'
 import { TagPicker } from '@/components/TagPicker'
+import { ChatPanelHandle } from '@/components/ChatPanel'
 import { AgentInput } from '@/components/AgentInput'
+import { ChatBottomSheet } from '@/components/ChatBottomSheet'
 import { useAuth } from '@/context/AuthContext'
 
 function addDays(d: Date, n: number): Date {
@@ -40,6 +42,9 @@ export function HomePage() {
   const [showPicker, setShowPicker] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
+
+  const chatPanelRef = useRef<ChatPanelHandle>(null)
+  const [chatOpen, setChatOpen] = useState(false)
 
   // Refs for auto-save (capture latest values in async closures)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -256,12 +261,6 @@ export function HomePage() {
             </div>
           )}
 
-            {mode === 'edit' && saveStatus !== 'idle' && (
-            <span className="font-ui text-xs font-light tracking-wide"
-              style={{ color: saveStatus === 'saving' ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.55)' }}>
-              {saveStatus === 'saving' ? 'Zapisuję...' : 'Zapisano'}
-            </span>
-          )}
         </div>
 
         {/* View mode */}
@@ -294,10 +293,8 @@ export function HomePage() {
         {/* Add / Edit mode */}
         {(mode === 'add' || mode === 'edit') && !isFuture && (
           <div className="flex-1 flex flex-col gap-3">
-            <DreamEditor key={toDateKey(selectedDate)} value={description} onChange={handleDescriptionChange} />
-
             {/* Tags */}
-            <div className="pt-1">
+            <div>
               {tags.length > 0 ? (
                 <div className="flex flex-wrap gap-2 items-center">
                   {tags.map(tag => (
@@ -338,13 +335,8 @@ export function HomePage() {
               )}
             </div>
 
-            {/* Auto-save status (add mode) */}
-            {mode === 'add' && saveStatus !== 'idle' && (
-              <p className="font-ui text-xs font-light tracking-wide"
-                style={{ color: saveStatus === 'saving' ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.55)' }}>
-                {saveStatus === 'saving' ? 'Zapisuję...' : 'Zapisano'}
-              </p>
-            )}
+            <DreamEditor key={toDateKey(selectedDate)} value={description} onChange={handleDescriptionChange} />
+
           </div>
         )}
 
@@ -353,9 +345,25 @@ export function HomePage() {
             Nie można dodać wpisu dla przyszłej daty.
           </p>
         )}
+
       </div>
 
-      <AgentInput currentDream={existingDream} />
+      {/* Chat trigger bar */}
+      <AgentInput
+        onSend={(text) => {
+          setChatOpen(true)
+          chatPanelRef.current?.sendMessage(text)
+        }}
+        isLoading={false}
+      />
+
+      <ChatBottomSheet
+        ref={chatPanelRef}
+        open={chatOpen}
+        onClose={() => setChatOpen(false)}
+        currentDream={existingDream}
+        allDreams={dreams}
+      />
 
       {showPicker && (
         <TagPicker selected={tags} onChange={(t) => { handleTagsChange(t); setShowPicker(false) }} onClose={() => setShowPicker(false)} />
