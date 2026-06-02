@@ -5,6 +5,7 @@ import { Dream } from '@/types/dream'
 import { CalendarStrip, toDateKey } from '@/components/CalendarStrip'
 import { DreamEditor } from '@/components/DreamEditor'
 import { TagPicker } from '@/components/TagPicker'
+import { AgentInput } from '@/components/AgentInput'
 import { useAuth } from '@/context/AuthContext'
 
 function addDays(d: Date, n: number): Date {
@@ -172,7 +173,7 @@ export function HomePage() {
   }).includes(toDateKey(today))
 
   return (
-    <div className="min-h-screen flex flex-col max-w-[600px] mx-auto">
+    <div className="min-h-screen flex flex-col max-w-[600px] mx-auto pb-0">
       {/* Top bar */}
       <div className="flex items-center justify-between pt-10 px-4 pb-1">
         <p className="font-display text-white text-xl">Dziennik snów</p>
@@ -334,6 +335,8 @@ export function HomePage() {
           </p>
         )}
       </div>
+
+      <AgentInput />
 
       {showPicker && (
         <TagPicker selected={tags} onChange={(t) => { handleTagsChange(t); setShowPicker(false) }} onClose={() => setShowPicker(false)} />
