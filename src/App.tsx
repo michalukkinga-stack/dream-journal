@@ -38,6 +38,7 @@ import { AddDreamPage } from '@/pages/AddDreamPage'
 import { EditDreamPage } from '@/pages/EditDreamPage'
 import { DreamDetailPage } from '@/pages/DreamDetailPage'
 import { LoginPage } from '@/pages/LoginPage'
+import { ChatPage } from '@/pages/ChatPage'
 import { DesktopLayout } from '@/components/DesktopLayout'
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -61,6 +62,7 @@ export default function App() {
               <Route path="/add" element={<AddDreamPage />} />
               <Route path="/edit/:id" element={<EditDreamPage />} />
               <Route path="/dream/:id" element={<DreamDetailPage />} />
+              <Route path="/chat" element={<ChatPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

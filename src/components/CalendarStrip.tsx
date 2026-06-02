@@ -61,7 +61,7 @@ export function CalendarStrip({
               onClick={() => !isFuture && onSelect(day)}
               disabled={isFuture}
               className={[
-                'flex-1 relative flex flex-col items-center justify-center py-2 rounded-xl transition-all duration-150',
+                'flex-1 relative flex flex-col items-center justify-center pt-2 pb-5 rounded-xl transition-all duration-150',
                 isFuture
                   ? 'opacity-25 cursor-default'
                   : 'hover:bg-white/10 active:scale-95',

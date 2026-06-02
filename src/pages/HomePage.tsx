@@ -68,7 +68,17 @@ export function HomePage() {
     return map
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    load().then(map => {
+      const key = toDateKey(selectedDateRef.current)
+      const existing = map.get(key)
+      if (existing) {
+        setMode('view')
+        setDescription(existing.description)
+        setTags(existing.tags)
+      }
+    })
+  }, [load])
 
   // Auto-save when description or tags change (user-initiated only)
   useEffect(() => {
@@ -83,7 +93,7 @@ export function HomePage() {
     }, 800)
   }, [description, tags]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function doSave(date: Date, desc: string, tgs: string[]) {
+  async function doSave(date: Date, desc: string, tgs: string[]): Promise<Map<string, Dream>> {
     const key = toDateKey(date)
     const existing = dreamsByDateRef.current.get(key)
     try {
@@ -93,25 +103,28 @@ export function HomePage() {
         const dateStr = key + 'T12:00:00'
         await saveDream({ title: '', description: desc, tags: tgs, dateOverride: dateStr })
       }
-      await load()
+      const freshMap = await load()
       setSaveStatus('saved')
+      isUserChangeRef.current = false
+      return freshMap
     } catch {
       setSaveStatus('idle')
+      isUserChangeRef.current = false
+      return dreamsByDateRef.current
     }
-    isUserChangeRef.current = false
   }
 
   // When selected date changes, flush pending save then update panel
   async function selectDay(day: Date) {
-    // Flush pending save for current day
+    let freshMap: Map<string, Dream> = dreamsByDateRef.current
     if (saveTimerRef.current && isUserChangeRef.current) {
       clearTimeout(saveTimerRef.current)
-      await doSave(selectedDateRef.current, descriptionRef.current, tagsRef.current)
+      freshMap = await doSave(selectedDateRef.current, descriptionRef.current, tagsRef.current)
     }
     isUserChangeRef.current = false
     setSelectedDate(day)
     const key = toDateKey(day)
-    const existing = dreamsByDateRef.current.get(key)
+    const existing = freshMap.get(key)
     if (existing) {
       setMode('view')
       setDescription(existing.description)
@@ -125,11 +138,17 @@ export function HomePage() {
     setSaveStatus('idle')
   }
 
-  // Sync panel when dreams load (after save)
+  // Sync panel when dreams load (after save or initial load)
   useEffect(() => {
     const key = toDateKey(selectedDate)
     const existing = dreamsByDate.get(key)
-    if (existing && modeRef.current === 'view') {
+    if (!existing) return
+    if (modeRef.current === 'view') {
+      setDescription(existing.description)
+      setTags(existing.tags)
+    } else if (modeRef.current === 'add' && !isUserChangeRef.current) {
+      // Dream exists for this date but we're in add mode (initial load or post-save)
+      setMode('view')
       setDescription(existing.description)
       setTags(existing.tags)
     }
@@ -336,7 +355,7 @@ export function HomePage() {
         )}
       </div>
 
-      <AgentInput />
+      <AgentInput currentDream={existingDream} />
 
       {showPicker && (
         <TagPicker selected={tags} onChange={(t) => { handleTagsChange(t); setShowPicker(false) }} onClose={() => setShowPicker(false)} />
