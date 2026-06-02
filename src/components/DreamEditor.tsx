@@ -76,7 +76,7 @@ export function DreamEditor({ value, onChange, className }: DreamEditorProps) {
   }
 
   return (
-    <div className={cn('flex gap-3 items-center', className)}>
+    <div className={cn('flex gap-3 items-start', className)}>
       <div className="dream-editor flex-1">
         <EditorContent editor={editor} />
       </div>
@@ -85,6 +85,7 @@ export function DreamEditor({ value, onChange, className }: DreamEditorProps) {
         <button
           type="button"
           onClick={toggleMic}
+          style={{ marginTop: 'calc((4 * 1.625 * 0.875rem - 2.75rem) / 2)' }}
           className={cn(
             'shrink-0 w-11 h-11 flex items-center justify-center rounded-full transition-all duration-150 active:scale-95',
             isListening
@@ -92,7 +93,7 @@ export function DreamEditor({ value, onChange, className }: DreamEditorProps) {
               : 'text-white/30 hover:text-white/60 hover:bg-white/10'
           )}
         >
-          <Mic size={20} />
+          <Mic size={40} />
         </button>
       )}
     </div>

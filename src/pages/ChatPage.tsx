@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useChat } from '@ai-sdk/react'
-import { ArrowLeft, Mic, SendHorizonal, X } from 'lucide-react'
+import { DefaultChatTransport } from 'ai'
+import { Mic, SendHorizonal, X } from 'lucide-react'
 import { ChatMessage } from '@/components/ChatMessage'
 import { getChatMessages, saveChatMessage } from '@/storage/chatStorage'
 import { getDreams, stripHtml } from '@/storage/dreamStorage'
@@ -22,7 +23,6 @@ type CurrentDream = {
 }
 
 export function ChatPage() {
-  const navigate = useNavigate()
   const location = useLocation()
   const mic = useSpeechRecognition()
 
@@ -30,32 +30,57 @@ export function ChatPage() {
   const [contextDream, setContextDream] = useState<CurrentDream | undefined>(passedDream)
   const [allDreams, setAllDreams] = useState<Dream[]>([])
   const [historyLoaded, setHistoryLoaded] = useState(false)
+  const [inputValue, setInputValue] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  const { messages, input, setInput, handleSubmit, isLoading, setMessages } = useChat({
-    api: `${SUPABASE_URL}/functions/v1/jung-chat`,
-    headers: {
-      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: {
-      currentDream: contextDream
-        ? {
-            title: contextDream.title,
-            description: stripHtml(contextDream.description),
-            tags: contextDream.tags,
-            createdAt: contextDream.createdAt,
+  // Keep a ref to current context so the transport always sends up-to-date values
+  const contextRef = useRef({ contextDream, allDreams })
+  useEffect(() => { contextRef.current = { contextDream, allDreams } }, [contextDream, allDreams])
+
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport({
+        api: `${SUPABASE_URL}/functions/v1/jung-chat`,
+        headers: {
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        prepareSendMessagesRequest: async (opts) => {
+          const { contextDream: cd, allDreams: ad } = contextRef.current
+          return {
+            ...opts,
+            body: {
+              ...(opts.body as object),
+              messages: opts.messages,
+              currentDream: cd
+                ? {
+                    title: cd.title,
+                    description: stripHtml(cd.description),
+                    tags: cd.tags,
+                    createdAt: cd.createdAt,
+                  }
+                : undefined,
+              allDreams: ad.map(d => ({
+                date: toDateKey(new Date(d.createdAt)),
+                title: d.title,
+                tags: d.tags,
+                summary: stripHtml(d.description).slice(0, 300),
+              })),
+            },
           }
-        : undefined,
-      allDreams: allDreams.map(d => ({
-        date: toDateKey(new Date(d.createdAt)),
-        title: d.title,
-        tags: d.tags,
-        summary: stripHtml(d.description).slice(0, 300),
-      })),
-    },
-    onFinish: async (message) => {
-      await saveChatMessage('assistant', message.content, contextDream?.id)
+        },
+      }),
+    [] // eslint-disable-line react-hooks/exhaustive-deps
+  )
+
+  const { messages, sendMessage, status, setMessages } = useChat({
+    transport,
+    onFinish: async ({ message }) => {
+      const text = message.parts
+        .filter(p => p.type === 'text')
+        .map(p => (p as { type: 'text'; text: string }).text)
+        .join('')
+      await saveChatMessage('assistant', text, contextDream?.id)
     },
   })
 
@@ -64,7 +89,11 @@ export function ChatPage() {
       setAllDreams(dreams)
       if (stored.length > 0) {
         setMessages(
-          stored.map(m => ({ id: m.id, role: m.role, content: m.content }))
+          stored.map(m => ({
+            id: m.id,
+            role: m.role as 'user' | 'assistant',
+            parts: [{ type: 'text' as const, text: m.content }],
+          }))
         )
       }
       setHistoryLoaded(true)
@@ -75,36 +104,22 @@ export function ChatPage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  async function onSend(e?: React.FormEvent) {
-    if (e) e.preventDefault()
-    if (!input.trim()) return
-    await saveChatMessage('user', input.trim(), contextDream?.id)
-    handleSubmit(e as React.FormEvent<HTMLFormElement>)
+  async function onSend() {
+    const text = inputValue.trim()
+    if (!text || status === 'submitted' || status === 'streaming') return
+    setInputValue('')
+    await saveChatMessage('user', text, contextDream?.id)
+    sendMessage({ text })
   }
 
+  const isLoading = status === 'submitted' || status === 'streaming'
+
   const displayInput = mic.isListening
-    ? (input ? input + ' ' : '') + (mic.interim || '')
-    : input
+    ? (inputValue ? inputValue + ' ' : '') + (mic.interim || '')
+    : inputValue
 
   return (
     <div className="min-h-screen flex flex-col max-w-[600px] mx-auto">
-      {/* Header */}
-      <div className="flex items-center gap-3 px-4 pt-10 pb-4 border-b border-white/10">
-        <button
-          onClick={() => navigate(-1)}
-          className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/18 transition-all active:scale-95"
-        >
-          <ArrowLeft size={16} />
-        </button>
-        <div className="flex-1">
-          <p className="font-display text-white text-lg leading-tight">Carl Jung</p>
-          <p className="font-ui text-white/40 text-xs">Znawca snów i nieświadomości</p>
-        </div>
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#533483] to-[#2d1a4a] flex items-center justify-center text-sm font-display text-white/80">
-          CJ
-        </div>
-      </div>
-
       {/* Context badge */}
       {contextDream && (
         <div className="mx-4 mt-3 flex items-center gap-2 px-3 py-2 rounded-xl bg-white/8 border border-white/10">
@@ -123,27 +138,13 @@ export function ChatPage() {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4">
-        {historyLoaded && messages.length === 0 && (
-          <div className="flex-1 flex flex-col items-center justify-center text-center py-16">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#533483] to-[#2d1a4a] flex items-center justify-center text-2xl font-display text-white/80 mb-4">
-              CJ
-            </div>
-            <p className="font-display text-white text-xl mb-2">Witaj w gabinecie</p>
-            <p className="font-ui text-white/45 text-sm max-w-[260px] leading-relaxed">
-              Jestem Carl Jung. Opowiedz mi o swoich snach — razem odkryjemy, co skrywa twoja nieświadomość.
-            </p>
-          </div>
-        )}
-
         {messages.map(m => (
-          <ChatMessage key={m.id} role={m.role as 'user' | 'assistant'} content={m.content} />
+          <ChatMessage key={m.id} message={m} />
         ))}
 
         {isLoading && messages[messages.length - 1]?.role === 'user' && (
-          <div className="flex justify-start">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#533483] to-[#2d1a4a] flex items-center justify-center shrink-0 mr-2 mt-0.5 text-xs font-display text-white/80">
-              CJ
-            </div>
+          <div className="flex justify-start items-start">
+            <div className="w-2 h-2 rounded-full bg-purple-400 shrink-0 mr-3 mt-2.5" />
             <div className="bg-white/10 border border-white/10 rounded-2xl rounded-bl-sm px-4 py-3">
               <div className="flex gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -159,13 +160,13 @@ export function ChatPage() {
 
       {/* Input */}
       <div className="shrink-0 px-4 pb-8 pt-3 border-t border-white/10">
-        <form onSubmit={onSend} className="relative flex items-center gap-2">
+        <div className="relative flex items-center gap-2">
           <div className="relative flex-1">
             <input
               type="text"
               placeholder="Zapytaj Junga…"
               value={displayInput}
-              onChange={e => { if (!mic.isListening) setInput(e.target.value) }}
+              onChange={e => { if (!mic.isListening) setInputValue(e.target.value) }}
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) onSend() }}
               className={cn(
                 'w-full border border-white/20 rounded-xl px-4 py-3 font-ui text-white',
@@ -181,7 +182,7 @@ export function ChatPage() {
                   if (mic.isListening) {
                     mic.stop()
                   } else {
-                    mic.start(text => setInput(prev => (prev ? prev + ' ' : '') + text))
+                    mic.start(text => setInputValue(prev => (prev ? prev + ' ' : '') + text))
                   }
                 }}
                 className={cn(
@@ -198,8 +199,9 @@ export function ChatPage() {
           </div>
 
           <button
-            type="submit"
-            disabled={!input.trim() || isLoading}
+            type="button"
+            onClick={onSend}
+            disabled={!inputValue.trim() || isLoading}
             className={cn(
               'w-11 h-11 rounded-xl flex items-center justify-center shrink-0',
               'bg-gradient-to-br from-[#533483] to-[#6a44a0]',
@@ -210,7 +212,7 @@ export function ChatPage() {
           >
             <SendHorizonal size={16} className="text-white" />
           </button>
-        </form>
+        </div>
       </div>
     </div>
   )
