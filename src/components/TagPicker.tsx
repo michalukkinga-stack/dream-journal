@@ -53,7 +53,8 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
                    rounded-t-3xl border-t border-white/10 animate-slide-up
                    flex flex-col max-h-[67vh]"
         style={{
-          background: '#3D4254',
+          background: 'radial-gradient(ellipse 100% 60% at 50% 60%, rgba(202, 196, 238, 0.18) 0%, transparent 70%), linear-gradient(170deg, #3D4254 0%, #7A465B 50%, #16323F 100%)',
+          backgroundAttachment: 'fixed',
           backdropFilter: 'blur(20px)',
         }}
       >
@@ -65,7 +66,7 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
         <div
           className="relative w-full max-w-[900px] rounded-2xl shadow-xl flex flex-col max-h-[72vh]"
           style={{
-            background: '#3D4254',
+            background: 'radial-gradient(ellipse 100% 60% at 50% 60%, rgba(202, 196, 238, 0.18) 0%, transparent 70%), linear-gradient(170deg, #3D4254 0%, #7A465B 50%, #16323F 100%)',
             backdropFilter: 'blur(24px)',
             border: '1px solid rgba(255,255,255,0.12)',
           }}
@@ -180,11 +181,11 @@ function SheetContent({
         {onSave && (
           <div
             className={`absolute bottom-0 left-0 right-0 z-10 px-5 pb-5 ${fullWidth ? '' : 'flex justify-end'}`}
-            style={{ background: '#3D4254' }}
+            style={{ background: 'radial-gradient(ellipse 100% 60% at 50% 60%, rgba(202, 196, 238, 0.18) 0%, transparent 70%), linear-gradient(170deg, #3D4254 0%, #7A465B 50%, #16323F 100%)' }}
           >
             <div
               className="absolute left-0 right-0 pointer-events-none"
-              style={{ height: '60px', background: 'linear-gradient(to bottom, transparent, #3D4254)', top: '-60px' }}
+              style={{ height: '60px', background: 'linear-gradient(to bottom, transparent, #16323F)', top: '-60px' }}
             />
             <button
               onClick={onSave}

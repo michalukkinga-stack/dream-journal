@@ -1,18 +1,21 @@
+import { UIMessage } from 'ai'
 import { cn } from '@/lib/utils'
 
 type Props = {
-  role: 'user' | 'assistant'
-  content: string
+  message: UIMessage
 }
 
-export function ChatMessage({ role, content }: Props) {
+export function ChatMessage({ message }: Props) {
+  const { role } = message
+  const content = message.parts
+    .filter(p => p.type === 'text')
+    .map(p => (p as { type: 'text'; text: string }).text)
+    .join('')
   const isUser = role === 'user'
   return (
     <div className={cn('flex', isUser ? 'justify-end' : 'justify-start')}>
       {!isUser && (
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#533483] to-[#2d1a4a] flex items-center justify-center shrink-0 mr-2 mt-0.5 text-xs font-display text-white/80">
-          CJ
-        </div>
+        <div className="w-2 h-2 rounded-full bg-purple-400 shrink-0 mr-3 mt-2.5" />
       )}
       <div
         className={cn(
