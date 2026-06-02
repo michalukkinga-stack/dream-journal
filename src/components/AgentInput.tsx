@@ -29,7 +29,7 @@ export function AgentInput({ onSend, isLoading = false }: AgentInputProps) {
         <div className="relative flex-1">
           <input
             type="text"
-            placeholder="Zapytaj znawcę snów…"
+            placeholder="Co może oznaczać mój sen?"
             value={displayValue}
             onChange={(e) => { if (!mic.isListening) setValue(e.target.value) }}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) handleSend() }}
@@ -51,7 +51,7 @@ export function AgentInput({ onSend, isLoading = false }: AgentInputProps) {
                 }
               }}
               className={cn(
-                'absolute right-1 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full',
+                'absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full',
                 'flex items-center justify-center transition-all duration-150 active:scale-95',
                 mic.isListening
                   ? 'bg-green-500/20 text-green-400 shadow-[0_0_8px_2px_rgba(74,222,128,0.35)] animate-pulse'
