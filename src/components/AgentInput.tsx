@@ -29,7 +29,7 @@ export function AgentInput({ onSend, isLoading = false }: AgentInputProps) {
         <div className="relative flex-1">
           <input
             type="text"
-            placeholder="Co może oznaczać mój sen?"
+            placeholder="Zapytaj znawcę snów…"
             value={displayValue}
             onChange={(e) => { if (!mic.isListening) setValue(e.target.value) }}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) handleSend() }}
