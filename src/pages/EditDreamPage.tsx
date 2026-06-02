@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft, Plus, X, Mic, MicOff } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DreamEditor } from '@/components/DreamEditor'
 import { TagPicker } from '@/components/TagPicker'
@@ -9,6 +8,16 @@ import { getDreamById, updateDream } from '@/storage/dreamStorage'
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition'
 import { cn } from '@/lib/utils'
 import { Dream } from '@/types/dream'
+
+function SaveIndicator({ status }: { status: 'idle' | 'saving' | 'saved' }) {
+  if (status === 'idle') return null
+  return (
+    <span className="font-ui text-xs font-light tracking-wide transition-opacity duration-300"
+      style={{ color: status === 'saving' ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.55)' }}>
+      {status === 'saving' ? 'Zapisuję...' : 'Zapisano'}
+    </span>
+  )
+}
 
 export function EditDreamPage() {
   const { id } = useParams<{ id: string }>()
@@ -20,8 +29,9 @@ export function EditDreamPage() {
   const [description, setDescription] = useState('')
   const [tags, setTags] = useState<string[]>([])
   const [showPicker, setShowPicker] = useState(false)
-  const [showConfirm, setShowConfirm] = useState(false)
-  const [error, setError] = useState('')
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isInitialLoad = useRef(true)
 
   const titleMic = useSpeechRecognition()
 
@@ -33,6 +43,18 @@ export function EditDreamPage() {
       setLoading(false)
     })
   }, [id])
+
+  useEffect(() => {
+    if (loading || !dream) return
+    if (isInitialLoad.current) { isInitialLoad.current = false; return }
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    setSaveStatus('saving')
+    saveTimerRef.current = setTimeout(async () => {
+      await updateDream(id!, { title: title.trim() || 'Sen bez nazwy', description, tags })
+      setSaveStatus('saved')
+    }, 800)
+    return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current) }
+  }, [title, description, tags])
 
   if (loading) return null
 
@@ -51,44 +73,27 @@ export function EditDreamPage() {
     )
   }
 
-  const isDirty =
-    title.trim() !== dream.title ||
-    description !== dream.description ||
-    JSON.stringify(tags) !== JSON.stringify(dream.tags)
-
-  function handleBack() {
-    if (isDirty) { setShowConfirm(true) } else { navigate(-1) }
-  }
-
-  async function handleSave() {
-    if (!title.trim()) { setError('Tytuł snu jest wymagany.'); return }
-    setError('')
-    await updateDream(id!, { title: title.trim(), description, tags })
-    navigate(`/dream/${id}`, { replace: true })
-  }
-
   return (
     <div className="min-h-screen flex flex-col animate-slide-in-right">
       {/* Header */}
-      <div className="flex items-center gap-2 pt-12 px-4 pb-5 md:max-w-[900px] md:mx-auto md:w-full md:px-8">
+      <div className="flex items-center justify-between pt-12 px-4 pb-5 md:max-w-[900px] md:mx-auto md:w-full md:px-8">
         <button
-          onClick={handleBack}
+          onClick={() => navigate(-1)}
           className="font-ui flex items-center gap-1 text-white/70 hover:text-white transition-colors py-2 pr-3 text-sm font-light tracking-wide"
         >
           <ChevronLeft size={20} />
           <span className="text-sm">wróć</span>
         </button>
+        <SaveIndicator status={saveStatus} />
       </div>
 
-      <div className="px-5 md:px-8 pb-6 max-w-[900px] mx-auto w-full" />
-
       {/* Formularz */}
-      <div className="flex-1 px-5 md:px-8 space-y-2 pb-36 max-w-[900px] mx-auto w-full">
+      <div className="flex-1 px-5 md:px-8 space-y-2 pb-12 max-w-[900px] mx-auto w-full">
         <div className="space-y-2">
           <div className="relative">
             <Input
               value={title}
-              onChange={(e) => { setTitle(e.target.value); if (e.target.value.trim()) setError('') }}
+              onChange={(e) => setTitle(e.target.value)}
               placeholder="Nazwij swój sen"
               className={cn(
                 'font-ui text-white placeholder:text-white/40',
@@ -108,7 +113,6 @@ export function EditDreamPage() {
                   } else {
                     titleMic.start((text) => {
                       setTitle(prev => (prev.trim() ? prev.trim() + ' ' : '') + text)
-                      setError('')
                     })
                   }
                 }}
@@ -126,7 +130,6 @@ export function EditDreamPage() {
           {titleMic.isListening && titleMic.interim && (
             <p className="font-ui text-white/40 text-xs italic px-1">{titleMic.interim}</p>
           )}
-          {error && <p className="font-ui text-red-400 text-xs mt-1">{error}</p>}
         </div>
 
         <div className="space-y-2">
@@ -175,60 +178,8 @@ export function EditDreamPage() {
         </div>
       </div>
 
-      {/* Przycisk zapisu */}
-      <div className="sticky bottom-0 p-4 pb-8 bg-gradient-to-t from-black/40 to-transparent">
-        <div className="max-w-[900px] mx-auto">
-          <Button
-            onClick={handleSave}
-            className="font-ui w-full h-14 rounded-full bg-gradient-to-r from-[#533483] to-[#6a44a0]
-                       text-white font-medium text-[0.95rem] tracking-wide
-                       shadow-lg shadow-purple-900/50
-                       hover:from-[#6a44a0] hover:to-[#7d55b8]
-                       active:scale-[0.98] transition-all duration-150 border-0"
-          >
-            Zapisz sen
-          </Button>
-        </div>
-      </div>
-
       {showPicker && (
         <TagPicker selected={tags} onChange={setTags} onClose={() => setShowPicker(false)} />
-      )}
-
-      {showConfirm && (
-        <>
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50" />
-          <div className="fixed inset-0 z-50 flex items-center justify-center px-8">
-            <div
-              className="w-full rounded-3xl p-7 text-center border border-white/15"
-              style={{ background: 'rgba(30, 18, 66, 0.95)', backdropFilter: 'blur(20px)' }}
-            >
-              <p className="font-display text-white text-2xl leading-snug mb-2">Porzucić zmiany?</p>
-              <p className="font-ui text-white/65 text-sm font-light mb-7">
-                Niezapisane zmiany w tym śnie przepadną.
-              </p>
-              <div className="flex flex-col gap-3">
-                <button
-                  onClick={() => navigate(-1)}
-                  className="w-full rounded-full py-3.5 font-ui font-medium text-[0.95rem]
-                             bg-gradient-to-r from-[#533483] to-[#6a44a0]
-                             text-white shadow-lg shadow-purple-900/40
-                             active:scale-[0.98] transition-all duration-150"
-                >
-                  Tak, wróć bez zapisywania
-                </button>
-                <button
-                  onClick={() => setShowConfirm(false)}
-                  className="w-full rounded-full py-3.5 font-ui font-light text-[0.95rem]
-                             text-white/70 border border-white/20 bg-white/8
-                             active:scale-[0.98] transition-all duration-150"
-                >
-                  Zostań i edytuj dalej
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
       )}
     </div>
   )

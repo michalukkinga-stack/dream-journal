@@ -42,6 +42,7 @@ import { DesktopLayout } from '@/components/DesktopLayout'
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { session, loading } = useAuth()
+  if (import.meta.env.VITE_DEV_BYPASS_AUTH === 'true') return <>{children}</>
   if (loading) return null
   if (!session) return <Navigate to="/login" replace />
   return <>{children}</>

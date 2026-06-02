@@ -1,11 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, Plus, X, Mic } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DreamEditor } from '@/components/DreamEditor'
 import { TagPicker } from '@/components/TagPicker'
-import { saveDream } from '@/storage/dreamStorage'
+import { saveDream, updateDream } from '@/storage/dreamStorage'
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition'
 import { cn } from '@/lib/utils'
 
@@ -21,19 +20,40 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
   const [description, setDescription] = useState('')
   const [tags, setTags] = useState<string[]>([])
   const [showPicker, setShowPicker] = useState(false)
-  const [error, setError] = useState('')
+  const [draftId, setDraftId] = useState<string | null>(null)
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
+  const draftIdRef = useRef<string | null>(null)
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  async function handleSave() {
-    if (!title.trim()) {
-      setError('Nazwij swój sen zanim go zapiszemy.')
-      return
-    }
-    setError('')
-    await saveDream({ title: title.trim(), description, tags })
-    if (desktopMode && onSaved) {
-      onSaved()
+  const hasContent = title.trim().length > 0 || description.replace(/<[^>]*>/g, '').trim().length > 0
+
+  useEffect(() => {
+    if (!hasContent) return
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    setSaveStatus('saving')
+    saveTimerRef.current = setTimeout(async () => {
+      const effectiveTitle = title.trim() || 'Sen bez nazwy'
+      try {
+        if (!draftIdRef.current) {
+          const dream = await saveDream({ title: effectiveTitle, description, tags })
+          draftIdRef.current = dream.id
+          setDraftId(dream.id)
+        } else {
+          await updateDream(draftIdRef.current, { title: effectiveTitle, description, tags })
+        }
+        setSaveStatus('saved')
+      } catch {
+        setSaveStatus('idle')
+      }
+    }, 800)
+    return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current) }
+  }, [title, description, tags])
+
+  function handleBack() {
+    if (draftIdRef.current) {
+      if (desktopMode && onSaved) { onSaved() } else { navigate('/home', { replace: true }) }
     } else {
-      navigate('/home', { replace: true })
+      if (desktopMode && onSaved) { onSaved() } else { navigate(-1) }
     }
   }
 
@@ -42,14 +62,15 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
       {/* Header – tylko mobile */}
       {!desktopMode && (
         <>
-          <div className="flex items-center gap-2 pt-12 px-4 pb-5">
+          <div className="flex items-center justify-between pt-12 px-4 pb-5">
             <button
-              onClick={() => navigate(-1)}
+              onClick={handleBack}
               className="font-ui flex items-center gap-1 text-white/70 hover:text-white transition-colors py-2 pr-3 text-sm font-light tracking-wide"
             >
               <ChevronLeft size={20} />
               <span className="text-sm">wróć</span>
             </button>
+            <SaveIndicator status={saveStatus} />
           </div>
           <div className="px-5 pb-6">
             <h1 className="font-display text-white text-4xl">Nowy sen</h1>
@@ -59,13 +80,14 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
 
       {/* Tytuł ekranu – desktop */}
       {desktopMode && (
-        <div className="w-full max-w-[900px] mx-auto px-8 pt-6 pb-4">
+        <div className="w-full max-w-[900px] mx-auto px-8 pt-6 pb-4 flex items-center justify-between">
           <h1 className="font-display text-white text-4xl">Nowy sen</h1>
+          <SaveIndicator status={saveStatus} />
         </div>
       )}
 
       {/* Formularz */}
-      <div className={`flex-1 space-y-2 ${desktopMode ? 'w-full max-w-[900px] mx-auto px-8 overflow-y-auto pb-8' : 'px-5 pb-36'}`}>
+      <div className={`flex-1 space-y-2 ${desktopMode ? 'w-full max-w-[900px] mx-auto px-8 overflow-y-auto pb-8' : 'px-5 pb-12'}`}>
 
         {/* Tytuł */}
         <div className="space-y-2">
@@ -73,10 +95,7 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
             <Input
               value={titleMic.isListening ? (title ? title + ' ' : '') + (titleMic.interim || '') : title}
               onChange={(e) => {
-                if (!titleMic.isListening) {
-                  setTitle(e.target.value)
-                  if (e.target.value.trim()) setError('')
-                }
+                if (!titleMic.isListening) setTitle(e.target.value)
               }}
               placeholder="Nazwij swój sen"
               className={cn(
@@ -97,7 +116,6 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
                   } else {
                     titleMic.start((text) => {
                       setTitle(prev => (prev.trim() ? prev.trim() + ' ' : '') + text)
-                      setError('')
                     })
                   }
                 }}
@@ -112,9 +130,6 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
               </button>
             )}
           </div>
-          {error && (
-            <p className="font-ui text-red-400 text-xs mt-1">{error}</p>
-          )}
         </div>
 
         {/* Opis */}
@@ -163,40 +178,7 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
             </button>
           )}
         </div>
-
-        {/* Przycisk zapisu – tylko desktop, pod motywami, wyrównany do prawej */}
-        {desktopMode && (
-          <div className="flex justify-end pt-4">
-            <Button
-              onClick={handleSave}
-              className="font-ui h-12 rounded-full bg-gradient-to-r from-[#533483] to-[#6a44a0]
-                         text-white font-medium text-[0.95rem] tracking-wide
-                         shadow-lg shadow-purple-900/50
-                         hover:from-[#6a44a0] hover:to-[#7d55b8]
-                         active:scale-[0.98] transition-all duration-150 border-0"
-              style={{ paddingLeft: '20px', paddingRight: '20px' }}
-            >
-              Zapisz sen
-            </Button>
-          </div>
-        )}
       </div>
-
-      {/* Przycisk zapisu – mobile */}
-      {!desktopMode && (
-        <div className="sticky bottom-0 p-4 pb-8 bg-gradient-to-t from-black/40 to-transparent">
-          <Button
-            onClick={handleSave}
-            className="font-ui w-full h-14 rounded-full bg-gradient-to-r from-[#533483] to-[#6a44a0]
-                       text-white font-medium text-[0.95rem] tracking-wide
-                       shadow-lg shadow-purple-900/50
-                       hover:from-[#6a44a0] hover:to-[#7d55b8]
-                       active:scale-[0.98] transition-all duration-150 border-0"
-          >
-            Zapisz sen
-          </Button>
-        </div>
-      )}
 
       {showPicker && (
         <TagPicker
@@ -206,5 +188,15 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
         />
       )}
     </div>
+  )
+}
+
+function SaveIndicator({ status }: { status: 'idle' | 'saving' | 'saved' }) {
+  if (status === 'idle') return null
+  return (
+    <span className="font-ui text-xs font-light tracking-wide transition-opacity duration-300"
+      style={{ color: status === 'saving' ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.55)' }}>
+      {status === 'saving' ? 'Zapisuję...' : 'Zapisano'}
+    </span>
   )
 }

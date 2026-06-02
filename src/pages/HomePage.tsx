@@ -1,11 +1,10 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { Pencil, Trash2, Plus, X } from 'lucide-react'
 import { getDreams, saveDream, updateDream, deleteDream, stripHtml } from '@/storage/dreamStorage'
 import { Dream } from '@/types/dream'
 import { CalendarStrip, toDateKey } from '@/components/CalendarStrip'
 import { DreamEditor } from '@/components/DreamEditor'
 import { TagPicker } from '@/components/TagPicker'
-import { Button } from '@/components/ui/button'
 import { useAuth } from '@/context/AuthContext'
 
 function addDays(d: Date, n: number): Date {
@@ -38,9 +37,23 @@ export function HomePage() {
   const [description, setDescription] = useState('')
   const [tags, setTags] = useState<string[]>([])
   const [showPicker, setShowPicker] = useState(false)
-  const [saving, setSaving] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const [showSaved, setShowSaved] = useState(false)
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
+
+  // Refs for auto-save (capture latest values in async closures)
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isUserChangeRef = useRef(false)
+  const selectedDateRef = useRef(selectedDate)
+  const descriptionRef = useRef(description)
+  const tagsRef = useRef(tags)
+  const dreamsByDateRef = useRef(dreamsByDate)
+  const modeRef = useRef(mode)
+
+  useEffect(() => { selectedDateRef.current = selectedDate }, [selectedDate])
+  useEffect(() => { descriptionRef.current = description }, [description])
+  useEffect(() => { tagsRef.current = tags }, [tags])
+  useEffect(() => { dreamsByDateRef.current = dreamsByDate }, [dreamsByDate])
+  useEffect(() => { modeRef.current = mode }, [mode])
 
   const load = useCallback(async () => {
     const data = await getDreams()
@@ -56,11 +69,48 @@ export function HomePage() {
 
   useEffect(() => { load() }, [load])
 
-  // When selected date changes, update the entry panel
-  function selectDay(day: Date) {
+  // Auto-save when description or tags change (user-initiated only)
+  useEffect(() => {
+    if (!isUserChangeRef.current) return
+    const capturedDate = selectedDateRef.current
+    const capturedDesc = description
+    const capturedTags = tags
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    setSaveStatus('saving')
+    saveTimerRef.current = setTimeout(async () => {
+      await doSave(capturedDate, capturedDesc, capturedTags)
+    }, 800)
+  }, [description, tags]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function doSave(date: Date, desc: string, tgs: string[]) {
+    const key = toDateKey(date)
+    const existing = dreamsByDateRef.current.get(key)
+    try {
+      if (existing) {
+        await updateDream(existing.id, { description: desc, tags: tgs })
+      } else if (desc.replace(/<[^>]*>/g, '').trim()) {
+        const dateStr = key + 'T12:00:00'
+        await saveDream({ title: '', description: desc, tags: tgs, dateOverride: dateStr })
+      }
+      await load()
+      setSaveStatus('saved')
+    } catch {
+      setSaveStatus('idle')
+    }
+    isUserChangeRef.current = false
+  }
+
+  // When selected date changes, flush pending save then update panel
+  async function selectDay(day: Date) {
+    // Flush pending save for current day
+    if (saveTimerRef.current && isUserChangeRef.current) {
+      clearTimeout(saveTimerRef.current)
+      await doSave(selectedDateRef.current, descriptionRef.current, tagsRef.current)
+    }
+    isUserChangeRef.current = false
     setSelectedDate(day)
     const key = toDateKey(day)
-    const existing = dreamsByDate.get(key)
+    const existing = dreamsByDateRef.current.get(key)
     if (existing) {
       setMode('view')
       setDescription(existing.description)
@@ -71,42 +121,27 @@ export function HomePage() {
       setTags([])
     }
     setConfirmDelete(false)
+    setSaveStatus('idle')
   }
 
-  // Also sync panel when dreams load
+  // Sync panel when dreams load (after save)
   useEffect(() => {
     const key = toDateKey(selectedDate)
     const existing = dreamsByDate.get(key)
-    if (existing) {
-      setMode('view')
+    if (existing && modeRef.current === 'view') {
       setDescription(existing.description)
       setTags(existing.tags)
     }
-    // don't reset to 'add' here — only do that on explicit date change
   }, [dreamsByDate]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function handleSave() {
-    setSaving(true)
-    const selectedKey = toDateKey(selectedDate)
-    const existing = dreamsByDate.get(selectedKey)
-    if (existing) {
-      await updateDream(existing.id, { description, tags })
-    } else {
-      // Set created_at to the selected date at noon local time
-      const dateStr = selectedKey + 'T12:00:00'
-      await saveDream({ title: '', description, tags, dateOverride: dateStr })
-    }
-    const newMap = await load()
-    setSaving(false)
-    setShowSaved(true)
-    setTimeout(() => setShowSaved(false), 2000)
-    // Switch to view
-    const updated = newMap.get(selectedKey)
-    if (updated) {
-      setMode('view')
-      setDescription(updated.description)
-      setTags(updated.tags)
-    }
+  function handleDescriptionChange(val: string) {
+    isUserChangeRef.current = true
+    setDescription(val)
+  }
+
+  function handleTagsChange(newTags: string[]) {
+    isUserChangeRef.current = true
+    setTags(newTags)
   }
 
   async function handleDelete() {
@@ -132,17 +167,34 @@ export function HomePage() {
 
   const isFuture = selectedDate > today
 
+  const windowDaysIncludeToday = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(windowStart); d.setDate(d.getDate() + i); return toDateKey(d)
+  }).includes(toDateKey(today))
+
   return (
     <div className="min-h-screen flex flex-col max-w-[600px] mx-auto">
       {/* Top bar */}
       <div className="flex items-center justify-between pt-10 px-4 pb-1">
         <p className="font-display text-white text-xl">Dziennik snów</p>
-        <button
-          onClick={signOut}
-          className="font-ui text-white/35 hover:text-white/65 text-xs transition-colors"
-        >
-          Wyloguj
-        </button>
+        <div className="flex items-center gap-3">
+          {!windowDaysIncludeToday && (
+            <button
+              onClick={() => { selectDay(today); setWindowStart(addDays(today, -6)) }}
+              className="font-ui text-[0.7rem] tracking-widest uppercase px-3 h-6 rounded-full
+                         border border-purple-400/50 text-purple-300
+                         hover:bg-purple-400/15 hover:border-purple-400/80
+                         transition-all duration-150 active:scale-95"
+            >
+              Dzisiaj
+            </button>
+          )}
+          <button
+            onClick={signOut}
+            className="font-ui text-white/35 hover:text-white/65 text-xs transition-colors"
+          >
+            Wyloguj
+          </button>
+        </div>
       </div>
 
       {/* Calendar strip */}
@@ -184,24 +236,13 @@ export function HomePage() {
             </div>
           )}
 
-          {mode === 'edit' && (
-            <button
-              onClick={() => {
-                const d = existingDream
-                if (d) { setDescription(d.description); setTags(d.tags) }
-                setMode('view')
-              }}
-              className="font-ui text-white/40 hover:text-white/70 text-xs transition-colors"
-            >
-              Anuluj
-            </button>
+            {mode === 'edit' && saveStatus !== 'idle' && (
+            <span className="font-ui text-xs font-light tracking-wide"
+              style={{ color: saveStatus === 'saving' ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.55)' }}>
+              {saveStatus === 'saving' ? 'Zapisuję...' : 'Zapisano'}
+            </span>
           )}
         </div>
-
-        {/* Saved confirmation */}
-        {showSaved && (
-          <p className="font-ui text-purple-300 text-sm mb-3 animate-fade-in">Sen zapisany ✓</p>
-        )}
 
         {/* View mode */}
         {mode === 'view' && existingDream && (
@@ -233,7 +274,7 @@ export function HomePage() {
         {/* Add / Edit mode */}
         {(mode === 'add' || mode === 'edit') && !isFuture && (
           <div className="flex-1 flex flex-col gap-3">
-            <DreamEditor value={description} onChange={setDescription} />
+            <DreamEditor key={toDateKey(selectedDate)} value={description} onChange={handleDescriptionChange} />
 
             {/* Tags */}
             <div className="pt-1">
@@ -243,7 +284,7 @@ export function HomePage() {
                     <button
                       key={tag}
                       type="button"
-                      onClick={() => setTags(tags.filter(t => t !== tag))}
+                      onClick={() => handleTagsChange(tags.filter(t => t !== tag))}
                       className="font-ui flex items-center gap-1.5 pl-4 pr-3 h-7 rounded-full text-sm font-light tracking-wide
                                  border border-[#2a1a4a] text-[#2a1a4a] bg-white/60
                                  hover:bg-white/80 transition-all duration-150 active:scale-95"
@@ -277,20 +318,13 @@ export function HomePage() {
               )}
             </div>
 
-            <div className="pt-2">
-              <Button
-                onClick={handleSave}
-                disabled={saving}
-                className="font-ui w-full h-12 rounded-full bg-gradient-to-r from-[#533483] to-[#6a44a0]
-                           text-white font-medium text-[0.95rem] tracking-wide
-                           shadow-lg shadow-purple-900/50
-                           hover:from-[#6a44a0] hover:to-[#7d55b8]
-                           active:scale-[0.98] transition-all duration-150 border-0
-                           disabled:opacity-50"
-              >
-                {saving ? 'Zapisywanie…' : 'Zapisz sen'}
-              </Button>
-            </div>
+            {/* Auto-save status (add mode) */}
+            {mode === 'add' && saveStatus !== 'idle' && (
+              <p className="font-ui text-xs font-light tracking-wide"
+                style={{ color: saveStatus === 'saving' ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.55)' }}>
+                {saveStatus === 'saving' ? 'Zapisuję...' : 'Zapisano'}
+              </p>
+            )}
           </div>
         )}
 
@@ -302,7 +336,7 @@ export function HomePage() {
       </div>
 
       {showPicker && (
-        <TagPicker selected={tags} onChange={setTags} onClose={() => setShowPicker(false)} />
+        <TagPicker selected={tags} onChange={(t) => { handleTagsChange(t); setShowPicker(false) }} onClose={() => setShowPicker(false)} />
       )}
 
       {/* Delete confirm */}

@@ -37,7 +37,6 @@ export function CalendarStrip({
 
   const selectedKey = toDateKey(selectedDate)
   const todayKey = toDateKey(today)
-
   return (
     <div className="flex items-center gap-1 px-2 py-3">
       <button
@@ -62,18 +61,22 @@ export function CalendarStrip({
               onClick={() => !isFuture && onSelect(day)}
               disabled={isFuture}
               className={[
-                'flex-1 flex flex-col items-center py-2 rounded-xl transition-all duration-150',
+                'flex-1 relative flex flex-col items-center justify-center py-2 rounded-xl transition-all duration-150',
                 isFuture
                   ? 'opacity-25 cursor-default'
                   : 'hover:bg-white/10 active:scale-95',
                 isSelected && !isFuture
-                  ? 'bg-white/15 border border-white/20'
+                  ? 'bg-purple-300 border border-transparent'
+                  : isToday
+                  ? 'bg-white/15 border border-purple-300'
+                  : hasDream
+                  ? 'border border-purple-400/60'
                   : 'border border-transparent',
               ].join(' ')}
             >
               <span className={[
                 'font-display text-lg leading-none',
-                isToday ? 'text-purple-300' : 'text-white',
+                isToday ? 'text-white' : 'text-white',
               ].join(' ')}>
                 {day.getDate()}
               </span>
@@ -81,7 +84,7 @@ export function CalendarStrip({
                 {MONTHS_PL[day.getMonth()]}
               </span>
               <div className={[
-                'w-1.5 h-1.5 rounded-full mt-1.5',
+                'absolute bottom-1.5 w-1.5 h-1.5 rounded-full',
                 hasDream ? 'bg-purple-400' : 'bg-transparent',
               ].join(' ')} />
             </button>
