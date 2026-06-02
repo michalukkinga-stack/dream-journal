@@ -50,7 +50,7 @@ export const ChatBottomSheet = forwardRef<ChatPanelHandle, ChatBottomSheetProps>
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-3 shrink-0">
             <span className="font-display text-white text-lg font-semibold tracking-wide">
-              Dzisiejsza sesja
+              Analiza snu
             </span>
             <button
               onClick={onClose}
