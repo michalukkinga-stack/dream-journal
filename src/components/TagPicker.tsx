@@ -144,10 +144,7 @@ function SheetContent({
 
       {/* Tagi */}
       <div className="flex-1 min-h-0 relative">
-        <div
-          className={`h-full overflow-y-auto px-5 ${onSave ? 'pb-24' : 'pb-5'}`}
-          style={onSave ? { maskImage: 'linear-gradient(to bottom, black calc(100% - 80px), transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black calc(100% - 80px), transparent 100%)' } : undefined}
-        >
+        <div className={`h-full overflow-y-auto px-5 ${onSave ? 'pb-24' : 'pb-5'}`}>
           {filtered.length === 0 ? (
             <p className="font-ui text-white/50 text-sm font-light text-center py-8 tracking-wide">
               Brak pasujących motywów
@@ -184,7 +181,12 @@ function SheetContent({
         {onSave && (
           <div
             className={`absolute bottom-0 left-0 right-0 z-10 px-5 pb-5 ${fullWidth ? '' : 'flex justify-end'}`}
+            style={{ background: 'radial-gradient(ellipse 100% 60% at 50% 60%, rgba(202, 196, 238, 0.18) 0%, transparent 70%), linear-gradient(170deg, #3D4254 0%, #7A465B 50%, #16323F 100%)' }}
           >
+            <div
+              className="absolute left-0 right-0 pointer-events-none"
+              style={{ height: '60px', background: 'linear-gradient(to bottom, transparent, #16323F)', top: '-60px' }}
+            />
             <button
               onClick={onSave}
               className={`relative font-ui h-14 rounded-full
