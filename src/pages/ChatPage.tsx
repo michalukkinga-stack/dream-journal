@@ -164,7 +164,7 @@ export function ChatPage() {
           <div className="relative flex-1">
             <input
               type="text"
-              placeholder="Zapytaj Junga…"
+              placeholder={messages.length > 0 ? 'Zapytaj znawcę snów…' : 'Zapytaj Junga…'}
               value={displayInput}
               onChange={e => { if (!mic.isListening) setInputValue(e.target.value) }}
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) onSend() }}
