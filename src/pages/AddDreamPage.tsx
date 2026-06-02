@@ -23,13 +23,13 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
   const [showPicker, setShowPicker] = useState(false)
   const [error, setError] = useState('')
 
-  function handleSave() {
+  async function handleSave() {
     if (!title.trim()) {
       setError('Nazwij swój sen zanim go zapiszemy.')
       return
     }
     setError('')
-    saveDream({ title: title.trim(), description, tags })
+    await saveDream({ title: title.trim(), description, tags })
     if (desktopMode && onSaved) {
       onSaved()
     } else {

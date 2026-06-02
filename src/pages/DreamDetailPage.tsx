@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft, Pencil, Trash2, X } from 'lucide-react'
 import { getDreamById, formatDate, deleteDream } from '@/storage/dreamStorage'
+import { Dream } from '@/types/dream'
 
 function DeleteContent({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
   return (
@@ -48,15 +49,23 @@ function DeleteContent({ onCancel, onConfirm }: { onCancel: () => void; onConfir
 export function DreamDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const dream = id ? getDreamById(id) : undefined
+  const [dream, setDream] = useState<Dream | undefined>()
+  const [loading, setLoading] = useState(true)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
-  function handleDelete() {
+  useEffect(() => {
+    if (!id) return
+    getDreamById(id).then(d => { setDream(d); setLoading(false) })
+  }, [id])
+
+  async function handleDelete() {
     if (id) {
-      deleteDream(id)
+      await deleteDream(id)
       navigate('/home')
     }
   }
+
+  if (loading) return null
 
   if (!dream) {
     return (

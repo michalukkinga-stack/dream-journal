@@ -1,78 +1,55 @@
+import { supabase } from '@/lib/supabaseClient'
 import { Dream } from '@/types/dream'
 
-const STORAGE_KEY = '@dreams'
-const INITIALIZED_KEY = '@dreams_initialized'
-
-const SEED_DREAM: Dream = {
-  id: 'seed-1',
-  title: 'Latanie nad miastem',
-  description:
-    '<p>Leciałam nad nocnym miastem pokrytym mgłą. Ulice świeciły złotymi lampami, a powietrze było ciepłe i spokojne. Czułam się lekka, jakby wszystkie troski zostały na ziemi.</p><p>Gdzieś w oddali widać było rzekę – srebrną wstęgę wijącą się między dzielnicami. Nikt mnie nie widział, ale ja widziałam wszystko.</p>',
-  tags: ['Latanie', 'Miasto', 'Spokojny', 'Kolorowy'],
-  createdAt: new Date('2026-05-27T06:30:00').toISOString(),
+type DbDream = {
+  id: string
+  user_id: string
+  title: string
+  description: string
+  tags: string[]
+  created_at: string
 }
 
-// Bezpieczny dostęp do localStorage — nie rzuca na iOS Safari private/restricted
-function lsGet(key: string): string | null {
-  try { return localStorage.getItem(key) } catch { return null }
-}
-function lsSet(key: string, value: string): void {
-  try { localStorage.setItem(key, value) } catch { /* ignoruj */ }
-}
-function lsRemove(key: string): void {
-  try { localStorage.removeItem(key) } catch { /* ignoruj */ }
+function toAppDream(d: DbDream): Dream {
+  return { id: d.id, title: d.title, description: d.description, tags: d.tags, createdAt: d.created_at }
 }
 
-export const storage = { get: lsGet, set: lsSet, remove: lsRemove }
-
-export function initStorage(): void {
-  try {
-    const initialized = lsGet(INITIALIZED_KEY)
-    if (!initialized) {
-      lsSet(STORAGE_KEY, JSON.stringify([SEED_DREAM]))
-      lsSet(INITIALIZED_KEY, 'true')
-    }
-  } catch { /* nic — aplikacja ruszy bez seed data */ }
+export async function getDreams(): Promise<Dream[]> {
+  const { data, error } = await supabase
+    .from('dreams')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) { console.error(error); return [] }
+  return (data as DbDream[]).map(toAppDream)
 }
 
-export function getDreams(): Dream[] {
-  try {
-    const raw = lsGet(STORAGE_KEY)
-    if (!raw) return []
-    const dreams: Dream[] = JSON.parse(raw)
-    return dreams
-      .map(d => ({ ...d, tags: d.tags ?? [] }))
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  } catch { return [] }
+export async function getDreamById(id: string): Promise<Dream | undefined> {
+  const { data, error } = await supabase
+    .from('dreams')
+    .select('*')
+    .eq('id', id)
+    .single()
+  if (error) return undefined
+  return toAppDream(data as DbDream)
 }
 
-export function getDreamById(id: string): Dream | undefined {
-  return getDreams().find((d) => d.id === id)
+export async function saveDream(dream: Omit<Dream, 'id' | 'createdAt'> & { tags?: string[] }): Promise<Dream> {
+  const user = (await supabase.auth.getUser()).data.user
+  const { data, error } = await supabase
+    .from('dreams')
+    .insert({ title: dream.title, description: dream.description ?? '', tags: dream.tags ?? [], user_id: user!.id })
+    .select()
+    .single()
+  if (error) throw error
+  return toAppDream(data as DbDream)
 }
 
-export function saveDream(dream: Omit<Dream, 'id' | 'createdAt'> & { tags?: string[] }): Dream {
-  const newDream: Dream = {
-    ...dream,
-    tags: dream.tags ?? [],
-    id: typeof crypto !== 'undefined' && crypto.randomUUID
-      ? crypto.randomUUID()
-      : Math.random().toString(36).slice(2),
-    createdAt: new Date().toISOString(),
-  }
-  const existing = getDreams()
-  lsSet(STORAGE_KEY, JSON.stringify([newDream, ...existing]))
-  return newDream
+export async function deleteDream(id: string): Promise<void> {
+  await supabase.from('dreams').delete().eq('id', id)
 }
 
-export function deleteDream(id: string): void {
-  const updated = getDreams().filter((d) => d.id !== id)
-  lsSet(STORAGE_KEY, JSON.stringify(updated))
-}
-
-export function updateDream(id: string, patch: Partial<Omit<Dream, 'id' | 'createdAt'>>): void {
-  const dreams = getDreams()
-  const updated = dreams.map((d) => d.id === id ? { ...d, ...patch } : d)
-  lsSet(STORAGE_KEY, JSON.stringify(updated))
+export async function updateDream(id: string, patch: Partial<Omit<Dream, 'id' | 'createdAt'>>): Promise<void> {
+  await supabase.from('dreams').update(patch).eq('id', id)
 }
 
 export function stripHtml(html: string): string {

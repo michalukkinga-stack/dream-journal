@@ -1,5 +1,6 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Component, ReactNode } from 'react'
+import { AuthProvider, useAuth } from '@/context/AuthContext'
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null; stack?: string }> {
   state = { error: null, stack: undefined }
@@ -31,28 +32,38 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
     return this.props.children
   }
 }
+
 import { HomePage } from '@/pages/HomePage'
 import { AddDreamPage } from '@/pages/AddDreamPage'
 import { EditDreamPage } from '@/pages/EditDreamPage'
 import { DreamDetailPage } from '@/pages/DreamDetailPage'
-import { WelcomePage } from '@/pages/WelcomePage'
+import { LoginPage } from '@/pages/LoginPage'
 import { DesktopLayout } from '@/components/DesktopLayout'
 
+function ProtectedRoute({ children }: { children: ReactNode }) {
+  const { session, loading } = useAuth()
+  if (loading) return null
+  if (!session) return <Navigate to="/login" replace />
+  return <>{children}</>
+}
 
 export default function App() {
   return (
     <ErrorBoundary>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<WelcomePage />} />
-        <Route element={<DesktopLayout />}>
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/add" element={<AddDreamPage />} />
-          <Route path="/edit/:id" element={<EditDreamPage />} />
-          <Route path="/dream/:id" element={<DreamDetailPage />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route element={<ProtectedRoute><DesktopLayout /></ProtectedRoute>}>
+              <Route path="/home" element={<HomePage />} />
+              <Route path="/add" element={<AddDreamPage />} />
+              <Route path="/edit/:id" element={<EditDreamPage />} />
+              <Route path="/dream/:id" element={<DreamDetailPage />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </ErrorBoundary>
   )
 }

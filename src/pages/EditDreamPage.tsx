@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft, Plus, X, Mic, MicOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -8,19 +8,33 @@ import { TagPicker } from '@/components/TagPicker'
 import { getDreamById, updateDream } from '@/storage/dreamStorage'
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition'
 import { cn } from '@/lib/utils'
+import { Dream } from '@/types/dream'
 
 export function EditDreamPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const dream = id ? getDreamById(id) : undefined
 
-  const titleMic = useSpeechRecognition()
-  const [title, setTitle] = useState(dream?.title ?? '')
-  const [description, setDescription] = useState(dream?.description ?? '')
-  const [tags, setTags] = useState<string[]>(dream?.tags ?? [])
+  const [dream, setDream] = useState<Dream | undefined>()
+  const [loading, setLoading] = useState(true)
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [tags, setTags] = useState<string[]>([])
   const [showPicker, setShowPicker] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [error, setError] = useState('')
+
+  const titleMic = useSpeechRecognition()
+
+  useEffect(() => {
+    if (!id) return
+    getDreamById(id).then(d => {
+      setDream(d)
+      if (d) { setTitle(d.title); setDescription(d.description); setTags(d.tags) }
+      setLoading(false)
+    })
+  }, [id])
+
+  if (loading) return null
 
   if (!dream) {
     return (
@@ -43,20 +57,13 @@ export function EditDreamPage() {
     JSON.stringify(tags) !== JSON.stringify(dream.tags)
 
   function handleBack() {
-    if (isDirty) {
-      setShowConfirm(true)
-    } else {
-      navigate(-1)
-    }
+    if (isDirty) { setShowConfirm(true) } else { navigate(-1) }
   }
 
-  function handleSave() {
-    if (!title.trim()) {
-      setError('Tytuł snu jest wymagany.')
-      return
-    }
+  async function handleSave() {
+    if (!title.trim()) { setError('Tytuł snu jest wymagany.'); return }
     setError('')
-    updateDream(id!, { title: title.trim(), description, tags })
+    await updateDream(id!, { title: title.trim(), description, tags })
     navigate(`/dream/${id}`, { replace: true })
   }
 
@@ -73,22 +80,15 @@ export function EditDreamPage() {
         </button>
       </div>
 
-      {/* Tytuł ekranu */}
-      <div className="px-5 md:px-8 pb-6 max-w-[900px] mx-auto w-full">
-      </div>
+      <div className="px-5 md:px-8 pb-6 max-w-[900px] mx-auto w-full" />
 
       {/* Formularz */}
       <div className="flex-1 px-5 md:px-8 space-y-2 pb-36 max-w-[900px] mx-auto w-full">
-
-        {/* Tytuł */}
         <div className="space-y-2">
           <div className="relative">
             <Input
               value={title}
-              onChange={(e) => {
-                setTitle(e.target.value)
-                if (e.target.value.trim()) setError('')
-              }}
+              onChange={(e) => { setTitle(e.target.value); if (e.target.value.trim()) setError('') }}
               placeholder="Nazwij swój sen"
               className={cn(
                 'font-ui text-white placeholder:text-white/40',
@@ -119,27 +119,20 @@ export function EditDreamPage() {
                     : 'text-white/40 hover:text-white/70 hover:bg-white/10'
                 )}
               >
-                {titleMic.isListening
-                  ? <MicOff size={14} />
-                  : <Mic size={14} />
-                }
+                {titleMic.isListening ? <MicOff size={14} /> : <Mic size={14} />}
               </button>
             )}
           </div>
           {titleMic.isListening && titleMic.interim && (
             <p className="font-ui text-white/40 text-xs italic px-1">{titleMic.interim}</p>
           )}
-          {error && (
-            <p className="font-ui text-red-400 text-xs mt-1">{error}</p>
-          )}
+          {error && <p className="font-ui text-red-400 text-xs mt-1">{error}</p>}
         </div>
 
-        {/* Opis */}
         <div className="space-y-2">
           <DreamEditor value={description} onChange={setDescription} />
         </div>
 
-        {/* Motywy */}
         <div className="space-y-3 pt-1">
           {tags.length > 0 ? (
             <div className="flex flex-wrap gap-2 items-center">
@@ -185,42 +178,32 @@ export function EditDreamPage() {
       {/* Przycisk zapisu */}
       <div className="sticky bottom-0 p-4 pb-8 bg-gradient-to-t from-black/40 to-transparent">
         <div className="max-w-[900px] mx-auto">
-        <Button
-          onClick={handleSave}
-          className="font-ui w-full h-14 rounded-full bg-gradient-to-r from-[#533483] to-[#6a44a0]
-                     text-white font-medium text-[0.95rem] tracking-wide
-                     shadow-lg shadow-purple-900/50
-                     hover:from-[#6a44a0] hover:to-[#7d55b8]
-                     active:scale-[0.98] transition-all duration-150 border-0"
-        >
-          Zapisz sen
-        </Button>
+          <Button
+            onClick={handleSave}
+            className="font-ui w-full h-14 rounded-full bg-gradient-to-r from-[#533483] to-[#6a44a0]
+                       text-white font-medium text-[0.95rem] tracking-wide
+                       shadow-lg shadow-purple-900/50
+                       hover:from-[#6a44a0] hover:to-[#7d55b8]
+                       active:scale-[0.98] transition-all duration-150 border-0"
+          >
+            Zapisz sen
+          </Button>
         </div>
       </div>
 
       {showPicker && (
-        <TagPicker
-          selected={tags}
-          onChange={setTags}
-          onClose={() => setShowPicker(false)}
-        />
+        <TagPicker selected={tags} onChange={setTags} onClose={() => setShowPicker(false)} />
       )}
 
-      {/* Dialog potwierdzenia cofnięcia */}
       {showConfirm && (
         <>
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50" />
           <div className="fixed inset-0 z-50 flex items-center justify-center px-8">
             <div
               className="w-full rounded-3xl p-7 text-center border border-white/15"
-              style={{
-                background: 'rgba(30, 18, 66, 0.95)',
-                backdropFilter: 'blur(20px)',
-              }}
+              style={{ background: 'rgba(30, 18, 66, 0.95)', backdropFilter: 'blur(20px)' }}
             >
-              <p className="font-display text-white text-2xl leading-snug mb-2">
-                Porzucić zmiany?
-              </p>
+              <p className="font-display text-white text-2xl leading-snug mb-2">Porzucić zmiany?</p>
               <p className="font-ui text-white/65 text-sm font-light mb-7">
                 Niezapisane zmiany w tym śnie przepadną.
               </p>

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { getDreams, formatDate, storage, stripHtml } from '@/storage/dreamStorage'
+import { getDreams, formatDate, stripHtml } from '@/storage/dreamStorage'
 import { Dream } from '@/types/dream'
 import { AddDreamPage } from '@/pages/AddDreamPage'
+import { useAuth } from '@/context/AuthContext'
 
 function useIsDesktop() {
   const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 768)
@@ -18,9 +19,8 @@ function useIsDesktop() {
 function DesktopSidebar({ dreams }: { dreams: Dream[] }) {
   const navigate = useNavigate()
   const location = useLocation()
-
-  const userName = storage.get('userName') ?? 'nieznajomy'
-  const lastDream = dreams[0]
+  const { user } = useAuth()
+  const displayName = user?.email?.split('@')[0] ?? 'nieznajomy'
 
   const activeId = location.pathname.startsWith('/dream/')
     ? location.pathname.replace('/dream/', '')
@@ -33,11 +33,10 @@ function DesktopSidebar({ dreams }: { dreams: Dream[] }) {
       className="w-[320px] shrink-0 flex flex-col border-r border-white/10"
       style={{ background: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(12px)' }}
     >
-      {/* Dream list */}
       <div className="flex-1 overflow-y-auto px-3 pt-5 pb-3 space-y-2">
         {dreams.length === 0 ? (
           <p className="font-ui text-white/90 text-[0.95rem] font-light text-center py-8 leading-relaxed tracking-wide">
-            Cześć {userName}!<br />Zapisz pierwszy sen, zanim ucieknie!
+            Cześć {displayName}!<br />Zapisz pierwszy sen, zanim ucieknie!
           </p>
         ) : (
           dreams.map((dream) => (
@@ -45,9 +44,7 @@ function DesktopSidebar({ dreams }: { dreams: Dream[] }) {
               key={dream.id}
               onClick={() => navigate(`/dream/${dream.id}`)}
               className={`dream-card w-full text-left transition-all duration-150 ${
-                activeId === dream.id
-                  ? 'dream-card--active !bg-white/15'
-                  : ''
+                activeId === dream.id ? 'dream-card--active !bg-white/15' : ''
               }`}
             >
               <div className="p-4">
@@ -91,23 +88,18 @@ function DesktopSidebar({ dreams }: { dreams: Dream[] }) {
 export function DesktopLayout() {
   const isDesktop = useIsDesktop()
   const location = useLocation()
-  const navigate = useNavigate()
-  const [dreams, setDreams] = useState<Dream[]>(() => getDreams())
-
-  useEffect(() => {
-    if (!storage.get('userName')) {
-      navigate('/', { replace: true })
-    }
-  }, [])
+  const [dreams, setDreams] = useState<Dream[]>([])
   const [formKey, setFormKey] = useState(0)
   const [showSaved, setShowSaved] = useState(false)
 
-  useEffect(() => {
-    setDreams(getDreams())
-  }, [location, formKey])
+  async function loadDreams() {
+    setDreams(await getDreams())
+  }
 
-  function handleSaved() {
-    setDreams(getDreams())
+  useEffect(() => { loadDreams() }, [location, formKey])
+
+  async function handleSaved() {
+    await loadDreams()
     setShowSaved(true)
     setFormKey(k => k + 1)
     setTimeout(() => setShowSaved(false), 3000)
