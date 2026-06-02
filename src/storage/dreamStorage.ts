@@ -33,11 +33,18 @@ export async function getDreamById(id: string): Promise<Dream | undefined> {
   return toAppDream(data as DbDream)
 }
 
-export async function saveDream(dream: Omit<Dream, 'id' | 'createdAt'> & { tags?: string[] }): Promise<Dream> {
+export async function saveDream(dream: Omit<Dream, 'id' | 'createdAt'> & { tags?: string[]; dateOverride?: string }): Promise<Dream> {
   const user = (await supabase.auth.getUser()).data.user
+  const row: Record<string, unknown> = {
+    title: dream.title,
+    description: dream.description ?? '',
+    tags: dream.tags ?? [],
+    user_id: user!.id,
+  }
+  if (dream.dateOverride) row.created_at = dream.dateOverride
   const { data, error } = await supabase
     .from('dreams')
-    .insert({ title: dream.title, description: dream.description ?? '', tags: dream.tags ?? [], user_id: user!.id })
+    .insert(row)
     .select()
     .single()
   if (error) throw error
