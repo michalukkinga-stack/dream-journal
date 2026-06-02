@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Mic } from 'lucide-react'
-import { storage } from '@/storage/dreamStorage'
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition'
 import { cn } from '@/lib/utils'
 import { MoonIcon } from '@/components/MoonIcon'
@@ -12,15 +11,12 @@ export function WelcomePage() {
   const mic = useSpeechRecognition()
 
   useEffect(() => {
-    if (storage.get('userName')) {
-      navigate('/home', { replace: true })
-    }
+    navigate('/home', { replace: true })
   }, [])
 
   function handleStart() {
     const trimmed = name.trim()
     if (!trimmed) return
-    storage.set('userName', trimmed)
     navigate('/home')
   }
 
