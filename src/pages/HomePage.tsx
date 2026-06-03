@@ -73,6 +73,7 @@ export function HomePage() {
     return map
   }, [])
 
+
   useEffect(() => {
     load().then(map => {
       const key = toDateKey(selectedDateRef.current)
@@ -192,12 +193,21 @@ export function HomePage() {
 
   const isFuture = selectedDate > today
 
+  const dreamHasContent =
+    description.replace(/<[^>]*>/g, '').trim().length > 0 ||
+    tags.length > 0 ||
+    !!(existingDream && (
+      existingDream.title.trim().length > 0 ||
+      existingDream.description.replace(/<[^>]*>/g, '').trim().length > 0 ||
+      existingDream.tags.length > 0
+    ))
+
   const windowDaysIncludeToday = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(windowStart); d.setDate(d.getDate() + i); return toDateKey(d)
   }).includes(toDateKey(today))
 
   return (
-    <div className="min-h-screen flex flex-col max-w-[600px] mx-auto pb-0">
+    <div className="min-h-screen flex flex-col max-w-[600px] mx-auto pb-14">
       {/* Top bar */}
       <div className="flex items-center justify-between pt-10 px-4 pb-1">
         <p className="font-display text-white text-xl">Dziennik snów</p>
@@ -348,22 +358,26 @@ export function HomePage() {
 
       </div>
 
-      {/* Chat trigger bar */}
-      <AgentInput
-        onSend={(text) => {
-          setChatOpen(true)
-          chatPanelRef.current?.sendMessage(text)
-        }}
-        isLoading={false}
-      />
-
       <ChatBottomSheet
         ref={chatPanelRef}
         open={chatOpen}
-        onClose={() => setChatOpen(false)}
+        onToggle={() => setChatOpen(o => !o)}
         currentDream={existingDream}
         allDreams={dreams}
+        selectedDate={selectedKey}
       />
+
+      {/* Input — zawsze widoczny na samym dole */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 max-w-[600px] mx-auto">
+        <AgentInput
+          onSend={(text) => {
+            setChatOpen(true)
+            chatPanelRef.current?.sendMessage(text)
+          }}
+          isLoading={false}
+          dreamHasContent={dreamHasContent}
+        />
+      </div>
 
       {showPicker && (
         <TagPicker selected={tags} onChange={(t) => { handleTagsChange(t); setShowPicker(false) }} onClose={() => setShowPicker(false)} />

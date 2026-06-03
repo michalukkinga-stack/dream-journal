@@ -189,8 +189,8 @@ function SheetContent({
         <div
           ref={scrollRef}
           onScroll={checkScroll}
-          className={`flex-1 min-h-0 overflow-y-auto px-5 ${onSave ? 'pb-24' : 'pb-5'}`}
-          style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}
+          className={`flex-1 min-h-0 overflow-y-scroll px-5 ${onSave ? 'pb-24' : 'pb-5'}`}
+          style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain', touchAction: 'pan-y' }}
         >
           {canAdd && (
             <div className="mb-3">

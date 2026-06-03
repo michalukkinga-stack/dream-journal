@@ -6,9 +6,10 @@ import { cn } from '@/lib/utils'
 interface AgentInputProps {
   onSend: (text: string) => void
   isLoading?: boolean
+  dreamHasContent?: boolean
 }
 
-export function AgentInput({ onSend, isLoading = false }: AgentInputProps) {
+export function AgentInput({ onSend, isLoading = false, dreamHasContent = false }: AgentInputProps) {
   const [value, setValue] = useState('Co może oznaczać mój sen?')
   const mic = useSpeechRecognition()
 
@@ -29,7 +30,7 @@ export function AgentInput({ onSend, isLoading = false }: AgentInputProps) {
         <div className="relative flex-1">
           <input
             type="text"
-            placeholder="Co może oznaczać mój sen?"
+            placeholder=""
             value={displayValue}
             onChange={(e) => { if (!mic.isListening) setValue(e.target.value) }}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) handleSend() }}
@@ -66,7 +67,7 @@ export function AgentInput({ onSend, isLoading = false }: AgentInputProps) {
         <button
           type="button"
           onClick={handleSend}
-          disabled={!value.trim() || isLoading}
+          disabled={!value.trim() || isLoading || !dreamHasContent}
           className={cn(
             'w-11 h-11 rounded-xl flex items-center justify-center shrink-0',
             'bg-gradient-to-br from-[#533483] to-[#6a44a0]',

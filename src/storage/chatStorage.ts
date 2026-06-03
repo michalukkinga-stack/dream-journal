@@ -7,12 +7,13 @@ export type StoredMessage = {
   createdAt: string
 }
 
-export async function getChatMessages(): Promise<StoredMessage[]> {
+export async function getChatMessages(sessionDate: string): Promise<StoredMessage[]> {
   const { data, error } = await supabase
     .from('chat_messages')
     .select('*')
+    .eq('session_date', sessionDate)
     .order('created_at', { ascending: true })
-    .limit(50)
+    .limit(100)
   if (error) { console.error(error); return [] }
   return data.map(d => ({ id: d.id, role: d.role, content: d.content, createdAt: d.created_at }))
 }
@@ -20,6 +21,7 @@ export async function getChatMessages(): Promise<StoredMessage[]> {
 export async function saveChatMessage(
   role: 'user' | 'assistant',
   content: string,
+  sessionDate: string,
   contextDreamId?: string
 ): Promise<void> {
   const user = (await supabase.auth.getUser()).data.user
@@ -28,6 +30,7 @@ export async function saveChatMessage(
     user_id: user.id,
     role,
     content,
+    session_date: sessionDate,
     context_dream_id: contextDreamId ?? null,
   })
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ChevronLeft, Pencil, Trash2, X } from 'lucide-react'
+import { ChevronLeft, Trash2, X } from 'lucide-react'
 import { getDreamById, formatDate, deleteDream } from '@/storage/dreamStorage'
 import { Dream } from '@/types/dream'
 
@@ -95,14 +95,6 @@ export function DreamDetailPage() {
         </button>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => navigate(`/edit/${dream.id}`)}
-            className="w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center
-                       text-white/70 hover:text-white hover:bg-white/18
-                       transition-all duration-150 active:scale-95"
-          >
-            <Pencil size={16} />
-          </button>
           <button
             onClick={() => setConfirmDelete(true)}
             className="w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center

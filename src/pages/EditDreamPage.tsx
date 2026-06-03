@@ -137,32 +137,20 @@ export function EditDreamPage() {
         </div>
 
         <div className="space-y-3 pt-1">
-          {tags.length > 0 ? (
-            <div className="flex flex-wrap gap-2 items-center">
-              {tags.map(tag => (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() => setTags(tags.filter(t => t !== tag))}
-                  className="font-ui flex items-center gap-1.5 pl-4 pr-3 h-7 rounded-full text-sm font-light tracking-wide
-                             border border-[#2a1a4a] text-[#2a1a4a] bg-white/60
-                             hover:bg-white/80 transition-all duration-150 active:scale-95"
-                >
-                  {tag}
-                  <X size={11} className="opacity-60 shrink-0" />
-                </button>
-              ))}
+          <div className="flex flex-wrap gap-2 items-center">
+            {tags.map(tag => (
               <button
+                key={tag}
                 type="button"
-                onClick={() => setShowPicker(true)}
-                className="w-7 h-7 rounded-full border border-[#2a1a4a] text-[#2a1a4a]
-                           flex items-center justify-center bg-white/60
+                onClick={() => setTags(tags.filter(t => t !== tag))}
+                className="font-ui flex items-center gap-1.5 pl-4 pr-3 h-7 rounded-full text-sm font-light tracking-wide
+                           border border-[#2a1a4a] text-[#2a1a4a] bg-white/60
                            hover:bg-white/80 transition-all duration-150 active:scale-95"
               >
-                <Plus size={13} />
+                {tag}
+                <X size={11} className="opacity-60 shrink-0" />
               </button>
-            </div>
-          ) : (
+            ))}
             <button
               type="button"
               onClick={() => setShowPicker(true)}
@@ -174,7 +162,7 @@ export function EditDreamPage() {
               <Plus size={14} />
               Dodaj motyw
             </button>
-          )}
+          </div>
         </div>
       </div>
 

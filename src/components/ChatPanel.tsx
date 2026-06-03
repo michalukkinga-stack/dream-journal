@@ -13,6 +13,7 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string
 interface ChatPanelProps {
   currentDream?: Dream
   allDreams: Dream[]
+  selectedDate: string
 }
 
 export interface ChatPanelHandle {
@@ -21,7 +22,7 @@ export interface ChatPanelHandle {
 }
 
 export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(
-  ({ currentDream, allDreams }, ref) => {
+  ({ currentDream, allDreams, selectedDate }, ref) => {
     const bottomRef = useRef<HTMLDivElement>(null)
 
     const contextRef = useRef({ currentDream, allDreams })
@@ -70,23 +71,21 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(
           .filter(p => p.type === 'text')
           .map(p => (p as { type: 'text'; text: string }).text)
           .join('')
-        await saveChatMessage('assistant', text, currentDream?.id)
+        await saveChatMessage('assistant', text, selectedDate, currentDream?.id)
       },
     })
 
     useEffect(() => {
-      getChatMessages().then(stored => {
-        if (stored.length > 0) {
-          setMessages(
-            stored.map(m => ({
-              id: m.id,
-              role: m.role as 'user' | 'assistant',
-              parts: [{ type: 'text' as const, text: m.content }],
-            }))
-          )
-        }
+      getChatMessages(selectedDate).then(stored => {
+        setMessages(
+          stored.map(m => ({
+            id: m.id,
+            role: m.role as 'user' | 'assistant',
+            parts: [{ type: 'text' as const, text: m.content }],
+          }))
+        )
       })
-    }, [setMessages])
+    }, [selectedDate, setMessages])
 
     useEffect(() => {
       bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -97,7 +96,7 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(
     useImperativeHandle(ref, () => ({
       isLoading,
       sendMessage: async (text: string) => {
-        await saveChatMessage('user', text, currentDream?.id)
+        await saveChatMessage('user', text, selectedDate, currentDream?.id)
         sendMessage({ text })
       },
     }))
