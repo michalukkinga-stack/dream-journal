@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { Pencil, Trash2, Plus, X } from 'lucide-react'
-import { getDreams, saveDream, updateDream, deleteDream, stripHtml } from '@/storage/dreamStorage'
+import { Trash2, Plus, X } from 'lucide-react'
+import { getDreams, saveDream, updateDream, deleteDream } from '@/storage/dreamStorage'
 import { Dream } from '@/types/dream'
 import { CalendarStrip, toDateKey } from '@/components/CalendarStrip'
 import { DreamEditor } from '@/components/DreamEditor'
@@ -22,7 +22,7 @@ function getToday(): Date {
   return d
 }
 
-type Mode = 'view' | 'edit' | 'add'
+type Mode = 'edit' | 'add'
 
 export function HomePage() {
   const { signOut } = useAuth()
@@ -79,7 +79,7 @@ export function HomePage() {
       const key = toDateKey(selectedDateRef.current)
       const existing = map.get(key)
       if (existing) {
-        setMode('view')
+        setMode('edit')
         setDescription(existing.description)
         setTags(existing.tags)
       }
@@ -105,7 +105,7 @@ export function HomePage() {
     try {
       if (existing) {
         await updateDream(existing.id, { description: desc, tags: tgs })
-      } else if (desc.replace(/<[^>]*>/g, '').trim()) {
+      } else if (desc.replace(/<[^>]*>/g, '').trim() || tgs.length > 0) {
         const dateStr = key + 'T12:00:00'
         await saveDream({ title: '', description: desc, tags: tgs, dateOverride: dateStr })
       }
@@ -132,7 +132,7 @@ export function HomePage() {
     const key = toDateKey(day)
     const existing = freshMap.get(key)
     if (existing) {
-      setMode('view')
+      setMode('edit')
       setDescription(existing.description)
       setTags(existing.tags)
     } else {
@@ -154,7 +154,7 @@ export function HomePage() {
       setTags(existing.tags)
     } else if (modeRef.current === 'add' && !isUserChangeRef.current) {
       // Dream exists for this date but we're in add mode (initial load or post-save)
-      setMode('view')
+      setMode('edit')
       setDescription(existing.description)
       setTags(existing.tags)
     }
@@ -252,53 +252,17 @@ export function HomePage() {
         <div className="flex items-center justify-between mb-4">
           <p className="label-caps">{selectedLabel}</p>
 
-          {mode === 'view' && existingDream && (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setMode('edit')}
-                className="w-8 h-8 rounded-full bg-white/10 border border-white/15 flex items-center justify-center
-                           text-white/60 hover:text-white hover:bg-white/18 transition-all duration-150 active:scale-95"
-              >
-                <Pencil size={14} />
-              </button>
-              <button
-                onClick={() => setConfirmDelete(true)}
-                className="w-8 h-8 rounded-full bg-white/10 border border-white/15 flex items-center justify-center
-                           text-white/60 hover:text-red-400 hover:bg-red-500/15 transition-all duration-150 active:scale-95"
-              >
-                <Trash2 size={14} />
-              </button>
-            </div>
+          {existingDream && (
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="w-8 h-8 rounded-full bg-white/10 border border-white/15 flex items-center justify-center
+                         text-white/60 hover:text-red-400 hover:bg-red-500/15 transition-all duration-150 active:scale-95"
+            >
+              <Trash2 size={14} />
+            </button>
           )}
 
         </div>
-
-        {/* View mode */}
-        {mode === 'view' && existingDream && (
-          <div className="flex-1">
-            {stripHtml(existingDream.description) ? (
-              <div
-                className="font-ui dream-prose text-[0.95rem] font-light leading-[1.85]"
-                dangerouslySetInnerHTML={{ __html: existingDream.description }}
-              />
-            ) : (
-              <p className="font-ui text-white/40 text-sm italic">Brak opisu.</p>
-            )}
-            {existingDream.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-5">
-                {existingDream.tags.map(tag => (
-                  <span
-                    key={tag}
-                    className="font-ui px-4 h-7 flex items-center rounded-full text-sm font-light tracking-wide
-                               border border-[#2a1a4a] text-[#2a1a4a] bg-white/60"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
 
         {/* Add / Edit mode */}
         {(mode === 'add' || mode === 'edit') && !isFuture && (
