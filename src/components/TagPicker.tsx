@@ -1,7 +1,29 @@
 import { useEffect, useRef, useState } from 'react'
-import { X, Search } from 'lucide-react'
+import { X, Search, Plus } from 'lucide-react'
 import Highlighter from 'react-highlight-words'
 import { DREAM_TAGS } from '@/constants/tags'
+
+const CUSTOM_TAGS_KEY = 'dream_custom_tags'
+
+function loadCustomTags(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(CUSTOM_TAGS_KEY) || '[]')
+  } catch {
+    return []
+  }
+}
+
+function saveCustomTag(tag: string) {
+  const existing = loadCustomTags()
+  if (!existing.includes(tag)) {
+    localStorage.setItem(CUSTOM_TAGS_KEY, JSON.stringify([...existing, tag]))
+  }
+}
+
+function getAllTags(customTags: string[]): string[] {
+  const combined = [...DREAM_TAGS, ...customTags.filter(t => !DREAM_TAGS.includes(t))]
+  return combined
+}
 
 interface TagPickerProps {
   selected: string[]
@@ -11,33 +33,31 @@ interface TagPickerProps {
 
 export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
   const [desktopSelected, setDesktopSelected] = useState(selected)
+  const [customTags, setCustomTags] = useState<string[]>(loadCustomTags)
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = '' }
   }, [])
 
-  function toggleMobile(tag: string) {
+  function toggle(tag: string) {
     setDesktopSelected(prev =>
       prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
     )
   }
 
-  function handleMobileSave() {
+  function addNewTag(tag: string) {
+    saveCustomTag(tag)
+    setCustomTags(loadCustomTags())
+    setDesktopSelected(prev => prev.includes(tag) ? prev : [...prev, tag])
+  }
+
+  function handleSave() {
     onChange(desktopSelected)
     onClose()
   }
 
-  function toggleDesktop(tag: string) {
-    setDesktopSelected(prev =>
-      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
-    )
-  }
-
-  function handleDesktopSave() {
-    onChange(desktopSelected)
-    onClose()
-  }
+  const allTags = getAllTags(customTags)
 
   return (
     <>
@@ -58,7 +78,7 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
           backdropFilter: 'blur(20px)',
         }}
       >
-        <SheetContent selected={desktopSelected} onClose={onClose} toggle={toggleMobile} onSave={handleMobileSave} fullWidth />
+        <SheetContent allTags={allTags} selected={desktopSelected} onClose={onClose} toggle={toggle} onSave={handleSave} onAddTag={addNewTag} fullWidth />
       </div>
 
       {/* ── DESKTOP centered dialog ── */}
@@ -73,10 +93,12 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
           onClick={(e) => e.stopPropagation()}
         >
           <SheetContent
+            allTags={allTags}
             selected={desktopSelected}
             onClose={onClose}
-            toggle={toggleDesktop}
-            onSave={handleDesktopSave}
+            toggle={toggle}
+            onSave={handleSave}
+            onAddTag={addNewTag}
           />
         </div>
       </div>
@@ -85,16 +107,20 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
 }
 
 function SheetContent({
+  allTags,
   selected,
   onClose,
   toggle,
   onSave,
+  onAddTag,
   fullWidth = false,
 }: {
+  allTags: string[]
   selected: string[]
   onClose: () => void
   toggle: (tag: string) => void
   onSave?: () => void
+  onAddTag: (tag: string) => void
   fullWidth?: boolean
 }) {
   const [query, setQuery] = useState('')
@@ -111,9 +137,13 @@ function SheetContent({
     checkScroll()
   })
 
-  const filtered = query.trim()
-    ? DREAM_TAGS.filter(tag => tag.toLowerCase().includes(query.toLowerCase()))
-    : DREAM_TAGS
+  const trimmed = query.trim()
+  const filtered = trimmed
+    ? allTags.filter(tag => tag.toLowerCase().includes(trimmed.toLowerCase()))
+    : allTags
+
+  const exactMatch = allTags.some(tag => tag.toLowerCase() === trimmed.toLowerCase())
+  const canAdd = trimmed.length > 0 && !exactMatch
 
   return (
     <div className="flex flex-col h-full min-h-0">
@@ -133,7 +163,7 @@ function SheetContent({
             type="text"
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="Szukaj motywu..."
+            placeholder="Wyszukaj lub dodaj motyw."
             autoFocus
             className="font-ui w-full h-10 pl-9 pr-9 rounded-full
                        bg-white/10 border border-white/18
@@ -155,9 +185,28 @@ function SheetContent({
       </div>
 
       {/* Tagi */}
-      <div className="flex-1 min-h-0 relative">
-        <div ref={scrollRef} onScroll={checkScroll} className={`h-full overflow-y-auto px-5 ${onSave ? 'pb-24' : 'pb-5'}`}>
-          {filtered.length === 0 ? (
+      <div className="flex-1 min-h-0 flex flex-col relative">
+        <div
+          ref={scrollRef}
+          onScroll={checkScroll}
+          className={`flex-1 min-h-0 overflow-y-auto px-5 ${onSave ? 'pb-24' : 'pb-5'}`}
+          style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}
+        >
+          {canAdd && (
+            <div className="mb-3">
+              <button
+                onClick={() => { onAddTag(trimmed); setQuery('') }}
+                className="flex items-center gap-2 px-4 h-8 rounded-full
+                           bg-[#6a44a0]/80 border border-[#6a44a0] text-white
+                           text-sm font-ui font-medium tracking-wide
+                           hover:bg-[#7d55b8] active:scale-95 transition-all duration-150"
+              >
+                <Plus size={14} />
+                Dodaj „{trimmed}"
+              </button>
+            </div>
+          )}
+          {filtered.length === 0 && !canAdd ? (
             <p className="font-ui text-white/50 text-sm font-light text-center py-8 tracking-wide">
               Brak pasujących motywów
             </p>
