@@ -1,9 +1,9 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { Trash2, Plus, X } from 'lucide-react'
+import { Trash2, Plus, X, Mic } from 'lucide-react'
 import { getDreams, saveDream, updateDream, deleteDream } from '@/storage/dreamStorage'
 import { Dream } from '@/types/dream'
 import { CalendarStrip, toDateKey } from '@/components/CalendarStrip'
-import { DreamEditor } from '@/components/DreamEditor'
+import { DreamEditor, DreamEditorHandle } from '@/components/DreamEditor'
 import { TagPicker } from '@/components/TagPicker'
 import { ChatPanelHandle } from '@/components/ChatPanel'
 import { AgentInput } from '@/components/AgentInput'
@@ -45,8 +45,12 @@ export function HomePage() {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
 
   const chatPanelRef = useRef<ChatPanelHandle>(null)
+  const dreamEditorRef = useRef<DreamEditorHandle>(null)
   const [chatOpen, setChatOpen] = useState(false)
   const [chatHasMessages, setChatHasMessages] = useState(false)
+  const [inputValue, setInputValue] = useState('')
+  const [dreamMicListening, setDreamMicListening] = useState(false)
+  const isMicSupported = typeof window !== 'undefined' && !!(window.SpeechRecognition || (window as unknown as { webkitSpeechRecognition?: unknown }).webkitSpeechRecognition)
 
   // Refs for auto-save (capture latest values in async closures)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -77,7 +81,7 @@ export function HomePage() {
 
   // Sprawdź przy starcie czy są zapisane wiadomości
   useEffect(() => {
-    getChatMessages().then(msgs => {
+    getChatMessages(toDateKey(today)).then(msgs => {
       if (msgs.length > 0) setChatHasMessages(true)
     })
   }, [])
@@ -317,7 +321,7 @@ export function HomePage() {
               )}
             </div>
 
-            <DreamEditor key={toDateKey(selectedDate)} value={description} onChange={handleDescriptionChange} />
+            <DreamEditor ref={dreamEditorRef} key={toDateKey(selectedDate)} value={description} onChange={handleDescriptionChange} onListeningChange={setDreamMicListening} />
 
           </div>
         )}
@@ -326,6 +330,23 @@ export function HomePage() {
           <p className="font-ui text-white/35 text-sm italic">
             Nie można dodać wpisu dla przyszłej daty.
           </p>
+        )}
+
+        {/* Floating mic — widoczny gdy brak treści snu */}
+        {!isFuture && isMicSupported && (
+          <div className="flex-1 flex items-center justify-center mb-[16.5rem]">
+            <button
+              type="button"
+              onClick={() => dreamEditorRef.current?.toggleMic()}
+              className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
+              style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', boxShadow: dreamMicListening ? '0 0 0 8px rgba(255,255,255,0.08), 0 0 24px 4px rgba(167,139,250,0.35)' : '0 0 0 1px rgba(255,255,255,0.15)' }}
+            >
+              <Mic size={28} className={dreamMicListening ? 'text-white' : 'text-white/70'} />
+              {dreamMicListening && (
+                <span className="absolute inset-0 rounded-full animate-ping" style={{ background: 'rgba(167,139,250,0.2)' }} />
+              )}
+            </button>
+          </div>
         )}
 
       </div>
@@ -343,6 +364,8 @@ export function HomePage() {
       {/* Input — zawsze widoczny na samym dole */}
       <div className="fixed bottom-0 left-0 right-0 z-50 max-w-[600px] mx-auto" style={{ background: 'linear-gradient(to top, #1a1625 60%, transparent)' }}>
         <AgentInput
+          value={inputValue}
+          onChange={setInputValue}
           onSend={(text) => {
             setChatHasMessages(true)
             setChatOpen(true)
