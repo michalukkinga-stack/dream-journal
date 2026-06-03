@@ -8,6 +8,7 @@ import { TagPicker } from '@/components/TagPicker'
 import { ChatPanelHandle } from '@/components/ChatPanel'
 import { AgentInput } from '@/components/AgentInput'
 import { ChatBottomSheet } from '@/components/ChatBottomSheet'
+import { getChatMessages } from '@/storage/chatStorage'
 import { useAuth } from '@/context/AuthContext'
 
 function addDays(d: Date, n: number): Date {
@@ -45,6 +46,7 @@ export function HomePage() {
 
   const chatPanelRef = useRef<ChatPanelHandle>(null)
   const [chatOpen, setChatOpen] = useState(false)
+  const [chatHasMessages, setChatHasMessages] = useState(false)
 
   // Refs for auto-save (capture latest values in async closures)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -73,6 +75,12 @@ export function HomePage() {
     return map
   }, [])
 
+  // Sprawdź przy starcie czy są zapisane wiadomości
+  useEffect(() => {
+    getChatMessages().then(msgs => {
+      if (msgs.length > 0) setChatHasMessages(true)
+    })
+  }, [])
 
   useEffect(() => {
     load().then(map => {
@@ -329,17 +337,20 @@ export function HomePage() {
         currentDream={existingDream}
         allDreams={dreams}
         selectedDate={selectedKey}
+        showStrip={chatHasMessages}
       />
 
       {/* Input — zawsze widoczny na samym dole */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 max-w-[600px] mx-auto">
+      <div className="fixed bottom-0 left-0 right-0 z-50 max-w-[600px] mx-auto" style={{ background: 'linear-gradient(to top, #1a1625 60%, transparent)' }}>
         <AgentInput
           onSend={(text) => {
+            setChatHasMessages(true)
             setChatOpen(true)
             chatPanelRef.current?.sendMessage(text)
           }}
           isLoading={false}
           dreamHasContent={dreamHasContent}
+          placeholder={chatHasMessages ? 'Zadaj pytanie...' : 'Co może oznaczać mój sen?'}
         />
       </div>
 

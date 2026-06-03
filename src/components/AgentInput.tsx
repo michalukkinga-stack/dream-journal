@@ -7,10 +7,11 @@ interface AgentInputProps {
   onSend: (text: string) => void
   isLoading?: boolean
   dreamHasContent?: boolean
+  placeholder?: string
 }
 
-export function AgentInput({ onSend, isLoading = false, dreamHasContent = false }: AgentInputProps) {
-  const [value, setValue] = useState('Co może oznaczać mój sen?')
+export function AgentInput({ onSend, isLoading = false, dreamHasContent = false, placeholder = 'Co może oznaczać mój sen?' }: AgentInputProps) {
+  const [value, setValue] = useState('')
   const mic = useSpeechRecognition()
 
   const displayValue = mic.isListening
@@ -30,7 +31,7 @@ export function AgentInput({ onSend, isLoading = false, dreamHasContent = false 
         <div className="relative flex-1">
           <input
             type="text"
-            placeholder=""
+            placeholder={placeholder}
             value={displayValue}
             onChange={(e) => { if (!mic.isListening) setValue(e.target.value) }}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) handleSend() }}
