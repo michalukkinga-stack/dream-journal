@@ -40,8 +40,8 @@ export function AgentInput({ value, onChange, onSend, isLoading = false, dreamHa
           disabled={isLoading || !dreamHasContent}
           className={cn(
             'w-11 h-11 rounded-xl flex items-center justify-center shrink-0',
-            'bg-gradient-to-br from-[#533483] to-[#6a44a0]',
-            'shadow-lg shadow-purple-900/40',
+            'bg-violet-400',
+            'shadow-lg shadow-violet-400/40',
             'transition-all duration-150 active:scale-95',
             'disabled:opacity-30',
             dreamHasContent && !value.trim() && 'opacity-50'

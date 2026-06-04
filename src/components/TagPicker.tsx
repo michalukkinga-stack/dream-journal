@@ -60,7 +60,7 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
   const allTags = getAllTags(customTags)
 
   const sheetStyle = {
-    background: 'linear-gradient(160deg, #ede9f7 0%, #f5ecf3 50%, #eaf2f7 100%)',
+    background: '#1f2937',
   }
 
   return (
@@ -87,7 +87,6 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
           className="relative w-full max-w-[900px] rounded-2xl shadow-2xl flex flex-col max-h-[72vh]"
           style={{
             ...sheetStyle,
-            border: '1px solid rgba(255,255,255,0.9)',
             boxShadow: '0 20px 60px rgba(83,52,131,0.18)',
           }}
           onClick={(e) => e.stopPropagation()}
@@ -146,7 +145,7 @@ function SheetContent({
   const canAdd = trimmed.length > 0 && !exactMatch
 
   const footerStyle = {
-    background: 'linear-gradient(160deg, #ede9f7 0%, #f5ecf3 50%, #eaf2f7 100%)',
+    background: '#1f2937',
   }
 
   return (
@@ -160,11 +159,11 @@ function SheetContent({
           onClick={onClose}
           className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/8
                      flex items-center justify-center z-10
-                     text-[#1a1624]/75 hover:text-[#1a1624] transition-colors"
+                     text-white/75 hover:text-white transition-colors"
         >
           <X size={16} />
         </button>
-        <p className="font-display text-[#1a1624] text-xl font-bold pr-10 mb-3">Wybierz motywy</p>
+        <p className="font-display text-white text-xl font-bold pr-10 mb-3">Wybierz motywy</p>
         <div className="relative">
           <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#1a1624]/55" />
           <input
@@ -230,8 +229,8 @@ function SheetContent({
                       'px-4 h-9 rounded-full text-sm font-ui tracking-wide',
                       'transition-all duration-150 active:scale-95',
                       isSelected
-                        ? 'border-2 border-[#533483] bg-[#ede8f5] text-[#533483] font-medium'
-                        : 'border border-black/12 bg-white/70 text-[#1a1624] font-light hover:bg-white/90 hover:border-black/20',
+                        ? 'border border-violet-400 bg-violet-400/20 text-white font-medium'
+                        : 'border border-white/20 bg-white/10 text-white font-light hover:bg-white/20 hover:border-white/35',
                     ].join(' ')}
                   >
                     <Highlighter
@@ -255,16 +254,16 @@ function SheetContent({
             {hasMoreBelow && (
               <div
                 className="absolute left-0 right-0 pointer-events-none"
-                style={{ height: '60px', background: 'linear-gradient(to bottom, transparent, #eaf2f7)', top: '-60px' }}
+                style={{ height: '60px', background: 'linear-gradient(to bottom, transparent, #1f2937)', top: '-60px' }}
               />
             )}
             <button
               onClick={onSave}
               className={`relative font-ui h-14 rounded-full
-                         bg-[#1a1624]
+                         bg-violet-400
                          text-white font-medium text-[0.95rem] tracking-widest uppercase
-                         shadow-lg shadow-black/20
-                         hover:bg-[#2d2440]
+                         shadow-lg shadow-violet-400/30
+                         hover:bg-violet-500
                          active:scale-[0.98] transition-all duration-150
                          ${fullWidth ? 'w-full' : 'px-10'}`}
             >
