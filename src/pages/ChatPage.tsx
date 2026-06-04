@@ -138,28 +138,35 @@ export function ChatPage() {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4">
-        {messages.map(m => (
-          <ChatMessage key={m.id} message={m} />
-        ))}
+        <div className="flex flex-col gap-4 bg-white/6 backdrop-blur-md rounded-2xl border border-white/10 px-4 py-4 min-h-0">
+          {messages.map(m => (
+            <ChatMessage key={m.id} message={m} />
+          ))}
 
-        {isLoading && messages[messages.length - 1]?.role === 'user' && (
-          <div className="flex justify-start items-start">
-            <div className="w-2 h-2 rounded-full bg-purple-400 shrink-0 mr-3 mt-2.5" />
-            <div className="bg-white/10 border border-white/10 rounded-2xl rounded-bl-sm px-4 py-3">
-              <div className="flex gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '300ms' }} />
+          {isLoading && messages[messages.length - 1]?.role === 'user' && (
+            <div className="flex justify-start items-start">
+              <div className="w-2 h-2 rounded-full bg-purple-400 shrink-0 mr-3 mt-2.5" />
+              <div className="bg-white/10 border border-white/10 rounded-2xl rounded-bl-sm px-4 py-3">
+                <div className="flex gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <div ref={bottomRef} />
+          {messages.length === 0 && !isLoading && historyLoaded && (
+            <p className="font-ui text-white/30 text-sm text-center py-4">Zapytaj Junga o swój sen…</p>
+          )}
+
+          <div ref={bottomRef} />
+        </div>
       </div>
 
       {/* Input */}
-      <div className="shrink-0 px-4 pb-8 pt-3 border-t border-white/10">
+      <div className="shrink-0 px-4 pb-8 pt-2">
+        <div className="bg-white/6 backdrop-blur-md rounded-2xl border border-white/10 px-4 py-3">
         <div className="relative flex items-center gap-2">
           <div className="relative flex-1">
             <input
@@ -212,6 +219,7 @@ export function ChatPage() {
           >
             <SendHorizonal size={16} className="text-white" />
           </button>
+        </div>
         </div>
       </div>
     </div>

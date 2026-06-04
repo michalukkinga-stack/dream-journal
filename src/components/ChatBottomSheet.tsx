@@ -32,43 +32,39 @@ export const ChatBottomSheet = forwardRef<ChatPanelHandle, ChatBottomSheetProps>
 
         {/* Sheet — pozycjonowany tuż nad inputem */}
         <div
-          className="fixed left-0 right-0 z-50 max-w-[600px] mx-auto flex flex-col rounded-t-2xl transition-transform duration-300 ease-in-out overflow-hidden"
+          className="fixed left-0 right-0 z-50 max-w-[600px] mx-auto flex flex-col rounded-t-2xl transition-transform duration-300 ease-in-out overflow-hidden bottom-[5.5rem] md:bottom-24"
           style={{
-            bottom: INPUT_BAR_HEIGHT,
             height: '67vh',
             transform: hidden
               ? 'translateY(100%)'
               : open
                 ? 'translateY(0)'
                 : `translateY(calc(100% - ${HANDLE_HEIGHT}))`,
-            background: '#1f2937',
-            border: '3px solid rgba(255,255,255,0.10)',
-            boxShadow: 'none',
+            background: 'rgba(255,255,255,0.06)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderLeft: '1px solid rgba(255,255,255,0.12)',
+            borderRight: '1px solid rgba(255,255,255,0.12)',
+            borderTop: '1px solid rgba(255,255,255,0.12)',
+            borderBottom: 'none',
+            boxShadow: '0 -8px 32px rgba(0,0,0,0.25)',
           }}
         >
-          {/* Handle strip — zawsze widoczne 2.5rem, klikalny toggle */}
-          <button
-            type="button"
-            onClick={onToggle}
-            className="shrink-0 h-10 w-full flex items-center justify-between px-5
-                       rounded-t-2xl hover:bg-white/5 transition-colors duration-150"
-          >
-            {open ? (
-              <>
-                <span className="font-display text-white text-base font-semibold tracking-wide">
-                  Analiza snu
-                </span>
-                <ChevronDown size={18} className="text-white/50" />
-              </>
-            ) : (
-              <>
-                <span className="font-display text-white text-base font-semibold tracking-wide">
-                  Analiza snu
-                </span>
-                <ChevronUp size={18} className="text-white/50" />
-              </>
-            )}
-          </button>
+          {/* Handle strip */}
+          <div className="shrink-0 h-10 w-full flex items-center justify-between px-5">
+            <span className="font-display text-white text-base font-semibold tracking-wide">
+              Analiza snu
+            </span>
+            <button
+              type="button"
+              onClick={onToggle}
+              className="w-8 h-8 rounded-full flex items-center justify-center
+                         text-white/50 hover:text-white/80 hover:bg-white/10
+                         transition-all duration-150 active:scale-95"
+            >
+              {open ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
+            </button>
+          </div>
 
           {/* Divider */}
           <div className="mx-5 border-t border-white/10 shrink-0" />

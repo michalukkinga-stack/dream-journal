@@ -49,8 +49,10 @@ export function HomePage() {
   const [chatOpen, setChatOpen] = useState(false)
   const [chatHasMessages, setChatHasMessages] = useState(false)
   const [inputValue, setInputValue] = useState('')
+  const DEFAULT_QUESTION = 'Co może oznaczać mój sen?'
   const [dreamMicListening, setDreamMicListening] = useState(false)
   const isMicSupported = typeof window !== 'undefined' && !!(window.SpeechRecognition || (window as unknown as { webkitSpeechRecognition?: unknown }).webkitSpeechRecognition)
+
 
   // Refs for auto-save (capture latest values in async closures)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -211,6 +213,17 @@ export function HomePage() {
       existingDream.tags.length > 0
     ))
 
+  // Auto-fill input with default question when day has content and chat hasn't started yet
+  useEffect(() => {
+    if (!chatHasMessages) {
+      setInputValue(v => {
+        const isDefaultOrEmpty = v === '' || v === DEFAULT_QUESTION
+        if (!isDefaultOrEmpty) return v
+        return dreamHasContent ? DEFAULT_QUESTION : ''
+      })
+    }
+  }, [dreamHasContent, chatHasMessages]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const windowDaysIncludeToday = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(windowStart); d.setDate(d.getDate() + i); return toDateKey(d)
   }).includes(toDateKey(today))
@@ -265,7 +278,7 @@ export function HomePage() {
             <button
               onClick={() => setConfirmDelete(true)}
               className="w-8 h-8 rounded-full bg-white/10 border border-white/15 flex items-center justify-center
-                         text-white/60 hover:text-red-400 hover:bg-red-500/15 transition-all duration-150 active:scale-95"
+                         text-white/60 hover:text-white hover:bg-white/20 transition-all duration-150 active:scale-95"
             >
               <Trash2 size={14} />
             </button>
@@ -359,7 +372,9 @@ export function HomePage() {
       />
 
       {/* Input — zawsze widoczny na samym dole */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 max-w-[600px] mx-auto" style={{ background: '#1f2937' }}>
+      <div className="fixed bottom-0 md:bottom-5 left-0 right-0 z-50 max-w-[600px] mx-auto md:rounded-b-2xl"
+        style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderLeft: '1px solid rgba(255,255,255,0.10)', borderRight: '1px solid rgba(255,255,255,0.10)', borderBottom: '1px solid rgba(255,255,255,0.10)', borderTop: 'none' }}>
+
         <AgentInput
           value={inputValue}
           onChange={setInputValue}
