@@ -372,8 +372,8 @@ export function HomePage() {
       />
 
       {/* Input — zawsze widoczny na samym dole */}
-      <div className="fixed bottom-0 md:bottom-5 left-0 right-0 z-50 max-w-[600px] mx-auto md:rounded-b-2xl"
-        style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderLeft: '1px solid rgba(255,255,255,0.10)', borderRight: '1px solid rgba(255,255,255,0.10)', borderBottom: '1px solid rgba(255,255,255,0.10)', borderTop: 'none' }}>
+      <div className="fixed bottom-0 md:bottom-5 left-0 right-0 z-50 max-w-[600px] mx-auto rounded-b-2xl md:rounded-2xl"
+        style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.10)', borderTop: 'none' }}>
 
         <AgentInput
           value={inputValue}
