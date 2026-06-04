@@ -69,8 +69,6 @@ export function CalendarStrip({
                   ? 'bg-purple-300 border border-transparent'
                   : isToday
                   ? 'bg-white/15 border border-purple-300'
-                  : hasDream
-                  ? 'border border-purple-400/60'
                   : 'border border-transparent',
               ].join(' ')}
             >
@@ -84,8 +82,12 @@ export function CalendarStrip({
                 {MONTHS_PL[day.getMonth()]}
               </span>
               <div className={[
-                'absolute bottom-1.5 w-1.5 h-1.5 rounded-full',
-                hasDream ? 'bg-purple-400' : 'bg-transparent',
+                'absolute bottom-1.5 w-[9px] h-[9px] rounded-full',
+                isFuture
+                  ? 'opacity-0'
+                  : hasDream
+                  ? 'bg-purple-400'
+                  : 'border border-white/40',
               ].join(' ')} />
             </button>
           )
