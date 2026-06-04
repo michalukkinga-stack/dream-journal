@@ -80,12 +80,12 @@ export function ChatPage() {
         .filter(p => p.type === 'text')
         .map(p => (p as { type: 'text'; text: string }).text)
         .join('')
-      await saveChatMessage('assistant', text, contextDream?.id)
+      await saveChatMessage('assistant', text, toDateKey(new Date()), contextDream?.id)
     },
   })
 
   useEffect(() => {
-    Promise.all([getChatMessages(), getDreams()]).then(([stored, dreams]) => {
+    Promise.all([getChatMessages(toDateKey(new Date())), getDreams()]).then(([stored, dreams]) => {
       setAllDreams(dreams)
       if (stored.length > 0) {
         setMessages(
@@ -108,7 +108,7 @@ export function ChatPage() {
     const text = inputValue.trim()
     if (!text || status === 'submitted' || status === 'streaming') return
     setInputValue('')
-    await saveChatMessage('user', text, contextDream?.id)
+    await saveChatMessage('user', text, toDateKey(new Date()), contextDream?.id)
     sendMessage({ text })
   }
 

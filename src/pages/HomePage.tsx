@@ -161,10 +161,7 @@ export function HomePage() {
     const key = toDateKey(selectedDate)
     const existing = dreamsByDate.get(key)
     if (!existing) return
-    if (modeRef.current === 'view') {
-      setDescription(existing.description)
-      setTags(existing.tags)
-    } else if (modeRef.current === 'add' && !isUserChangeRef.current) {
+    if (modeRef.current === 'add' && !isUserChangeRef.current) {
       // Dream exists for this date but we're in add mode (initial load or post-save)
       setMode('edit')
       setDescription(existing.description)
