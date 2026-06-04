@@ -41,16 +41,15 @@ export function CalendarStrip({
     <div className="flex items-center gap-1 px-2 py-3">
       <button
         onClick={onPrev}
-        className="w-8 h-8 flex items-center justify-center rounded-full text-white/50
-                   hover:text-white hover:bg-white/10 transition-all duration-150 shrink-0"
+        className="w-8 h-8 flex items-center justify-center rounded-full text-[#1a1624]/65
+                   hover:text-[#1a1624] hover:bg-black/5 transition-all duration-150 shrink-0"
       >
         <ChevronLeft size={18} />
       </button>
 
-      <div className="flex flex-1 gap-1">
+      <div className="flex flex-1 gap-1.5">
         {days.map(day => {
           const key = toDateKey(day)
-          const isToday = key === todayKey
           const isFuture = day > today
           const isSelected = key === selectedKey
           const hasDream = dreamsByDate.has(key)
@@ -61,34 +60,37 @@ export function CalendarStrip({
               onClick={() => !isFuture && onSelect(day)}
               disabled={isFuture}
               className={[
-                'flex-1 relative flex flex-col items-center justify-center pt-2 pb-5 rounded-xl transition-all duration-150',
-                isFuture
-                  ? 'opacity-25 cursor-default'
-                  : 'hover:bg-white/10 active:scale-95',
+                'flex-1 relative flex flex-col items-center justify-center pt-2 pb-5 rounded-2xl transition-all duration-150',
+                isFuture ? 'opacity-30 cursor-default' : 'active:scale-95',
                 isSelected && !isFuture
-                  ? 'bg-purple-300 border border-transparent'
-                  : isToday
-                  ? 'bg-white/15 border border-purple-300'
-                  : 'border border-transparent',
+                  ? 'bg-[#e8e2f5] shadow-sm'
+                  : 'bg-white shadow-sm hover:bg-[#f3f0fa]',
               ].join(' ')}
             >
               <span className={[
                 'font-display text-lg leading-none',
-                isToday ? 'text-white' : 'text-white',
+                isSelected && !isFuture ? 'text-[#4c2d8a] font-semibold' : 'text-[#1a1624]',
               ].join(' ')}>
                 {day.getDate()}
               </span>
-              <span className="font-ui text-[0.6rem] text-white/50 mt-0.5 tracking-wide uppercase">
+              <span className={[
+                'font-ui text-[0.6rem] mt-0.5 tracking-wide uppercase',
+                isSelected && !isFuture ? 'text-[#7c5cbf]' : 'text-[#1a1624]/50',
+              ].join(' ')}>
                 {MONTHS_PL[day.getMonth()]}
               </span>
-              <div className={[
-                'absolute bottom-1.5 w-[9px] h-[9px] rounded-full',
-                isFuture
-                  ? 'opacity-0'
-                  : hasDream
-                  ? 'bg-purple-400'
-                  : 'border border-white/40',
-              ].join(' ')} />
+              {!isFuture && (
+                <div className="absolute bottom-1.5 flex items-center justify-center">
+                  {hasDream ? (
+                    <div className="w-[7px] h-[7px] rounded-full bg-gradient-to-br from-stone-400 to-stone-500" />
+                  ) : (
+                    <div className={[
+                      'w-[7px] h-[7px] rounded-full',
+                      isSelected ? 'bg-[#c4b0e8]' : 'bg-[#ddd7f0]',
+                    ].join(' ')} />
+                  )}
+                </div>
+              )}
             </button>
           )
         })}
@@ -100,8 +102,8 @@ export function CalendarStrip({
         className={[
           'w-8 h-8 flex items-center justify-center rounded-full transition-all duration-150 shrink-0',
           canNext
-            ? 'text-white/50 hover:text-white hover:bg-white/10'
-            : 'text-white/15 cursor-default',
+            ? 'text-[#1a1624]/65 hover:text-[#1a1624] hover:bg-black/5'
+            : 'text-[#1a1624]/20 cursor-default',
         ].join(' ')}
       >
         <ChevronRight size={18} />

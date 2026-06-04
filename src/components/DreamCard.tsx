@@ -23,11 +23,11 @@ export function DreamCard({ dream }: DreamCardProps) {
         <p className="label-caps mb-3">
           {formatDate(dream.createdAt)}
         </p>
-        <h2 className="font-display text-white text-2xl leading-tight mb-2">
+        <h2 className="font-display text-[#1a1624] text-2xl leading-tight mb-2">
           {dream.title}
         </h2>
         {preview && (
-          <p className="font-ui text-white/85 text-[0.82rem] font-light leading-relaxed line-clamp-2 mt-1">
+          <p className="font-ui text-[#1a1624]/80 text-[0.82rem] font-light leading-relaxed line-clamp-2 mt-1">
             {preview}
           </p>
         )}
@@ -36,15 +36,15 @@ export function DreamCard({ dream }: DreamCardProps) {
             {visibleTags.map(tag => (
               <span
                 key={tag}
-                className="font-ui px-2.5 py-1 rounded-full text-[0.7rem] font-light tracking-wide whitespace-nowrap
-                           border border-[#2a1a4a] text-[#2a1a4a] bg-white/60"
+                className="font-ui px-3 py-1 rounded-full text-[0.7rem] font-light tracking-wide whitespace-nowrap
+                           border border-black/12 text-[#1a1624]/80 bg-white/60"
               >
                 {tag}
               </span>
             ))}
             {overflow > 0 && (
-              <span className="font-ui px-2.5 py-1 rounded-full text-[0.7rem] font-medium whitespace-nowrap
-                               border border-[#2a1a4a] text-[#2a1a4a] bg-white/60">
+              <span className="font-ui px-3 py-1 rounded-full text-[0.7rem] font-medium whitespace-nowrap
+                               border border-black/12 text-[#1a1624]/80 bg-white/60">
                 +{overflow}
               </span>
             )}

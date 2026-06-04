@@ -300,7 +300,7 @@ export function HomePage() {
                                flex items-center justify-center bg-white/60
                                hover:bg-white/80 transition-all duration-150 active:scale-95"
                   >
-                    <Plus size={13} />
+                    <Plus size={14} />
                   </button>
                 </div>
               ) : (

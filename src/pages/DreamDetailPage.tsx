@@ -10,23 +10,23 @@ function DeleteContent({ onCancel, onConfirm }: { onCancel: () => void; onConfir
       <button
         onClick={onCancel}
         className="absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center
-                   text-white/60 hover:text-white hover:bg-white/10
+                   text-[#1a1624]/75 hover:text-[#1a1624] hover:bg-black/8
                    transition-all duration-150"
       >
         <X size={18} />
       </button>
-      <p className="font-display text-white text-xl leading-snug font-bold">
+      <p className="font-display text-[#1a1624] text-xl leading-snug font-bold">
         Na pewno chcesz usunąć ten sen?
       </p>
-      <p className="font-ui text-white/75 text-sm font-light mb-8" style={{ marginTop: '4px' }}>
+      <p className="font-ui text-[#1a1624]/80 text-sm font-light mb-8" style={{ marginTop: '4px' }}>
         Nie można tego cofnąć.
       </p>
       <div className="flex gap-3">
         <button
           onClick={onCancel}
-          className="font-ui flex-1 h-12 rounded-full border border-white/20
-                     text-white/90 text-sm font-light tracking-wide
-                     hover:border-white/50 hover:text-white
+          className="font-ui flex-1 h-12 rounded-full border border-black/12
+                     text-[#1a1624]/85 text-sm font-light tracking-wide
+                     hover:border-black/25
                      transition-all duration-150 active:scale-[0.98]"
         >
           Nie
@@ -34,9 +34,9 @@ function DeleteContent({ onCancel, onConfirm }: { onCancel: () => void; onConfir
         <button
           onClick={onConfirm}
           className="font-ui flex-1 h-12 rounded-full
-                     bg-gradient-to-r from-red-700/80 to-red-600/80
+                     bg-red-500
                      text-white text-sm font-medium tracking-wide
-                     hover:from-red-600/90 hover:to-red-500/90
+                     hover:bg-red-600
                      transition-all duration-150 active:scale-[0.98]"
         >
           Tak, usuń
@@ -71,10 +71,10 @@ export function DreamDetailPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-5 text-center">
         <p className="text-4xl mb-4">🌫️</p>
-        <p className="font-ui text-white/65">Ten sen znikł jak mgła...</p>
+        <p className="font-ui text-[#1a1624]/80">Ten sen znikł jak mgła...</p>
         <button
           onClick={() => navigate('/')}
-          className="mt-6 text-white/70 text-sm underline underline-offset-4"
+          className="mt-6 text-[#1a1624]/75 text-sm underline underline-offset-4"
         >
           Wróć do listy
         </button>
@@ -88,7 +88,7 @@ export function DreamDetailPage() {
       <div className="flex items-center justify-between pt-12 px-4 pb-4 md:max-w-[900px] md:mx-auto md:w-full md:px-8">
         <button
           onClick={() => navigate('/home')}
-          className="font-ui flex items-center gap-1 text-white/70 hover:text-white transition-colors py-2 pr-3 text-sm font-light tracking-wide"
+          className="font-ui flex items-center gap-1 text-[#1a1624]/75 hover:text-[#1a1624] transition-colors py-2 pr-3 text-sm font-light tracking-wide"
         >
           <ChevronLeft size={20} />
           <span className="text-sm">wróć</span>
@@ -97,8 +97,8 @@ export function DreamDetailPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setConfirmDelete(true)}
-            className="w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center
-                       text-white/70 hover:text-red-400 hover:bg-red-500/15
+            className="w-9 h-9 rounded-full bg-black/5 border border-black/8 flex items-center justify-center
+                       text-[#1a1624]/65 hover:text-red-500 hover:bg-red-50
                        transition-all duration-150 active:scale-95"
           >
             <Trash2 size={16} />
@@ -112,7 +112,7 @@ export function DreamDetailPage() {
           {formatDate(dream.createdAt)}
         </p>
 
-        <h1 className="font-display text-white text-4xl leading-tight mb-5">
+        <h1 className="font-display text-[#1a1624] text-4xl leading-tight mb-5">
           {dream.title}
         </h1>
 
@@ -122,7 +122,7 @@ export function DreamDetailPage() {
             dangerouslySetInnerHTML={{ __html: dream.description }}
           />
         ) : (
-          <p className="font-ui text-white/65 text-sm font-light italic">Brak opisu.</p>
+          <p className="font-ui text-[#1a1624]/75 text-sm font-light italic">Brak opisu.</p>
         )}
 
         {dream.tags && dream.tags.length > 0 && (
@@ -130,8 +130,8 @@ export function DreamDetailPage() {
             {dream.tags.map(tag => (
               <span
                 key={tag}
-                className="font-ui px-4 h-7 flex items-center rounded-full text-sm font-light tracking-wide
-                           border border-[#2a1a4a] text-[#2a1a4a] bg-white/60"
+                className="font-ui px-4 h-9 flex items-center rounded-full text-sm font-light tracking-wide
+                           border border-black/12 text-[#1a1624]/85 bg-white/70"
               >
                 {tag}
               </span>
@@ -144,18 +144,18 @@ export function DreamDetailPage() {
       {confirmDelete && (
         <>
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40"
             onClick={() => setConfirmDelete(false)}
           />
 
           {/* Mobile – sheet od dołu */}
           <div
             className="md:hidden fixed bottom-0 left-0 right-0 z-50 relative
-                       rounded-t-3xl border-t border-white/10 p-5 pb-10"
-            style={{ background: '#3D4254' }}
+                       rounded-t-3xl border-t border-black/5 p-5 pb-10"
+            style={{ background: 'linear-gradient(160deg, #ede9f7 0%, #f5ecf3 100%)' }}
           >
             <div className="flex justify-center mb-5">
-              <div className="w-10 h-1 rounded-full bg-white/20" />
+              <div className="w-10 h-1 rounded-full bg-black/15" />
             </div>
             <DeleteContent onCancel={() => setConfirmDelete(false)} onConfirm={handleDelete} />
           </div>
@@ -165,9 +165,8 @@ export function DreamDetailPage() {
             <div
               className="relative w-full max-w-sm rounded-2xl shadow-xl p-5"
               style={{
-                background: '#3D4254',
-                border: '1px solid rgba(255,255,255,0.12)',
-                backdropFilter: 'blur(24px)',
+                background: 'linear-gradient(160deg, #ede9f7 0%, #f5ecf3 100%)',
+                border: '1px solid rgba(255,255,255,0.9)',
               }}
               onClick={(e) => e.stopPropagation()}
             >

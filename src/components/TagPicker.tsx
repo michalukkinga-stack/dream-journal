@@ -59,24 +59,24 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
 
   const allTags = getAllTags(customTags)
 
+  const sheetStyle = {
+    background: 'linear-gradient(160deg, #ede9f7 0%, #f5ecf3 50%, #eaf2f7 100%)',
+  }
+
   return (
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+        className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40"
         onClick={onClose}
       />
 
       {/* ── MOBILE bottom sheet ── */}
       <div
         className="md:hidden fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto z-50
-                   rounded-t-3xl border-t border-white/10 animate-slide-up
+                   rounded-t-3xl border-t border-black/5 animate-slide-up
                    flex flex-col max-h-[67vh]"
-        style={{
-          background: 'radial-gradient(ellipse 100% 60% at 50% 60%, rgba(202, 196, 238, 0.18) 0%, transparent 70%), linear-gradient(170deg, #3D4254 0%, #7A465B 50%, #16323F 100%)',
-          backgroundAttachment: 'fixed',
-          backdropFilter: 'blur(20px)',
-        }}
+        style={sheetStyle}
       >
         <SheetContent allTags={allTags} selected={desktopSelected} onClose={onClose} toggle={toggle} onSave={handleSave} onAddTag={addNewTag} fullWidth />
       </div>
@@ -84,11 +84,11 @@ export function TagPicker({ selected, onChange, onClose }: TagPickerProps) {
       {/* ── DESKTOP centered dialog ── */}
       <div className="hidden md:flex fixed inset-0 z-50 items-center justify-center p-6">
         <div
-          className="relative w-full max-w-[900px] rounded-2xl shadow-xl flex flex-col max-h-[72vh]"
+          className="relative w-full max-w-[900px] rounded-2xl shadow-2xl flex flex-col max-h-[72vh]"
           style={{
-            background: 'radial-gradient(ellipse 100% 60% at 50% 60%, rgba(202, 196, 238, 0.18) 0%, transparent 70%), linear-gradient(170deg, #3D4254 0%, #7A465B 50%, #16323F 100%)',
-            backdropFilter: 'blur(24px)',
-            border: '1px solid rgba(255,255,255,0.12)',
+            ...sheetStyle,
+            border: '1px solid rgba(255,255,255,0.9)',
+            boxShadow: '0 20px 60px rgba(83,52,131,0.18)',
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -145,40 +145,48 @@ function SheetContent({
   const exactMatch = allTags.some(tag => tag.toLowerCase() === trimmed.toLowerCase())
   const canAdd = trimmed.length > 0 && !exactMatch
 
+  const footerStyle = {
+    background: 'linear-gradient(160deg, #ede9f7 0%, #f5ecf3 50%, #eaf2f7 100%)',
+  }
+
   return (
     <div className="flex flex-col h-full min-h-0">
-      {/* Header: wyszukiwarka + X */}
-      <div className="shrink-0 pl-5 pr-14 pt-5 pb-3 relative">
+      {/* Handle + header */}
+      <div className="shrink-0 px-5 pt-4 pb-3 relative">
+        <div className="flex justify-center mb-3 md:hidden">
+          <div className="w-10 h-1 rounded-full bg-black/15" />
+        </div>
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/10
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/8
                      flex items-center justify-center z-10
-                     text-white/60 hover:text-white transition-colors"
+                     text-[#1a1624]/75 hover:text-[#1a1624] transition-colors"
         >
           <X size={16} />
         </button>
+        <p className="font-display text-[#1a1624] text-xl font-bold pr-10 mb-3">Wybierz motywy</p>
         <div className="relative">
-          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#1a1624]/55" />
           <input
             type="text"
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="Wyszukaj lub dodaj motyw."
+            placeholder="Wyszukaj lub dodaj motyw"
             autoFocus
             className="font-ui w-full h-10 pl-9 pr-9 rounded-full
-                       bg-white/10 border border-white/18
-                       text-white placeholder:text-white/35 text-sm font-light tracking-wide
-                       focus:outline-none focus:border-white/35 focus:ring-1 focus:ring-white/15
+                       bg-white/70 border border-black/10
+                       text-[#1a1624] placeholder:text-[#1a1624]/55 text-sm font-light tracking-wide
+                       focus:outline-none focus:border-[#8b5cf6]/50 focus:ring-1 focus:ring-[#8b5cf6]/20
                        transition-all"
           />
           {query && (
             <button
               onClick={() => setQuery('')}
               className="absolute right-3 top-1/2 -translate-y-1/2
-                         w-5 h-5 rounded-full bg-white/15 hover:bg-white/25
+                         w-5 h-5 rounded-full bg-black/8 hover:bg-black/15
                          flex items-center justify-center transition-colors"
             >
-              <X size={11} className="text-white/70" />
+              <X size={11} className="text-[#1a1624]/80" />
             </button>
           )}
         </div>
@@ -196,10 +204,10 @@ function SheetContent({
             <div className="mb-3">
               <button
                 onClick={() => { onAddTag(trimmed); setQuery('') }}
-                className="flex items-center gap-2 px-4 h-8 rounded-full
-                           bg-[#6a44a0]/80 border border-[#6a44a0] text-white
+                className="flex items-center gap-2 px-4 h-9 rounded-full
+                           bg-[#1a1624] text-white
                            text-sm font-ui font-medium tracking-wide
-                           hover:bg-[#7d55b8] active:scale-95 transition-all duration-150"
+                           hover:bg-[#2d2440] active:scale-95 transition-all duration-150"
               >
                 <Plus size={14} />
                 Dodaj „{trimmed}"
@@ -207,11 +215,11 @@ function SheetContent({
             </div>
           )}
           {filtered.length === 0 && !canAdd ? (
-            <p className="font-ui text-white/50 text-sm font-light text-center py-8 tracking-wide">
+            <p className="font-ui text-[#1a1624]/65 text-sm font-light text-center py-8 tracking-wide">
               Brak pasujących motywów
             </p>
           ) : (
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-2">
               {filtered.map(tag => {
                 const isSelected = selected.includes(tag)
                 return (
@@ -219,18 +227,18 @@ function SheetContent({
                     key={tag}
                     onClick={() => toggle(tag)}
                     className={[
-                      'px-4 h-7 rounded-full text-sm font-ui tracking-wide',
-                      'border transition-all duration-150 active:scale-95',
+                      'px-4 h-9 rounded-full text-sm font-ui tracking-wide',
+                      'transition-all duration-150 active:scale-95',
                       isSelected
-                        ? 'border-2 border-[#6a44a0] text-[#6a44a0] bg-white/90 font-medium'
-                        : 'border-[#2a1a4a]/50 text-[#2a1a4a] bg-white/60 font-light hover:bg-white/80',
+                        ? 'border-2 border-[#533483] bg-[#ede8f5] text-[#533483] font-medium'
+                        : 'border border-black/12 bg-white/70 text-[#1a1624] font-light hover:bg-white/90 hover:border-black/20',
                     ].join(' ')}
                   >
                     <Highlighter
                       searchWords={[query]}
                       autoEscape
                       textToHighlight={tag}
-                      highlightClassName="bg-transparent font-semibold text-white not-italic"
+                      highlightClassName="bg-transparent font-semibold text-[#533483] not-italic"
                     />
                   </button>
                 )
@@ -242,23 +250,23 @@ function SheetContent({
         {onSave && (
           <div
             className={`absolute bottom-0 left-0 right-0 z-10 px-5 pb-5 ${fullWidth ? '' : 'flex justify-end'}`}
-            style={{ background: 'radial-gradient(ellipse 100% 60% at 50% 60%, rgba(202, 196, 238, 0.18) 0%, transparent 70%), linear-gradient(170deg, #3D4254 0%, #7A465B 50%, #16323F 100%)' }}
+            style={footerStyle}
           >
             {hasMoreBelow && (
               <div
                 className="absolute left-0 right-0 pointer-events-none"
-                style={{ height: '60px', background: 'linear-gradient(to bottom, transparent, #16323F)', top: '-60px' }}
+                style={{ height: '60px', background: 'linear-gradient(to bottom, transparent, #eaf2f7)', top: '-60px' }}
               />
             )}
             <button
               onClick={onSave}
               className={`relative font-ui h-14 rounded-full
-                         bg-gradient-to-r from-[#533483] to-[#6a44a0]
-                         text-white font-medium text-[0.95rem] tracking-wide
-                         shadow-lg shadow-purple-900/50
-                         hover:from-[#6a44a0] hover:to-[#7d55b8]
+                         bg-[#1a1624]
+                         text-white font-medium text-[0.95rem] tracking-widest uppercase
+                         shadow-lg shadow-black/20
+                         hover:bg-[#2d2440]
                          active:scale-[0.98] transition-all duration-150
-                         ${fullWidth ? 'w-full' : 'px-8'}`}
+                         ${fullWidth ? 'w-full' : 'px-10'}`}
             >
               Zapisz
             </button>
