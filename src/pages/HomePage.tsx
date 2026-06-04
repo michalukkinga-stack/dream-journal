@@ -253,7 +253,7 @@ export function HomePage() {
       />
 
       {/* Divider */}
-      <div className="mx-4 border-t border-white/10" />
+      <div className="mx-4 border-t-[3px] border-white/10" />
 
       {/* Entry panel */}
       <div className="flex-1 flex flex-col px-4 pt-5 pb-8 overflow-y-auto">
@@ -286,8 +286,8 @@ export function HomePage() {
                       type="button"
                       onClick={() => handleTagsChange(tags.filter(t => t !== tag))}
                       className="font-ui flex items-center gap-1.5 pl-4 pr-3 h-7 rounded-full text-sm font-light tracking-wide
-                                 border border-[#2a1a4a] text-[#2a1a4a] bg-white/60
-                                 hover:bg-white/80 transition-all duration-150 active:scale-95"
+                                 border border-white/20 text-white bg-white/10
+                                 hover:bg-white/20 transition-all duration-150 active:scale-95"
                     >
                       {tag}
                       <X size={11} className="opacity-60 shrink-0" />
@@ -296,9 +296,9 @@ export function HomePage() {
                   <button
                     type="button"
                     onClick={() => setShowPicker(true)}
-                    className="w-7 h-7 rounded-full border border-[#2a1a4a] text-[#2a1a4a]
-                               flex items-center justify-center bg-white/60
-                               hover:bg-white/80 transition-all duration-150 active:scale-95"
+                    className="w-7 h-7 rounded-full border border-white/20 text-white
+                               flex items-center justify-center bg-white/10
+                               hover:bg-white/20 transition-all duration-150 active:scale-95"
                   >
                     <Plus size={14} />
                   </button>
@@ -308,8 +308,8 @@ export function HomePage() {
                   type="button"
                   onClick={() => setShowPicker(true)}
                   className="font-ui flex items-center gap-2 px-4 h-7 rounded-full
-                             border border-[#2a1a4a] text-[#2a1a4a] text-[0.95rem] font-medium tracking-wide
-                             bg-white/60 hover:bg-white/80
+                             border border-white/20 text-white text-[0.95rem] font-medium tracking-wide
+                             bg-white/10 hover:bg-white/20
                              transition-all duration-150 active:scale-95"
                 >
                   <Plus size={14} />
@@ -359,7 +359,7 @@ export function HomePage() {
       />
 
       {/* Input — zawsze widoczny na samym dole */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 max-w-[600px] mx-auto" style={{ background: 'linear-gradient(to top, #1a1625 60%, transparent)' }}>
+      <div className="fixed bottom-0 left-0 right-0 z-50 max-w-[600px] mx-auto" style={{ background: '#1f2937' }}>
         <AgentInput
           value={inputValue}
           onChange={setInputValue}

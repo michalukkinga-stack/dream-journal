@@ -41,9 +41,9 @@ export const ChatBottomSheet = forwardRef<ChatPanelHandle, ChatBottomSheetProps>
               : open
                 ? 'translateY(0)'
                 : `translateY(calc(100% - ${HANDLE_HEIGHT}))`,
-            background: 'linear-gradient(170deg, #4a3060 0%, #7A465B 50%, #16323F 100%)',
-            borderTop: '1px solid rgba(255,255,255,0.25)',
-            boxShadow: '0 -8px 32px rgba(0,0,0,0.6)',
+            background: '#1f2937',
+            border: '3px solid rgba(255,255,255,0.10)',
+            boxShadow: 'none',
           }}
         >
           {/* Handle strip — zawsze widoczne 2.5rem, klikalny toggle */}
@@ -56,14 +56,14 @@ export const ChatBottomSheet = forwardRef<ChatPanelHandle, ChatBottomSheetProps>
             {open ? (
               <>
                 <span className="font-display text-white text-base font-semibold tracking-wide">
-                  Dzisiejsza sesja
+                  Analiza snu
                 </span>
                 <ChevronDown size={18} className="text-white/50" />
               </>
             ) : (
               <>
                 <span className="font-display text-white text-base font-semibold tracking-wide">
-                  Dzisiejsza sesja
+                  Analiza snu
                 </span>
                 <ChevronUp size={18} className="text-white/50" />
               </>
