@@ -9,6 +9,7 @@ import { ChatPanelHandle } from '@/components/ChatPanel'
 import { AgentInput } from '@/components/AgentInput'
 import { ChatBottomSheet } from '@/components/ChatBottomSheet'
 import { getChatMessages } from '@/storage/chatStorage'
+import { Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 
 function addDays(d: Date, n: number): Date {
@@ -245,6 +246,12 @@ export function HomePage() {
               Dzisiaj
             </button>
           )}
+          <Link
+            to="/api-docs"
+            className="font-ui text-white/35 hover:text-white/65 text-xs transition-colors"
+          >
+            API Docs
+          </Link>
           <button
             onClick={signOut}
             className="font-ui text-white/35 hover:text-white/65 text-xs transition-colors"

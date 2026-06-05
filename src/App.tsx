@@ -39,6 +39,7 @@ import { EditDreamPage } from '@/pages/EditDreamPage'
 import { DreamDetailPage } from '@/pages/DreamDetailPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { ChatPage } from '@/pages/ChatPage'
+import { ApiDocsPage } from '@/pages/ApiDocsPage'
 import { DesktopLayout } from '@/components/DesktopLayout'
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -63,6 +64,7 @@ export default function App() {
               <Route path="/edit/:id" element={<EditDreamPage />} />
               <Route path="/dream/:id" element={<DreamDetailPage />} />
               <Route path="/chat" element={<ChatPage />} />
+              <Route path="/api-docs" element={<ApiDocsPage />} />
             </Route>
           </Routes>
         </BrowserRouter>
