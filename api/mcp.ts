@@ -1,19 +1,76 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
-const SUPABASE_BASE = 'https://rrwynlvefmotlthypdcx.supabase.co/functions/v1'
+const SUPABASE_URL = 'https://rrwynlvefmotlthypdcx.supabase.co'
+const USER_ID = '8b53dd61-4e30-4b55-b27d-f5a2f56f84d1'
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'content-type, authorization, mcp-session-id',
+const AVAILABLE_TAGS = [
+  'Radość','Strach','Smutek','Złość','Miłość','Tęsknota','Euforia','Spokój','Niepokój','Samotność',
+  'Wstyd','Nostalgia','Zdziwienie','Ulga','Latanie','Ucieczka','Pościg','Walka','Podróż',
+  'Transformacja','Poszukiwanie','Wspinaczka','Tonięcie','Spóźnienie','Zagubienie','Odkrycie',
+  'Dom','Szkoła','Praca','Miasto','Las','Góry','Morze','Plaża','Pustynia','Przestrzeń kosmiczna',
+  'Zamek','Podziemia','Labirynt','Cmentarz','Rynek','Dworzec','Hotel','Szpital','Kościół',
+  'Woda','Ogień','Natura','Deszcz','Burza','Śnieg','Chmury','Księżyc','Słońce','Gwiazdy',
+  'Wiatr','Mgła','Tęcza','Tornado','Powódź','Rodzina','Przyjaciele','Nieznajomi','Zwierzęta',
+  'Dziecko','Starzec','Potwór','Duch','Anioł','Demon','Bohater','Koszmar','Lucydny',
+  'Powracający','Spokojny','Dziwny','Kolorowy','Czarno-biały','Surrealistyczny','Realistyczny',
+  'Symboliczny','Magia','Fantazja','Tajemnica','Dzieciństwo','Przeszłość','Przyszłość',
+  'Muzyka','Jedzenie','Pieniądze','Śmierć','Narodziny','Ślub','Egzamin','Katastrofa','Supermoce',
+]
+
+function getServiceKey(): string {
+  const key = process.env.DREAM_JOURNAL_TOKEN
+  if (!key) throw new Error('Brak DREAM_JOURNAL_TOKEN w env')
+  return key
 }
 
-// ── Tool definitions ─────────────────────────────────────────────
+function supabaseHeaders(key: string) {
+  return {
+    'Content-Type': 'application/json',
+    'apikey': key,
+    'Authorization': `Bearer ${key}`,
+    'Prefer': 'return=representation',
+  }
+}
+
+function stripHtml(html: string) {
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+async function inferTags(description: string): Promise<string[]> {
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  if (!apiKey) return []
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 256,
+      messages: [{
+        role: 'user',
+        content: `Na podstawie opisu snu wybierz 2-5 najbardziej pasujących tagów z poniższej listy. Odpowiedz TYLKO tablicą JSON z wybranymi tagami, nic więcej.\n\nDostępne tagi: ${AVAILABLE_TAGS.join(', ')}\n\nOpis snu: ${description}`,
+      }],
+    }),
+  })
+  if (!res.ok) return []
+  const data = await res.json() as { content: { text: string }[] }
+  const text = data.content?.[0]?.text ?? ''
+  const match = text.match(/\[[\s\S]*\]/)
+  if (!match) return []
+  try {
+    const tags: unknown[] = JSON.parse(match[0])
+    return tags.filter((t): t is string => typeof t === 'string' && AVAILABLE_TAGS.includes(t))
+  } catch { return [] }
+}
+
+// ── Tools ────────────────────────────────────────────────────────
 const TOOLS = [
   {
     name: 'add_dream',
-    description:
-      'Dodaje nowy wpis do dziennika snów. Jeśli nie podasz tagów — AI wywnioskuje je automatycznie z opisu.',
+    description: 'Dodaje nowy wpis do dziennika snów. Jeśli nie podasz tagów — AI wywnioskuje je automatycznie z opisu.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -26,8 +83,7 @@ const TOOLS = [
   },
   {
     name: 'ask_jung',
-    description:
-      'Zadaje pytanie agentowi AI wcielającemu się w Carla Gustava Junga. Zwraca interpretację snu po polsku.',
+    description: 'Zadaje pytanie agentowi AI wcielającemu się w Carla Gustava Junga. Zwraca interpretację snu po polsku.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -39,8 +95,7 @@ const TOOLS = [
   },
   {
     name: 'get_dream',
-    description:
-      'Pobiera wpis snu i historię czatu z Jungiem dla podanego dnia.',
+    description: 'Pobiera wpis snu i historię czatu z Jungiem dla podanego dnia.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -51,86 +106,111 @@ const TOOLS = [
   },
 ]
 
-// ── API helpers ──────────────────────────────────────────────────
-function getToken(req: VercelRequest): string {
-  const auth = req.headers['authorization'] as string | undefined
-  if (auth?.startsWith('Bearer ')) return auth.slice(7)
-  const envToken = process.env.DREAM_JOURNAL_TOKEN
-  if (envToken) return envToken
-  throw new Error('Brak tokenu: ustaw nagłówek Authorization lub zmienną DREAM_JOURNAL_TOKEN')
-}
+// ── Tool handlers ────────────────────────────────────────────────
+async function handleAddDream(args: Record<string, unknown>) {
+  const key = getServiceKey()
+  const description = args.description as string
+  const today = new Date().toISOString().slice(0, 10)
+  const date = (args.date as string | undefined) ?? today
+  const created_at = `${date}T12:00:00`
 
-async function apiPost(token: string, path: string, body: unknown) {
-  const res = await fetch(`${SUPABASE_BASE}${path}`, {
+  let tags = (args.tags as string[] | undefined) ?? []
+  if (tags.length === 0) {
+    tags = await inferTags(stripHtml(description))
+  }
+
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/dreams`, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+    headers: supabaseHeaders(key),
+    body: JSON.stringify({ user_id: USER_ID, title: '', description, tags, created_at }),
   })
-  const data = await res.json() as Record<string, unknown>
-  if (!res.ok) throw new Error((data.error as string) ?? `HTTP ${res.status}`)
-  return data
+  const data = await res.json() as Record<string, unknown>[]
+  if (!res.ok) throw new Error(JSON.stringify(data))
+  return JSON.stringify(data[0], null, 2)
 }
 
-async function apiGet(token: string, path: string, params: Record<string, string>) {
-  const qs = new URLSearchParams(params).toString()
-  const url = qs ? `${SUPABASE_BASE}${path}?${qs}` : `${SUPABASE_BASE}${path}`
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } })
-  const data = await res.json() as Record<string, unknown>
-  if (!res.ok) throw new Error((data.error as string) ?? `HTTP ${res.status}`)
-  return data
+async function handleGetDream(args: Record<string, unknown>) {
+  const key = getServiceKey()
+  const today = new Date().toISOString().slice(0, 10)
+  const date = (args.date as string | undefined) ?? today
+  const dateStart = `${date}T00:00:00`
+  const dateEnd = `${date}T23:59:59`
+
+  const [dreamRes, chatRes] = await Promise.all([
+    fetch(
+      `${SUPABASE_URL}/rest/v1/dreams?user_id=eq.${USER_ID}&created_at=gte.${dateStart}&created_at=lte.${dateEnd}&order=created_at.desc&limit=1`,
+      { headers: supabaseHeaders(key) }
+    ),
+    fetch(
+      `${SUPABASE_URL}/rest/v1/chat_messages?user_id=eq.${USER_ID}&created_at=gte.${dateStart}&created_at=lte.${dateEnd}&order=created_at.asc&limit=100`,
+      { headers: supabaseHeaders(key) }
+    ),
+  ])
+
+  const dreams = await dreamRes.json() as Record<string, unknown>[]
+  const chat = await chatRes.json() as Record<string, unknown>[]
+  const dream = dreams[0] ?? null
+
+  return JSON.stringify({ date, dream, chat }, null, 2)
 }
 
-// ── Tool dispatch ────────────────────────────────────────────────
-async function callTool(token: string, name: string, args: Record<string, unknown>) {
-  if (name === 'add_dream') {
-    const result = await apiPost(token, '/add-dream', args)
-    return JSON.stringify(result, null, 2)
-  }
-  if (name === 'ask_jung') {
-    const result = await apiPost(token, '/ask-jung-api', args)
-    return (result.answer as string) ?? JSON.stringify(result)
-  }
-  if (name === 'get_dream') {
-    const params: Record<string, string> = {}
-    if (typeof args.date === 'string') params.date = args.date
-    const result = await apiGet(token, '/get-dream', params)
-    return JSON.stringify(result, null, 2)
-  }
-  throw new Error(`Nieznane narzędzie: ${name}`)
+async function handleAskJung(args: Record<string, unknown>) {
+  const key = getServiceKey()
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  if (!apiKey) return 'Brak ANTHROPIC_API_KEY w env Vercel — dodaj go przez vercel env add ANTHROPIC_API_KEY production'
+
+  const question = args.question as string
+  const today = new Date().toISOString().slice(0, 10)
+  const date = (args.date as string | undefined) ?? today
+  const dateStart = `${date}T00:00:00`
+  const dateEnd = `${date}T23:59:59`
+
+  const dreamRes = await fetch(
+    `${SUPABASE_URL}/rest/v1/dreams?user_id=eq.${USER_ID}&created_at=gte.${dateStart}&created_at=lte.${dateEnd}&order=created_at.desc&limit=1`,
+    { headers: supabaseHeaders(key) }
+  )
+  const dreams = await dreamRes.json() as Record<string, unknown>[]
+  const dream = dreams[0]
+  const dreamText = dream ? stripHtml(dream.description as string) : 'Brak wpisu na ten dzień.'
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 512,
+      system: `Jesteś Carlem Gustavem Jungiem. Odpowiadasz krótko, po polsku, w sposób koleżeński i ciepły. Analizujesz sny przez pryzmat psychologii analitycznej. Sen użytkownika z dnia ${date}: ${dreamText}`,
+      messages: [{ role: 'user', content: question }],
+    }),
+  })
+  const data = await res.json() as { content: { text: string }[] }
+  return data.content?.[0]?.text ?? 'Brak odpowiedzi'
 }
 
-function setCors(res: VercelResponse) {
-  Object.entries(CORS).forEach(([k, v]) => res.setHeader(k, v))
-}
-
-// ── JSON-RPC handler ─────────────────────────────────────────────
+// ── Main handler ─────────────────────────────────────────────────
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  setCors(res)
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'content-type, authorization, mcp-session-id')
 
-  // CORS preflight
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end()
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end()
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
-  }
-
-  const { jsonrpc, id, method, params } = req.body as {
+  const { id, method, params } = req.body as {
     jsonrpc: string
     id: number | string | null
     method: string
     params?: Record<string, unknown>
   }
 
-  const ok = (result: unknown) =>
-    res.status(200).json({ jsonrpc: '2.0', id, result })
-
-  const err = (code: number, message: string) =>
-    res.status(200).json({ jsonrpc: '2.0', id, error: { code, message } })
+  const ok = (result: unknown) => res.status(200).json({ jsonrpc: '2.0', id, result })
+  const err = (code: number, message: string) => res.status(200).json({ jsonrpc: '2.0', id, error: { code, message } })
 
   try {
-    // MCP initialization
     if (method === 'initialize') {
       return ok({
         protocolVersion: '2024-11-05',
@@ -138,30 +218,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         serverInfo: { name: 'dream-journal', version: '1.0.0' },
       })
     }
+    if (method === 'notifications/initialized') return res.status(200).end()
+    if (method === 'tools/list') return ok({ tools: TOOLS })
 
-    if (method === 'notifications/initialized') {
-      return res.status(200).end()
-    }
-
-    // List tools
-    if (method === 'tools/list') {
-      return ok({ tools: TOOLS })
-    }
-
-    // Call tool
     if (method === 'tools/call') {
-      const { name, arguments: args = {} } = params as {
-        name: string
-        arguments?: Record<string, unknown>
-      }
-      let token: string
+      const { name, arguments: args = {} } = params as { name: string; arguments?: Record<string, unknown> }
       try {
-        token = getToken(req)
-      } catch (e) {
-        return err(-32001, (e as Error).message)
-      }
-      try {
-        const text = await callTool(token, name, args)
+        let text: string
+        if (name === 'add_dream') text = await handleAddDream(args)
+        else if (name === 'get_dream') text = await handleGetDream(args)
+        else if (name === 'ask_jung') text = await handleAskJung(args)
+        else return err(-32601, `Nieznane narzędzie: ${name}`)
         return ok({ content: [{ type: 'text', text }] })
       } catch (e) {
         return ok({ content: [{ type: 'text', text: `Błąd: ${(e as Error).message}` }], isError: true })
