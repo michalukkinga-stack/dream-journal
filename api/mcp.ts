@@ -99,15 +99,21 @@ async function callTool(token: string, name: string, args: Record<string, unknow
   throw new Error(`Nieznane narzędzie: ${name}`)
 }
 
+function setCors(res: VercelResponse) {
+  Object.entries(CORS).forEach(([k, v]) => res.setHeader(k, v))
+}
+
 // ── JSON-RPC handler ─────────────────────────────────────────────
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  setCors(res)
+
   // CORS preflight
   if (req.method === 'OPTIONS') {
-    return res.status(200).set(CORS).end()
+    return res.status(200).end()
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).set(CORS).json({ error: 'Method not allowed' })
+    return res.status(405).json({ error: 'Method not allowed' })
   }
 
   const { jsonrpc, id, method, params } = req.body as {
@@ -118,10 +124,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const ok = (result: unknown) =>
-    res.status(200).set(CORS).json({ jsonrpc: '2.0', id, result })
+    res.status(200).json({ jsonrpc: '2.0', id, result })
 
   const err = (code: number, message: string) =>
-    res.status(200).set(CORS).json({ jsonrpc: '2.0', id, error: { code, message } })
+    res.status(200).json({ jsonrpc: '2.0', id, error: { code, message } })
 
   try {
     // MCP initialization
