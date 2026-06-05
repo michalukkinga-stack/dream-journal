@@ -140,7 +140,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (method === 'notifications/initialized') {
-      return res.status(200).set(CORS).end()
+      return res.status(200).end()
     }
 
     // List tools
