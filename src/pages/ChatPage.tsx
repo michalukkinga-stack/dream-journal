@@ -137,32 +137,30 @@ export function ChatPage() {
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4">
-        <div className="flex flex-col gap-4 bg-white/6 backdrop-blur-md rounded-2xl border border-white/10 px-4 py-4 min-h-0">
-          {messages.map(m => (
-            <ChatMessage key={m.id} message={m} />
-          ))}
+      {(messages.length > 0 || isLoading) && (
+        <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4">
+          <div className="flex flex-col gap-4 bg-white/6 backdrop-blur-md rounded-2xl border border-white/10 px-4 py-4 min-h-0">
+            {messages.map(m => (
+              <ChatMessage key={m.id} message={m} />
+            ))}
 
-          {isLoading && messages[messages.length - 1]?.role === 'user' && (
-            <div className="flex justify-start items-start">
-              <div className="w-2 h-2 rounded-full bg-purple-400 shrink-0 mr-3 mt-2.5" />
-              <div className="bg-white/10 border border-white/10 rounded-2xl rounded-bl-sm px-4 py-3">
-                <div className="flex gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '300ms' }} />
+            {isLoading && messages[messages.length - 1]?.role === 'user' && (
+              <div className="flex justify-start items-start">
+                <div className="w-2 h-2 rounded-full bg-purple-400 shrink-0 mr-3 mt-2.5" />
+                <div className="bg-white/10 border border-white/10 rounded-2xl rounded-bl-sm px-4 py-3">
+                  <div className="flex gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {messages.length === 0 && !isLoading && historyLoaded && (
-            <p className="font-ui text-white/30 text-sm text-center py-4">Zapytaj Junga o swój sen…</p>
-          )}
-
-          <div ref={bottomRef} />
+            <div ref={bottomRef} />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Input */}
       <div className="shrink-0 px-4 pb-8 pt-2">
@@ -171,7 +169,7 @@ export function ChatPage() {
           <div className="relative flex-1">
             <input
               type="text"
-              placeholder={messages.length > 0 ? 'Zapytaj znawcę snów…' : 'Zapytaj Junga…'}
+              placeholder="Zapytaj znawcę snów…"
               value={displayInput}
               onChange={e => { if (!mic.isListening) setInputValue(e.target.value) }}
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) onSend() }}

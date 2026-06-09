@@ -229,214 +229,313 @@ export function HomePage() {
     const d = new Date(windowStart); d.setDate(d.getDate() + i); return toDateKey(d)
   }).includes(toDateKey(today))
 
+  // Desktop: 180 dni wstecz, dziś na górze listy
+  const desktopDays = Array.from({ length: 180 }, (_, i) => addDays(today, -i))
+  const DAYS_PL_SHORT = ['niedziela','poniedziałek','wtorek','środa','czwartek','piątek','sobota']
+
+  const desktopScrollRef = useRef<HTMLDivElement>(null)
+
+
+  const entryPanel = (
+    <div className="flex-1 flex flex-col px-4 pt-5 pb-8 overflow-y-auto">
+      {/* Date label + actions */}
+      <div className="flex items-center justify-between mb-4 md:mb-[30px]">
+        <p className="label-caps">{selectedLabel}</p>
+        {existingDream && (
+          <button
+            onClick={() => setConfirmDelete(true)}
+            className="w-8 h-8 rounded-full bg-white/10 border border-white/15 flex items-center justify-center
+                       text-white/60 hover:text-white hover:bg-white/20 transition-all duration-150 active:scale-95"
+          >
+            <Trash2 size={14} />
+          </button>
+        )}
+      </div>
+
+      {(mode === 'add' || mode === 'edit') && !isFuture && (
+        <div className="flex-1 flex flex-col gap-3">
+          <div>
+            {tags.length > 0 ? (
+              <div className="flex flex-wrap gap-2 items-center">
+                {tags.map(tag => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => handleTagsChange(tags.filter(t => t !== tag))}
+                    className="font-ui flex items-center gap-1.5 pl-4 pr-3 h-7 rounded-full text-sm font-light tracking-wide
+                               border border-white/20 text-white bg-white/10
+                               hover:bg-white/20 transition-all duration-150 active:scale-95"
+                  >
+                    {tag}
+                    <X size={11} className="opacity-60 shrink-0" />
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setShowPicker(true)}
+                  className="w-7 h-7 rounded-full border border-white/20 text-white
+                             flex items-center justify-center bg-white/10
+                             hover:bg-white/20 transition-all duration-150 active:scale-95"
+                >
+                  <Plus size={14} />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowPicker(true)}
+                className="font-ui flex items-center gap-2 px-4 h-7 rounded-full
+                           border border-white/20 text-white text-[0.95rem] font-medium tracking-wide
+                           bg-white/10 hover:bg-white/20
+                           transition-all duration-150 active:scale-95"
+              >
+                <Plus size={14} />
+                Dodaj motyw
+              </button>
+            )}
+          </div>
+          <DreamEditor ref={dreamEditorRef} key={toDateKey(selectedDate)} value={description} onChange={handleDescriptionChange} onListeningChange={setDreamMicListening} />
+        </div>
+      )}
+
+      {isFuture && (
+        <p className="font-ui text-white/35 text-sm italic">
+          Nie można dodać wpisu dla przyszłej daty.
+        </p>
+      )}
+
+      {!isFuture && isMicSupported && (
+        <div className="flex-1 flex flex-col items-center justify-center gap-4 mb-[16.5rem] md:mb-0 md:absolute md:inset-0 md:pointer-events-none [&>*]:md:pointer-events-auto">
+          <button
+            type="button"
+            onClick={() => dreamEditorRef.current?.toggleMic()}
+            className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
+            style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', boxShadow: dreamMicListening ? '0 0 0 8px rgba(255,255,255,0.08), 0 0 24px 4px rgba(167,139,250,0.35)' : '0 0 0 1px rgba(255,255,255,0.15)' }}
+          >
+            <Mic size={28} className={dreamMicListening ? 'text-white' : 'text-white/70'} />
+            {dreamMicListening && (
+              <span className="absolute inset-0 rounded-full animate-ping" style={{ background: 'rgba(167,139,250,0.2)' }} />
+            )}
+          </button>
+          <p className="font-ui text-white/70 text-xs text-center">Kliknij w ikonę mikrofonu, aby zacząć dyktować.</p>
+        </div>
+      )}
+    </div>
+  )
+
+  const deleteConfirm = confirmDelete && (
+    <>
+      <div
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+        onClick={() => setConfirmDelete(false)}
+      />
+      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl border-t border-white/10 p-5 pb-10"
+        style={{ background: '#3D4254' }}>
+        <div className="flex justify-center mb-5">
+          <div className="w-10 h-1 rounded-full bg-white/20" />
+        </div>
+        <p className="font-display text-white text-xl font-bold mb-1">Na pewno usunąć ten sen?</p>
+        <p className="font-ui text-white/75 text-sm font-light mb-7">Nie można tego cofnąć.</p>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setConfirmDelete(false)}
+            className="font-ui flex-1 h-12 rounded-full border border-white/20
+                       text-white/90 text-sm font-light tracking-wide
+                       hover:border-white/50 transition-all duration-150 active:scale-[0.98]"
+          >
+            Nie
+          </button>
+          <button
+            onClick={handleDelete}
+            className="font-ui flex-1 h-12 rounded-full
+                       bg-gradient-to-r from-red-700/80 to-red-600/80
+                       text-white text-sm font-medium tracking-wide
+                       hover:from-red-600/90 hover:to-red-500/90
+                       transition-all duration-150 active:scale-[0.98]"
+          >
+            Tak, usuń
+          </button>
+        </div>
+      </div>
+    </>
+  )
+
   return (
-    <div className="min-h-screen flex flex-col max-w-[600px] mx-auto pb-14">
-      {/* Top bar */}
-      <div className="flex items-center justify-between pt-10 px-4 pb-1">
-        <p className="font-display text-white text-xl">Dziennik snów</p>
-        <div className="flex items-center gap-3">
-          {!windowDaysIncludeToday && (
+    <>
+      {/* ── MOBILE layout (< md) ── */}
+      <div className="md:hidden min-h-screen flex flex-col max-w-[600px] mx-auto pb-14">
+        <div className="flex items-center justify-between pt-10 px-4 pb-1">
+          <p className="font-display text-white text-xl">Dziennik snów</p>
+          <div className="flex items-center gap-3">
+            {!windowDaysIncludeToday && (
+              <button
+                onClick={() => { selectDay(today); setWindowStart(addDays(today, -6)) }}
+                className="font-ui text-[0.7rem] tracking-widest uppercase px-3 h-6 rounded-full
+                           border border-purple-400/50 text-purple-300
+                           hover:bg-purple-400/15 hover:border-purple-400/80
+                           transition-all duration-150 active:scale-95"
+              >
+                Dzisiaj
+              </button>
+            )}
+            <Link to="/api-docs" className="font-ui text-white/35 hover:text-white/65 text-xs transition-colors">API Docs</Link>
+            <button onClick={signOut} className="font-ui text-white/35 hover:text-white/65 text-xs transition-colors">Wyloguj</button>
+          </div>
+        </div>
+
+        <CalendarStrip
+          dreamsByDate={dreamsByDate}
+          selectedDate={selectedDate}
+          windowStart={windowStart}
+          today={today}
+          onSelect={selectDay}
+          onPrev={() => setWindowStart(w => addDays(w, -7))}
+          onNext={() => setWindowStart(w => addDays(w, 7))}
+        />
+
+        <div className="mx-4 border-t-[3px] border-white/10" />
+
+        {entryPanel}
+
+        <ChatBottomSheet
+          ref={chatPanelRef}
+          open={chatOpen}
+          onToggle={() => setChatOpen(o => !o)}
+          currentDream={existingDream}
+          allDreams={dreams}
+          selectedDate={selectedKey}
+          showStrip={chatHasMessages}
+        />
+
+        <div className="fixed bottom-0 left-0 right-0 z-50 max-w-[600px] mx-auto rounded-b-2xl"
+          style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.10)', borderTop: 'none' }}>
+          <AgentInput
+            value={inputValue}
+            onChange={setInputValue}
+            onSend={(text) => { setChatHasMessages(true); setChatOpen(true); chatPanelRef.current?.sendMessage(text) }}
+            isLoading={false}
+            dreamHasContent={dreamHasContent}
+            placeholder={chatHasMessages ? 'Zadaj pytanie...' : 'Co może oznaczać mój sen?'}
+          />
+        </div>
+
+        {showPicker && (
+          <TagPicker selected={tags} onChange={(t) => { handleTagsChange(t); setShowPicker(false) }} onClose={() => setShowPicker(false)} />
+        )}
+
+        {deleteConfirm}
+      </div>
+
+      {/* ── DESKTOP layout (≥ md) ── */}
+      <div className="hidden md:flex min-h-screen">
+        {/* Left panel — app name + scrollable days */}
+        <div className="w-56 flex flex-col shrink-0 border-r-[3px] border-white/10 h-screen sticky top-0">
+          {/* App name + Dzisiaj button */}
+          <div className="px-5 pt-8 pb-4 shrink-0">
+            <p className="font-display text-white text-xl mb-3">Dziennik snów</p>
             <button
-              onClick={() => { selectDay(today); setWindowStart(addDays(today, -6)) }}
-              className="font-ui text-[0.7rem] tracking-widest uppercase px-3 h-6 rounded-full
+              onClick={() => {
+                selectDay(today)
+                desktopScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+              }}
+              className="font-ui text-[0.65rem] tracking-widest uppercase px-3 h-6 rounded-full
                          border border-purple-400/50 text-purple-300
                          hover:bg-purple-400/15 hover:border-purple-400/80
                          transition-all duration-150 active:scale-95"
             >
               Dzisiaj
             </button>
-          )}
-          <Link
-            to="/api-docs"
-            className="font-ui text-white/35 hover:text-white/65 text-xs transition-colors"
-          >
-            API Docs
-          </Link>
-          <button
-            onClick={signOut}
-            className="font-ui text-white/35 hover:text-white/65 text-xs transition-colors"
-          >
-            Wyloguj
-          </button>
-        </div>
-      </div>
+          </div>
 
-      {/* Calendar strip */}
-      <CalendarStrip
-        dreamsByDate={dreamsByDate}
-        selectedDate={selectedDate}
-        windowStart={windowStart}
-        today={today}
-        onSelect={selectDay}
-        onPrev={() => setWindowStart(w => addDays(w, -7))}
-        onNext={() => setWindowStart(w => addDays(w, 7))}
-      />
+          {/* Scrollable days list — today at top, oldest at bottom */}
+          <div ref={desktopScrollRef} className="flex-1 overflow-y-auto flex flex-col">
+            {desktopDays.map(day => {
+              const key = toDateKey(day)
+              const isSelected = key === toDateKey(selectedDate)
+              const hasDream = dreamsByDate.has(key)
+              const isToday = key === toDateKey(today)
 
-      {/* Divider */}
-      <div className="mx-4 border-t-[3px] border-white/10" />
-
-      {/* Entry panel */}
-      <div className="flex-1 flex flex-col px-4 pt-5 pb-8 overflow-y-auto">
-        {/* Date label + actions */}
-        <div className="flex items-center justify-between mb-4">
-          <p className="label-caps">{selectedLabel}</p>
-
-          {existingDream && (
-            <button
-              onClick={() => setConfirmDelete(true)}
-              className="w-8 h-8 rounded-full bg-white/10 border border-white/15 flex items-center justify-center
-                         text-white/60 hover:text-white hover:bg-white/20 transition-all duration-150 active:scale-95"
-            >
-              <Trash2 size={14} />
-            </button>
-          )}
-
-        </div>
-
-        {/* Add / Edit mode */}
-        {(mode === 'add' || mode === 'edit') && !isFuture && (
-          <div className="flex-1 flex flex-col gap-3">
-            {/* Tags */}
-            <div>
-              {tags.length > 0 ? (
-                <div className="flex flex-wrap gap-2 items-center">
-                  {tags.map(tag => (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => handleTagsChange(tags.filter(t => t !== tag))}
-                      className="font-ui flex items-center gap-1.5 pl-4 pr-3 h-7 rounded-full text-sm font-light tracking-wide
-                                 border border-white/20 text-white bg-white/10
-                                 hover:bg-white/20 transition-all duration-150 active:scale-95"
-                    >
-                      {tag}
-                      <X size={11} className="opacity-60 shrink-0" />
-                    </button>
-                  ))}
+              return (
+                <div key={key} className="shrink-0 px-2 py-1">
                   <button
-                    type="button"
-                    onClick={() => setShowPicker(true)}
-                    className="w-7 h-7 rounded-full border border-white/20 text-white
-                               flex items-center justify-center bg-white/10
-                               hover:bg-white/20 transition-all duration-150 active:scale-95"
+                    onClick={() => selectDay(day)}
+                    className={[
+                      'w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-150 text-left',
+                      'hover:bg-white/10 active:scale-[0.98]',
+                      isSelected ? 'bg-white/20 ring-2 ring-violet-400' : '',
+                    ].join(' ')}
                   >
-                    <Plus size={14} />
+                    <div className="flex flex-col shrink-0 min-w-0 gap-[8px]">
+                      <span className={[
+                        'font-ui text-[1.05rem] leading-none',
+                        isSelected ? 'text-white font-semibold' : 'text-white/80',
+                      ].join(' ')}>
+                        {day.getDate()} {MONTHS_PL_FULL[day.getMonth()]}
+                      </span>
+                      <span className={[
+                        'font-ui text-[0.6rem] tracking-widest uppercase',
+                        isSelected ? 'text-white' : 'text-white/50',
+                      ].join(' ')}>
+                        {DAYS_PL_SHORT[day.getDay()]}
+                      </span>
+                    </div>
+                    <div className="ml-auto shrink-0">
+                      {hasDream ? (
+                        <div className="w-[9px] h-[9px] rounded-full bg-violet-400" />
+                      ) : (
+                        <div className={[
+                          'w-[9px] h-[9px] rounded-full border',
+                          isSelected ? 'border-white/70' : 'border-white/40',
+                        ].join(' ')} />
+                      )}
+                    </div>
                   </button>
                 </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setShowPicker(true)}
-                  className="font-ui flex items-center gap-2 px-4 h-7 rounded-full
-                             border border-white/20 text-white text-[0.95rem] font-medium tracking-wide
-                             bg-white/10 hover:bg-white/20
-                             transition-all duration-150 active:scale-95"
-                >
-                  <Plus size={14} />
-                  Dodaj motyw
-                </button>
-              )}
-            </div>
-
-            <DreamEditor ref={dreamEditorRef} key={toDateKey(selectedDate)} value={description} onChange={handleDescriptionChange} onListeningChange={setDreamMicListening} />
-
+              )
+            })}
           </div>
-        )}
 
-        {isFuture && (
-          <p className="font-ui text-white/35 text-sm italic">
-            Nie można dodać wpisu dla przyszłej daty.
-          </p>
-        )}
-
-        {/* Floating mic — widoczny gdy brak treści snu */}
-        {!isFuture && isMicSupported && (
-          <div className="flex-1 flex items-center justify-center mb-[16.5rem]">
-            <button
-              type="button"
-              onClick={() => dreamEditorRef.current?.toggleMic()}
-              className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
-              style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', boxShadow: dreamMicListening ? '0 0 0 8px rgba(255,255,255,0.08), 0 0 24px 4px rgba(167,139,250,0.35)' : '0 0 0 1px rgba(255,255,255,0.15)' }}
-            >
-              <Mic size={28} className={dreamMicListening ? 'text-white' : 'text-white/70'} />
-              {dreamMicListening && (
-                <span className="absolute inset-0 rounded-full animate-ping" style={{ background: 'rgba(167,139,250,0.2)' }} />
-              )}
-            </button>
+          {/* Bottom links */}
+          <div className="border-t-[3px] border-white/10 px-5 py-4 flex flex-col gap-2 shrink-0">
+            <Link to="/api-docs" className="font-ui text-white/30 hover:text-white/60 text-xs transition-colors">API Docs</Link>
+            <button onClick={signOut} className="font-ui text-white/30 hover:text-white/60 text-xs transition-colors text-left">Wyloguj</button>
           </div>
-        )}
+        </div>
 
-      </div>
+        {/* Right panel — entry form */}
+        <div className="flex-1 flex flex-col min-h-screen pl-[40px] relative">
+          {/* Spacer matching left panel title height so content aligns with first day row */}
+          <div className="h-[83px] shrink-0" />
+          {entryPanel}
 
-      <ChatBottomSheet
-        ref={chatPanelRef}
-        open={chatOpen}
-        onToggle={() => setChatOpen(o => !o)}
-        currentDream={existingDream}
-        allDreams={dreams}
-        selectedDate={selectedKey}
-        showStrip={chatHasMessages}
-      />
+          <ChatBottomSheet
+            ref={chatPanelRef}
+            open={chatOpen}
+            onToggle={() => setChatOpen(o => !o)}
+            currentDream={existingDream}
+            allDreams={dreams}
+            selectedDate={selectedKey}
+            showStrip={chatHasMessages}
+          />
 
-      {/* Input — zawsze widoczny na samym dole */}
-      <div className="fixed bottom-0 md:bottom-5 left-0 right-0 z-50 max-w-[600px] mx-auto rounded-b-2xl md:rounded-2xl"
-        style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.10)', borderTop: 'none' }}>
-
-        <AgentInput
-          value={inputValue}
-          onChange={setInputValue}
-          onSend={(text) => {
-            setChatHasMessages(true)
-            setChatOpen(true)
-            chatPanelRef.current?.sendMessage(text)
-          }}
-          isLoading={false}
-          dreamHasContent={dreamHasContent}
-          placeholder={chatHasMessages ? 'Zadaj pytanie...' : 'Co może oznaczać mój sen?'}
-        />
+          <div className="fixed bottom-5 z-50 rounded-2xl" style={{ left: '264px', width: '900px' }}>
+            <AgentInput
+              value={inputValue}
+              onChange={setInputValue}
+              onSend={(text) => { setChatHasMessages(true); setChatOpen(true); chatPanelRef.current?.sendMessage(text) }}
+              isLoading={false}
+              dreamHasContent={dreamHasContent}
+              placeholder={chatHasMessages ? 'Zadaj pytanie...' : 'Co może oznaczać mój sen?'}
+            />
+          </div>
+        </div>
       </div>
 
       {showPicker && (
         <TagPicker selected={tags} onChange={(t) => { handleTagsChange(t); setShowPicker(false) }} onClose={() => setShowPicker(false)} />
       )}
 
-      {/* Delete confirm */}
-      {confirmDelete && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
-            onClick={() => setConfirmDelete(false)}
-          />
-          <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl border-t border-white/10 p-5 pb-10"
-            style={{ background: '#3D4254' }}>
-            <div className="flex justify-center mb-5">
-              <div className="w-10 h-1 rounded-full bg-white/20" />
-            </div>
-            <p className="font-display text-white text-xl font-bold mb-1">Na pewno usunąć ten sen?</p>
-            <p className="font-ui text-white/75 text-sm font-light mb-7">Nie można tego cofnąć.</p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setConfirmDelete(false)}
-                className="font-ui flex-1 h-12 rounded-full border border-white/20
-                           text-white/90 text-sm font-light tracking-wide
-                           hover:border-white/50 transition-all duration-150 active:scale-[0.98]"
-              >
-                Nie
-              </button>
-              <button
-                onClick={handleDelete}
-                className="font-ui flex-1 h-12 rounded-full
-                           bg-gradient-to-r from-red-700/80 to-red-600/80
-                           text-white text-sm font-medium tracking-wide
-                           hover:from-red-600/90 hover:to-red-500/90
-                           transition-all duration-150 active:scale-[0.98]"
-              >
-                Tak, usuń
-              </button>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
+      {deleteConfirm}
+    </>
   )
 }

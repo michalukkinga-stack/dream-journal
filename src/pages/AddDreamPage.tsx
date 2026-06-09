@@ -130,6 +130,13 @@ export function AddDreamPage({ desktopMode = false, onSaved }: AddDreamPageProps
               </button>
             )}
           </div>
+          {titleMic.isSupported && (
+            <p className="font-ui text-[#1a1624]/55 text-xs px-1">
+              {titleMic.isListening
+                ? 'Nagrywanie wyłączy się automatycznie, gdy przestaniesz mówić.'
+                : 'Kliknij w ikonę mikrofonu, aby zacząć dyktować.'}
+            </p>
+          )}
         </div>
 
         {/* Opis */}

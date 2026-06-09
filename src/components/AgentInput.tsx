@@ -20,7 +20,16 @@ export function AgentInput({ value, onChange, onSend, isLoading = false, dreamHa
 
   return (
     <div className="shrink-0 px-4 pb-8 md:pb-3 pt-3">
-      <div className="relative flex items-center gap-2">
+      <div
+        className="relative flex items-center gap-2 rounded-2xl"
+        style={{
+          padding: '10px',
+          background: 'rgba(255,255,255,0.06)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid rgba(255,255,255,0.10)',
+        }}
+      >
         <input
           type="text"
           placeholder={placeholder}
