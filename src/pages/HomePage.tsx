@@ -304,8 +304,8 @@ export function HomePage() {
         </p>
       )}
 
-      {!isFuture && isMicSupported && (
-        <div className="flex-1 flex flex-col items-center justify-center gap-4 mb-[16.5rem] md:mb-0 md:absolute md:inset-0 md:pointer-events-none [&>*]:md:pointer-events-auto">
+      {!isFuture && isMicSupported && (() => {
+        const micBtn = (
           <button
             type="button"
             onClick={() => dreamEditorRef.current?.toggleMic()}
@@ -317,9 +317,21 @@ export function HomePage() {
               <span className="absolute inset-0 rounded-full animate-ping" style={{ background: 'rgba(167,139,250,0.2)' }} />
             )}
           </button>
-          <p className="font-ui text-white/70 text-xs text-center">Kliknij w ikonę mikrofonu, aby zacząć dyktować.</p>
-        </div>
-      )}
+        )
+        const micLabel = <p className="font-ui text-white/70 text-xs text-center">Kliknij w ikonę mikrofonu, aby zacząć dyktować.</p>
+        return (
+          <>
+            {/* Mobile: in-flow */}
+            <div className="flex-1 flex flex-col items-center justify-center gap-4 mb-[16.5rem] md:hidden">
+              {micBtn}{micLabel}
+            </div>
+            {/* Desktop: fixed, centered over AgentInput */}
+            <div className="hidden md:flex flex-col items-center justify-center gap-4 fixed top-0 bottom-0 pointer-events-none [&>*]:pointer-events-auto" style={{ left: '264px', width: '900px' }}>
+              {micBtn}{micLabel}
+            </div>
+          </>
+        )
+      })()}
     </div>
   )
 
@@ -393,7 +405,6 @@ export function HomePage() {
           onNext={() => setWindowStart(w => addDays(w, 7))}
         />
 
-        <div className="mx-4 border-t-[3px] border-white/10" />
 
         {entryPanel}
 
@@ -407,8 +418,7 @@ export function HomePage() {
           showStrip={chatHasMessages}
         />
 
-        <div className="fixed bottom-0 left-0 right-0 z-50 max-w-[600px] mx-auto rounded-b-2xl"
-          style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.10)', borderTop: 'none' }}>
+        <div className="fixed bottom-0 left-0 right-0 z-50 max-w-[600px] mx-auto">
           <AgentInput
             value={inputValue}
             onChange={setInputValue}
@@ -429,7 +439,7 @@ export function HomePage() {
       {/* ── DESKTOP layout (≥ md) ── */}
       <div className="hidden md:flex min-h-screen">
         {/* Left panel — app name + scrollable days */}
-        <div className="w-56 flex flex-col shrink-0 border-r-[3px] border-white/10 h-screen sticky top-0">
+        <div className="w-56 flex flex-col shrink-0 h-screen sticky top-0">
           {/* App name + Dzisiaj button */}
           <div className="px-5 pt-8 pb-4 shrink-0">
             <p className="font-display text-white text-xl mb-3">Dziennik snów</p>
@@ -461,7 +471,7 @@ export function HomePage() {
                     onClick={() => selectDay(day)}
                     className={[
                       'w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-150 text-left',
-                      'hover:bg-white/10 active:scale-[0.98]',
+                      'border border-white/15 hover:bg-white/10 active:scale-[0.98]',
                       isSelected ? 'bg-white/20 ring-2 ring-violet-400' : '',
                     ].join(' ')}
                   >

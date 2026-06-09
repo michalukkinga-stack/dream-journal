@@ -38,15 +38,15 @@ export function CalendarStrip({
   const selectedKey = toDateKey(selectedDate)
   const todayKey = toDateKey(today)
   return (
-    <div className="flex items-center gap-1 px-2 py-3">
+    <div className="relative py-3">
       <button
         onClick={onPrev}
-        className="w-8 h-8 flex items-center justify-center rounded-full text-white hover:bg-white/10 transition-all duration-150 shrink-0"
+        className="absolute left-[-10px] top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-full text-white hover:bg-white/10 transition-all duration-150 z-10"
       >
         <ChevronLeft size={18} />
       </button>
 
-      <div className="flex flex-1 gap-1.5">
+      <div className="flex gap-1.5 px-4">
         {days.map(day => {
           const key = toDateKey(day)
           const isFuture = day > today
@@ -63,7 +63,7 @@ export function CalendarStrip({
                 isFuture ? 'opacity-30 cursor-default' : 'active:scale-95',
                 isSelected && !isFuture
                   ? 'bg-white/20 ring-2 ring-violet-400'
-                  : 'hover:bg-white/10',
+                  : 'border border-white/15 hover:bg-white/10',
               ].join(' ')}
             >
               <span className={[
@@ -99,7 +99,7 @@ export function CalendarStrip({
         onClick={onNext}
         disabled={!canNext}
         className={[
-          'w-8 h-8 flex items-center justify-center rounded-full transition-all duration-150 shrink-0',
+          'absolute right-[-10px] top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-full transition-all duration-150 z-10',
           canNext
             ? 'text-white hover:bg-white/10'
             : 'text-white/20 cursor-default',
