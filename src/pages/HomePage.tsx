@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { Trash2, Plus, X, Mic } from 'lucide-react'
+import { Trash2, Plus, X, Mic, MoreVertical } from 'lucide-react'
 import { getDreams, saveDream, updateDream, deleteDream } from '@/storage/dreamStorage'
 import { Dream } from '@/types/dream'
 import { CalendarStrip, toDateKey } from '@/components/CalendarStrip'
@@ -11,6 +11,7 @@ import { ChatBottomSheet } from '@/components/ChatBottomSheet'
 import { getChatMessages } from '@/storage/chatStorage'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { MobileHeader } from '@/components/MobileHeader'
 
 function addDays(d: Date, n: number): Date {
   const r = new Date(d)
@@ -238,6 +239,19 @@ export function HomePage() {
   const DAYS_PL_SHORT = ['niedziela','poniedziałek','wtorek','środa','czwartek','piątek','sobota']
 
   const desktopScrollRef = useRef<HTMLDivElement>(null)
+  const [desktopMenuOpen, setDesktopMenuOpen] = useState(false)
+  const desktopMenuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!desktopMenuOpen) return
+    function handleClick(e: MouseEvent) {
+      if (desktopMenuRef.current && !desktopMenuRef.current.contains(e.target as Node)) {
+        setDesktopMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [desktopMenuOpen])
 
 
   const hasText = description.replace(/<[^>]*>/g, '').trim().length > 0
@@ -400,24 +414,24 @@ export function HomePage() {
     <>
       {/* ── MOBILE layout (< md) ── */}
       <div className="md:hidden min-h-screen flex flex-col max-w-[600px] mx-auto pb-14">
-        <div className="flex items-center justify-between pt-10 px-4 pb-1">
-          <p className="font-display text-white text-xl">Dziennik snów</p>
-          <div className="flex items-center gap-3">
-            {!windowDaysIncludeToday && (
-              <button
-                onClick={() => { selectDay(today); setWindowStart(addDays(today, -6)) }}
-                className="font-ui text-[0.7rem] tracking-widest uppercase px-3 h-6 rounded-full
-                           border border-purple-400/50 text-purple-300
-                           hover:bg-purple-400/15 hover:border-purple-400/80
-                           transition-all duration-150 active:scale-95"
-              >
-                Dzisiaj
-              </button>
-            )}
-            <Link to="/api-docs" className="font-ui text-white/35 hover:text-white/65 text-xs transition-colors">API Docs</Link>
-            <button onClick={signOut} className="font-ui text-white/35 hover:text-white/65 text-xs transition-colors">Wyloguj</button>
+        <MobileHeader />
+
+        {toDateKey(selectedDate) !== toDateKey(today) && (
+          <div className="flex justify-start px-4 pb-1">
+            <button
+              onClick={() => {
+                selectDay(today)
+                setWindowStart(addDays(today, -6))
+              }}
+              className="font-ui text-[0.65rem] tracking-widest uppercase px-3 h-6 rounded-full
+                         border border-purple-400/50 text-purple-300
+                         hover:bg-purple-400/15 hover:border-purple-400/80
+                         transition-all duration-150 active:scale-95"
+            >
+              Dzisiaj
+            </button>
           </div>
-        </div>
+        )}
 
         <CalendarStrip
           dreamsByDate={dreamsByDate}
@@ -466,16 +480,53 @@ export function HomePage() {
         <div className="w-56 flex flex-col shrink-0 h-screen sticky top-0">
           {/* App name + links + Dzisiaj button */}
           <div className="px-5 pt-8 pb-4 shrink-0">
-            <p className="font-display text-white text-xl mb-1">Dziennik snów</p>
-            <div className="flex items-center gap-3 mb-3">
-              <Link to="/api-docs" className="font-ui text-white/30 hover:text-white/60 text-xs transition-colors">API Docs</Link>
-              <button onClick={signOut} className="font-ui text-white/30 hover:text-white/60 text-xs transition-colors text-left">Wyloguj</button>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="relative" ref={desktopMenuRef}>
+                <button
+                  onClick={() => setDesktopMenuOpen(o => !o)}
+                  className={`w-9 h-9 flex items-center justify-center rounded-full transition-all duration-150 active:scale-95 ${
+                    desktopMenuOpen ? 'text-white bg-white/15' : 'text-white/50 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <MoreVertical size={20} />
+                </button>
+                {desktopMenuOpen && (
+                  <div
+                    className="absolute left-0 top-11 z-50 rounded-2xl border border-white/15 py-1 min-w-[200px]"
+                    style={{ background: '#1f2937', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}
+                  >
+                    <Link
+                      to="/dreams"
+                      onClick={() => setDesktopMenuOpen(false)}
+                      className="font-ui flex items-center px-4 h-11 text-sm text-violet-400 hover:text-violet-300 hover:bg-white/8 transition-colors whitespace-nowrap"
+                    >
+                      Lista wszystkich snów
+                    </Link>
+                    <Link
+                      to="/api-docs"
+                      onClick={() => setDesktopMenuOpen(false)}
+                      className="font-ui flex items-center px-4 h-11 text-sm text-white/80 hover:text-white hover:bg-white/8 transition-colors"
+                    >
+                      API Docs
+                    </Link>
+                    <div className="mx-4 h-px bg-white/10" />
+                    <button
+                      onClick={() => { setDesktopMenuOpen(false); signOut() }}
+                      className="font-ui w-full flex items-center px-4 h-11 text-sm text-white/80 hover:text-white hover:bg-white/8 transition-colors"
+                    >
+                      Wylogowanie
+                    </button>
+                  </div>
+                )}
+              </div>
+              <p className="font-display text-white text-xl">Dziennik snów</p>
             </div>
             <button
               onClick={() => {
                 selectDay(today)
                 desktopScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
               }}
+              style={{ visibility: toDateKey(selectedDate) !== toDateKey(today) ? 'visible' : 'hidden' }}
               className="font-ui text-[0.65rem] tracking-widest uppercase px-3 h-6 rounded-full
                          border border-purple-400/50 text-purple-300
                          hover:bg-purple-400/15 hover:border-purple-400/80
@@ -538,7 +589,7 @@ export function HomePage() {
         {/* Right panel — entry form */}
         <div className="flex-1 flex flex-col min-h-screen pl-[40px] relative">
           {/* Spacer matching left panel title height so content aligns with first day row */}
-          <div className="h-[83px] shrink-0" />
+          <div className="h-[104px] shrink-0" />
           {entryPanel}
 
           <ChatBottomSheet

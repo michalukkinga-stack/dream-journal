@@ -57,7 +57,7 @@ export const ChatBottomSheet = forwardRef<ChatPanelHandle, ChatBottomSheetProps>
             </span>
             <button
               type="button"
-              onClick={onToggle}
+              onClick={(e) => { e.stopPropagation(); onToggle(); }}
               className="w-8 h-8 rounded-full flex items-center justify-center
                          text-white/50 hover:text-white/80 hover:bg-white/10
                          transition-all duration-150 active:scale-95"

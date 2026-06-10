@@ -40,6 +40,7 @@ import { DreamDetailPage } from '@/pages/DreamDetailPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { ChatPage } from '@/pages/ChatPage'
 import { ApiDocsPage } from '@/pages/ApiDocsPage'
+import { AllDreamsPage } from '@/pages/AllDreamsPage'
 import { DesktopLayout } from '@/components/DesktopLayout'
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -65,6 +66,7 @@ export default function App() {
               <Route path="/dream/:id" element={<DreamDetailPage />} />
               <Route path="/chat" element={<ChatPage />} />
               <Route path="/api-docs" element={<ApiDocsPage />} />
+              <Route path="/dreams" element={<AllDreamsPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

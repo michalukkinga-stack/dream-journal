@@ -36,7 +36,6 @@ export function CalendarStrip({
   const canNext = addDays(windowStart, 7) <= today
 
   const selectedKey = toDateKey(selectedDate)
-  const todayKey = toDateKey(today)
   return (
     <div className="relative py-3">
       <button

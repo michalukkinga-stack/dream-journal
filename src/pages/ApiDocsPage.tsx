@@ -7,6 +7,7 @@ const MCP_PATH = '/path/to/dream-journal/mcp-server/dist/index.js'
 
 // ── Nav sections ────────────────────────────────────────────────
 const NAV_API = [
+  { id: 'quick-start', label: 'Quick Start' },
   { id: 'wprowadzenie', label: 'Wprowadzenie' },
   { id: 'endpointy', label: 'Endpointy', children: [
     { id: 'add-dream', label: 'POST /add-dream' },
@@ -409,6 +410,103 @@ function McpContent() {
 function ApiContent() {
   return (
     <>
+      {/* ── QUICK START ── */}
+      <section id="quick-start" className="mb-12 scroll-mt-24">
+        <SectionHeading id="_quick_start">Quick Start</SectionHeading>
+        <p className="font-ui text-white/60 text-sm mb-5 leading-relaxed">
+          Poniżej kompletny przykład — od logowania do pierwszej odpowiedzi Junga — w trzech krokach.
+        </p>
+
+        <SubHeading>1. Uzyskaj token</SubHeading>
+        <CodeTabs tabs={[
+          {
+            label: 'curl',
+            code: `curl -X POST \\
+  "https://rrwynlvefmotlthypdcx.supabase.co/auth/v1/token?grant_type=password" \\
+  -H "Content-Type: application/json" \\
+  -H "apikey: <anon_key>" \\
+  -d '{"email": "user@example.com", "password": "haslo"}'
+
+# Zapisz access_token z odpowiedzi:
+# { "access_token": "eyJ...", "token_type": "bearer", ... }`,
+          },
+          {
+            label: 'JavaScript',
+            code: `const { data } = await supabase.auth.signInWithPassword({
+  email: 'user@example.com',
+  password: 'haslo',
+})
+const TOKEN = data.session.access_token`,
+          },
+        ]} />
+
+        <SubHeading>2. Dodaj sen</SubHeading>
+        <CodeTabs tabs={[
+          {
+            label: 'curl',
+            code: `curl -X POST ${BASE}/add-dream \\
+  -H "Authorization: Bearer <token>" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "description": "Śniło mi się, że latałam nad miastem.",
+    "date": "2026-06-05"
+  }'
+
+# Odpowiedź 201:
+# { "id": "550e...", "tags": ["Latanie", "Miasto", "Euforia"], ... }`,
+          },
+          {
+            label: 'JavaScript',
+            code: `const res = await fetch('${BASE}/add-dream', {
+  method: 'POST',
+  headers: {
+    'Authorization': \`Bearer \${TOKEN}\`,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    description: 'Śniło mi się, że latałam nad miastem.',
+    date: '2026-06-05',
+  }),
+})
+const dream = await res.json()  // { id, tags, date, ... }`,
+          },
+        ]} />
+
+        <SubHeading>3. Zapytaj Junga i pobierz wynik</SubHeading>
+        <CodeTabs tabs={[
+          {
+            label: 'curl',
+            code: `# Zapytaj Junga
+curl -X POST ${BASE}/ask-jung-api \\
+  -H "Authorization: Bearer <token>" \\
+  -H "Content-Type: application/json" \\
+  -d '{"question": "Co może oznaczać mój sen?", "date": "2026-06-05"}'
+
+# Pobierz sen + historię czatu
+curl "${BASE}/get-dream?date=2026-06-05" \\
+  -H "Authorization: Bearer <token>"`,
+          },
+          {
+            label: 'JavaScript',
+            code: `// Zapytaj Junga
+const { answer } = await fetch('${BASE}/ask-jung-api', {
+  method: 'POST',
+  headers: {
+    'Authorization': \`Bearer \${TOKEN}\`,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({ question: 'Co może oznaczać mój sen?', date: '2026-06-05' }),
+}).then(r => r.json())
+
+// Pobierz sen + historię czatu
+const { dream, chat } = await fetch(
+  \`${BASE}/get-dream?date=2026-06-05\`,
+  { headers: { 'Authorization': \`Bearer \${TOKEN}\` } }
+).then(r => r.json())`,
+          },
+        ]} />
+      </section>
+
       {/* ── WPROWADZENIE ── */}
       <section id="wprowadzenie" className="mb-12 scroll-mt-24">
         <SectionHeading id="_intro">Wprowadzenie</SectionHeading>
@@ -675,7 +773,7 @@ export function ApiDocsPage() {
 
   // Highlight active section on scroll
   useEffect(() => {
-    const apiIds = ['wprowadzenie', 'add-dream', 'ask-jung', 'get-dream', 'autentykacja', 'uwagi']
+    const apiIds = ['quick-start', 'wprowadzenie', 'add-dream', 'ask-jung', 'get-dream', 'autentykacja', 'uwagi']
     const mcpIds = ['mcp-intro', 'mcp-instalacja', 'mcp-add-dream', 'mcp-ask-jung', 'mcp-get-dream', 'mcp-konfiguracja']
     const ids = mode === 'api' ? apiIds : mcpIds
 
