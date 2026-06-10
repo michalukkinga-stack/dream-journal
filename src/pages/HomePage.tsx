@@ -157,6 +157,10 @@ export function HomePage() {
     }
     setConfirmDelete(false)
     setSaveStatus('idle')
+    getChatMessages(toDateKey(day)).then(msgs => {
+      setChatHasMessages(msgs.length > 0)
+      if (msgs.length === 0) setChatOpen(false)
+    })
   }
 
   // Sync panel when dreams load (after save or initial load)
@@ -236,8 +240,10 @@ export function HomePage() {
   const desktopScrollRef = useRef<HTMLDivElement>(null)
 
 
+  const hasText = description.replace(/<[^>]*>/g, '').trim().length > 0
+
   const entryPanel = (
-    <div className="flex-1 flex flex-col px-4 pt-5 pb-8 overflow-y-auto">
+    <div className="flex-1 flex flex-col px-4 pt-5 pb-8 overflow-y-auto md:max-w-[900px]">
       {/* Date label + actions */}
       <div className="flex items-center justify-between mb-4 md:mb-[30px]">
         <p className="label-caps">{selectedLabel}</p>
@@ -295,6 +301,22 @@ export function HomePage() {
             )}
           </div>
           <DreamEditor ref={dreamEditorRef} key={toDateKey(selectedDate)} value={description} onChange={handleDescriptionChange} onListeningChange={setDreamMicListening} />
+          {isMicSupported && hasText && (
+            <div className="hidden md:flex flex-col items-center gap-4" style={{ marginTop: '20px' }}>
+              <button
+                type="button"
+                onClick={() => dreamEditorRef.current?.toggleMic()}
+                className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
+                style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', boxShadow: dreamMicListening ? '0 0 0 8px rgba(255,255,255,0.08), 0 0 24px 4px rgba(167,139,250,0.35)' : '0 0 0 1px rgba(255,255,255,0.15)' }}
+              >
+                <Mic size={28} className={dreamMicListening ? 'text-white' : 'text-white/70'} />
+                {dreamMicListening && (
+                  <span className="absolute inset-0 rounded-full animate-ping" style={{ background: 'rgba(167,139,250,0.2)' }} />
+                )}
+              </button>
+              <p className="font-ui text-white/70 text-xs text-center">Kliknij w ikonę mikrofonu, aby zacząć dyktować.</p>
+            </div>
+          )}
         </div>
       )}
 
@@ -325,10 +347,12 @@ export function HomePage() {
             <div className="flex-1 flex flex-col items-center justify-center gap-4 mb-[16.5rem] md:hidden">
               {micBtn}{micLabel}
             </div>
-            {/* Desktop: fixed, centered over AgentInput */}
-            <div className="hidden md:flex flex-col items-center justify-center gap-4 fixed top-0 bottom-0 pointer-events-none [&>*]:pointer-events-auto" style={{ left: '264px', width: '900px' }}>
-              {micBtn}{micLabel}
-            </div>
+            {/* Desktop: fixed, centered — only when no content */}
+            {!hasText && (
+              <div className="hidden md:flex flex-col items-center justify-center gap-4 fixed top-0 bottom-0 pointer-events-none [&>*]:pointer-events-auto" style={{ left: '264px', width: '900px' }}>
+                {micBtn}{micLabel}
+              </div>
+            )}
           </>
         )
       })()}
@@ -440,9 +464,13 @@ export function HomePage() {
       <div className="hidden md:flex min-h-screen">
         {/* Left panel — app name + scrollable days */}
         <div className="w-56 flex flex-col shrink-0 h-screen sticky top-0">
-          {/* App name + Dzisiaj button */}
+          {/* App name + links + Dzisiaj button */}
           <div className="px-5 pt-8 pb-4 shrink-0">
-            <p className="font-display text-white text-xl mb-3">Dziennik snów</p>
+            <p className="font-display text-white text-xl mb-1">Dziennik snów</p>
+            <div className="flex items-center gap-3 mb-3">
+              <Link to="/api-docs" className="font-ui text-white/30 hover:text-white/60 text-xs transition-colors">API Docs</Link>
+              <button onClick={signOut} className="font-ui text-white/30 hover:text-white/60 text-xs transition-colors text-left">Wyloguj</button>
+            </div>
             <button
               onClick={() => {
                 selectDay(today)
@@ -505,11 +533,6 @@ export function HomePage() {
             })}
           </div>
 
-          {/* Bottom links */}
-          <div className="border-t-[3px] border-white/10 px-5 py-4 flex flex-col gap-2 shrink-0">
-            <Link to="/api-docs" className="font-ui text-white/30 hover:text-white/60 text-xs transition-colors">API Docs</Link>
-            <button onClick={signOut} className="font-ui text-white/30 hover:text-white/60 text-xs transition-colors text-left">Wyloguj</button>
-          </div>
         </div>
 
         {/* Right panel — entry form */}
@@ -528,7 +551,7 @@ export function HomePage() {
             showStrip={chatHasMessages}
           />
 
-          <div className="fixed bottom-5 z-50 rounded-2xl" style={{ left: '264px', width: '900px' }}>
+          <div className="fixed bottom-0 z-50" style={{ left: '264px', width: '900px' }}>
             <AgentInput
               value={inputValue}
               onChange={setInputValue}

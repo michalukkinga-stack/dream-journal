@@ -23,7 +23,7 @@ export function AgentInput({ value, onChange, onSend, isLoading = false, dreamHa
       <div
         className="relative flex items-center gap-2 rounded-2xl"
         style={{
-          padding: '10px',
+          padding: '12px',
           background: 'rgba(255,255,255,0.06)',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',

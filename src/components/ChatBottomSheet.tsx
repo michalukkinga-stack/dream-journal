@@ -29,10 +29,14 @@ export const ChatBottomSheet = forwardRef<ChatPanelHandle, ChatBottomSheetProps>
 
         {/* Sheet — pozycjonowany tuż nad inputem */}
         <div
-          className="fixed left-0 right-0 z-50 max-w-[600px] md:max-w-none mx-auto md:mx-0 md:w-[900px] flex flex-col rounded-t-2xl transition-transform duration-300 ease-in-out overflow-hidden bottom-[5.5rem] md:bottom-[108px] md:left-[264px] md:right-auto"
+          className="fixed left-0 right-0 z-50 max-w-[600px] md:max-w-none mx-auto md:mx-0 md:w-[868px] flex flex-col rounded-t-2xl transition-transform duration-300 ease-in-out overflow-hidden bottom-[5.5rem] md:bottom-[72px] md:left-[280px] md:right-auto"
           style={{
             height: '67vh',
-            transform: open ? 'translateY(0)' : 'translateY(calc(100% + 200px))',
+            transform: open
+              ? 'translateY(0)'
+              : showStrip
+              ? 'translateY(calc(100% - 3.125rem))'
+              : 'translateY(calc(100% + 200px))',
             background: 'rgba(255,255,255,0.06)',
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
@@ -44,7 +48,10 @@ export const ChatBottomSheet = forwardRef<ChatPanelHandle, ChatBottomSheetProps>
           }}
         >
           {/* Handle strip */}
-          <div className="shrink-0 h-10 w-full flex items-center justify-between px-5">
+          <div
+            className="shrink-0 h-10 w-full flex items-center justify-between px-5 cursor-pointer"
+            onClick={!open ? onToggle : undefined}
+          >
             <span className="font-display text-white text-base font-semibold tracking-wide">
               Analiza snu
             </span>
@@ -59,18 +66,22 @@ export const ChatBottomSheet = forwardRef<ChatPanelHandle, ChatBottomSheetProps>
             </button>
           </div>
 
-          {/* Divider */}
-          <div className="mx-5 border-t border-white/10 shrink-0" />
+          {open && (
+            <>
+              {/* Divider */}
+              <div className="mx-5 border-t border-white/10 shrink-0" />
 
-          {/* Wiadomości */}
-          <div className="flex-1 overflow-y-auto px-5 pb-3">
-            <ChatPanel
-              ref={resolvedRef}
-              currentDream={currentDream}
-              allDreams={allDreams}
-              selectedDate={selectedDate}
-            />
-          </div>
+              {/* Wiadomości */}
+              <div className="flex-1 overflow-y-auto px-5 pb-3">
+                <ChatPanel
+                  ref={resolvedRef}
+                  currentDream={currentDream}
+                  allDreams={allDreams}
+                  selectedDate={selectedDate}
+                />
+              </div>
+            </>
+          )}
         </div>
       </>
     )
