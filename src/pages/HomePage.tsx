@@ -283,8 +283,8 @@ export function HomePage() {
                     type="button"
                     onClick={() => handleTagsChange(tags.filter(t => t !== tag))}
                     className="font-ui flex items-center gap-1.5 pl-4 pr-3 h-7 rounded-full text-sm font-light tracking-wide
-                               border border-white/20 text-white bg-white/10
-                               hover:bg-white/20 transition-all duration-150 active:scale-95"
+                               border border-violet-400/50 bg-violet-400/15 text-violet-300
+                               hover:bg-violet-400/25 transition-all duration-150 active:scale-95"
                   >
                     {tag}
                     <X size={11} className="opacity-60 shrink-0" />

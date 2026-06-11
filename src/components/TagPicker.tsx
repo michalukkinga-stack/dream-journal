@@ -229,8 +229,8 @@ function SheetContent({
                       'px-4 h-9 rounded-full text-sm font-ui tracking-wide',
                       'transition-all duration-150 active:scale-95',
                       isSelected
-                        ? 'border border-violet-400 bg-violet-400/20 text-white font-medium'
-                        : 'border border-white/20 bg-white/10 text-white font-light hover:bg-white/20 hover:border-white/35',
+                        ? 'border border-violet-400 bg-violet-400/30 text-white font-medium'
+                        : 'border border-violet-400/40 bg-violet-400/10 text-violet-300 font-light hover:bg-violet-400/20 hover:border-violet-400/70',
                     ].join(' ')}
                   >
                     <Highlighter

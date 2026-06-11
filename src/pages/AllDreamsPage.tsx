@@ -9,7 +9,7 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
 }
 
-const PILL = 'font-ui px-3 h-6 flex items-center rounded-full text-xs font-light shrink-0 border border-white/20 text-white/60'
+const PILL = 'font-ui px-3 h-6 flex items-center rounded-full text-xs font-light shrink-0 border border-violet-400/50 bg-violet-400/15 text-violet-300'
 const GAP = 6 // gap-1.5
 
 function TagRowDesktop({ tags }: { tags: string[] }) {
