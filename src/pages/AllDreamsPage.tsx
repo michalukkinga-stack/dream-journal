@@ -125,7 +125,7 @@ export function AllDreamsPage() {
                 type="button"
                 onClick={(e) => handleDelete(e, dream.id)}
                 disabled={deletingId === dream.id}
-                className="w-7 h-7 flex items-center justify-center rounded-full text-white/30 hover:text-red-400 hover:bg-white/10 transition-all duration-150 active:scale-90 disabled:opacity-40"
+                className="w-7 h-7 -mr-[7px] flex items-center justify-center rounded-full text-white/30 hover:text-white hover:bg-white/10 transition-all duration-150 active:scale-90 disabled:opacity-40"
               >
                 <Trash2 size={14} />
               </button>
