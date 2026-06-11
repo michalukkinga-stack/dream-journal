@@ -166,7 +166,7 @@ export function AllDreamsPage() {
 
         <div className="px-4 pb-2">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/')}
             className="font-ui flex items-center gap-1 text-white/50 hover:text-white/80 transition-colors text-sm font-light"
           >
             <ChevronLeft size={18} />
@@ -199,7 +199,7 @@ export function AllDreamsPage() {
           {/* Back */}
           <div className="pb-3">
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => navigate('/')}
               className="font-ui flex items-center gap-1 text-white/50 hover:text-white/80 transition-colors text-sm font-light"
             >
               <ChevronLeft size={18} />
