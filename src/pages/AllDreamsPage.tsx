@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, ChevronLeft } from 'lucide-react'
-import { getDreams, formatDate } from '@/storage/dreamStorage'
+import { Search, ChevronLeft, Trash2 } from 'lucide-react'
+import { getDreams, formatDate, deleteDream } from '@/storage/dreamStorage'
 import { Dream } from '@/types/dream'
 import { MobileHeader } from '@/components/MobileHeader'
 
@@ -74,6 +74,7 @@ export function AllDreamsPage() {
   const navigate = useNavigate()
   const [dreams, setDreams] = useState<Dream[]>([])
   const [query, setQuery] = useState('')
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   useEffect(() => {
     getDreams().then(data => {
@@ -83,6 +84,15 @@ export function AllDreamsPage() {
       setDreams(sorted)
     })
   }, [])
+
+  async function handleDelete(e: React.MouseEvent, id: string) {
+    e.stopPropagation()
+    if (!window.confirm('Usunąć ten wpis?')) return
+    setDeletingId(id)
+    await deleteDream(id)
+    setDreams(prev => prev.filter(d => d.id !== id))
+    setDeletingId(null)
+  }
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -103,13 +113,23 @@ export function AllDreamsPage() {
       {filtered.map(dream => {
         const plainText = stripHtml(dream.description)
         return (
-          <button
+          <div
             key={dream.id}
             onClick={() => navigate(`/dream/${dream.id}`)}
-            className="w-full text-left rounded-2xl border border-white/15 md:hover:border-white/30 md:hover:-translate-y-0.5 md:hover:shadow-[0_4px_24px_rgba(0,0,0,0.25)] px-5 py-4 transition-all duration-200 active:scale-[0.99]"
+            className="w-full text-left rounded-2xl border border-white/15 md:hover:border-white/30 md:hover:-translate-y-0.5 md:hover:shadow-[0_4px_24px_rgba(0,0,0,0.25)] px-5 py-4 transition-all duration-200 active:scale-[0.99] cursor-pointer"
             style={{ background: 'rgba(255,255,255,0.06)' }}
           >
-            <p className="label-caps mb-2">{formatDate(dream.createdAt)}</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="label-caps">{formatDate(dream.createdAt)}</p>
+              <button
+                type="button"
+                onClick={(e) => handleDelete(e, dream.id)}
+                disabled={deletingId === dream.id}
+                className="w-7 h-7 flex items-center justify-center rounded-full text-white/30 hover:text-red-400 hover:bg-white/10 transition-all duration-150 active:scale-90 disabled:opacity-40"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
             {plainText ? (
               <p className="font-ui text-white/80 text-sm font-light leading-relaxed line-clamp-3">
                 {plainText}
@@ -132,7 +152,7 @@ export function AllDreamsPage() {
                 </div>
               </>
             )}
-          </button>
+          </div>
         )
       })}
     </div>
