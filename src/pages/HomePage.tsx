@@ -500,7 +500,7 @@ export function HomePage() {
                       onClick={() => setDesktopMenuOpen(false)}
                       className="font-ui flex items-center px-4 h-11 text-sm text-violet-400 hover:text-violet-300 hover:bg-white/8 transition-colors whitespace-nowrap"
                     >
-                      Lista wszystkich snów
+                      Przeglądaj wszystkie wpisy
                     </Link>
                     <Link
                       to="/api-docs"
@@ -508,6 +508,13 @@ export function HomePage() {
                       className="font-ui flex items-center px-4 h-11 text-sm text-white/80 hover:text-white hover:bg-white/8 transition-colors"
                     >
                       API Docs
+                    </Link>
+                    <Link
+                      to="/settings"
+                      onClick={() => setDesktopMenuOpen(false)}
+                      className="font-ui flex items-center px-4 h-11 text-sm text-white/80 hover:text-white hover:bg-white/8 transition-colors"
+                    >
+                      Ustawienia
                     </Link>
                     <div className="mx-4 h-px bg-white/10" />
                     <button

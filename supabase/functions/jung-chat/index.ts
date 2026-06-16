@@ -1,3 +1,4 @@
+import { createClient } from 'npm:@supabase/supabase-js@^2'
 import { createAnthropic } from 'npm:@ai-sdk/anthropic@^3'
 import { streamText } from 'npm:ai@^6'
 
@@ -32,17 +33,47 @@ function toCoreMessages(messages: UIMessage[]) {
     .filter(m => m.content.length > 0)
 }
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+function getLastUserMessage(messages: UIMessage[]): string {
+  const userMessages = messages.filter(m => m.role === 'user')
+  if (userMessages.length === 0) return ''
+  const last = userMessages[userMessages.length - 1]
+  return last.parts
+    ? last.parts.filter(p => p.type === 'text').map(p => p.text ?? '').join('')
+    : (last.content ?? '')
+}
+
+async function getQueryEmbedding(text: string): Promise<number[]> {
+  const openaiKey = Deno.env.get('OPENAI_API_KEY')
+  if (!openaiKey) throw new Error('OPENAI_API_KEY not set')
+
+  const res = await fetch('https://api.openai.com/v1/embeddings', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${openaiKey}`,
+    },
+    body: JSON.stringify({ model: 'text-embedding-3-small', input: text }),
+  })
+  const json = await res.json()
+  return json.data[0].embedding as number[]
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
+    const authHeader = req.headers.get('Authorization')
     const body = await req.json()
-    const { messages, currentDream, allDreams } = body as {
+    const { messages, currentDream } = body as {
       messages: UIMessage[]
       currentDream?: { title: string; description: string; tags: string[]; createdAt: string }
-      allDreams?: { date: string; title: string; tags: string[]; summary: string }[]
+      allDreams?: unknown  // ignored — replaced by hybrid search
     }
 
     let contextBlock = ''
@@ -51,11 +82,38 @@ Deno.serve(async (req) => {
       contextBlock += `\n\n--- AKTUALNIE OGLĄDANY SEN ---\nData: ${currentDream.createdAt}\nOpis: ${currentDream.description}\nMotywy/tagi: ${currentDream.tags?.join(', ') || 'brak'}`
     }
 
-    if (allDreams && allDreams.length > 0) {
-      const dreamList = allDreams
-        .map(d => `[${d.date}] ${d.title || 'Sen bez nazwy'} — tagi: ${d.tags?.join(', ') || 'brak'} — ${d.summary}`)
-        .join('\n')
-      contextBlock += `\n\n--- WSZYSTKIE SNY UŻYTKOWNICZKI ---\n${dreamList}`
+    // Hybrid search using the last user message
+    if (authHeader?.startsWith('Bearer ')) {
+      try {
+        const supabase = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+          { global: { headers: { Authorization: authHeader } } }
+        )
+        const { data: { user } } = await supabase.auth.getUser()
+
+        if (user) {
+          const lastMessage = getLastUserMessage(messages)
+          const queryText = lastMessage || 'sen marzenie nocne'
+          const embedding = await getQueryEmbedding(queryText)
+
+          const { data: searchResults } = await supabase.rpc('hybrid_search_dreams', {
+            p_user_id: user.id,
+            p_query_text: queryText,
+            p_query_embedding: embedding,
+            p_match_count: 10,
+          })
+
+          if (searchResults && searchResults.length > 0) {
+            const dreamList = (searchResults as { description: string; tags: string[]; created_at: string }[])
+              .map(d => `[${d.created_at.slice(0, 10)}] tagi: ${d.tags?.join(', ') || 'brak'} — ${stripHtml(d.description).slice(0, 200)}`)
+              .join('\n')
+            contextBlock += `\n\n--- TRAFNE SNY Z HISTORII ---\n${dreamList}`
+          }
+        }
+      } catch (e) {
+        console.error('Hybrid search failed:', e)
+      }
     }
 
     const systemPrompt = JUNG_SYSTEM_PROMPT + contextBlock

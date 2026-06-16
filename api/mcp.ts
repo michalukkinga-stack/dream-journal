@@ -1,7 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
 const SUPABASE_URL = 'https://rrwynlvefmotlthypdcx.supabase.co'
-const USER_ID = '8b53dd61-4e30-4b55-b27d-f5a2f56f84d1'
 
 const AVAILABLE_TAGS = [
   'Radość','Strach','Smutek','Złość','Miłość','Tęsknota','Euforia','Spokój','Niepokój','Samotność',
@@ -18,9 +17,22 @@ const AVAILABLE_TAGS = [
 ]
 
 function getServiceKey(): string {
-  const key = process.env.DREAM_JOURNAL_TOKEN
-  if (!key) throw new Error('Brak DREAM_JOURNAL_TOKEN w env')
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!key) throw new Error('Brak SUPABASE_SERVICE_ROLE_KEY w env')
   return key
+}
+
+async function resolveUserId(authHeader: string | undefined): Promise<string> {
+  if (!authHeader?.startsWith('Bearer ')) throw new Error('Brak tokenu. Wygeneruj token w ustawieniach aplikacji i dodaj go do konfiguracji MCP.')
+  const token = authHeader.slice(7).trim()
+  const serviceKey = getServiceKey()
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/api_tokens?token=eq.${encodeURIComponent(token)}&select=user_id&limit=1`,
+    { headers: supabaseHeaders(serviceKey) }
+  )
+  const rows = await res.json() as { user_id: string }[]
+  if (!rows.length) throw new Error('Nieprawidłowy token. Sprawdź ustawienia aplikacji.')
+  return rows[0].user_id
 }
 
 function supabaseHeaders(key: string) {
@@ -107,7 +119,7 @@ const TOOLS = [
 ]
 
 // ── Tool handlers ────────────────────────────────────────────────
-async function handleAddDream(args: Record<string, unknown>) {
+async function handleAddDream(args: Record<string, unknown>, userId: string) {
   const key = getServiceKey()
   const description = args.description as string
   const today = new Date().toISOString().slice(0, 10)
@@ -122,14 +134,14 @@ async function handleAddDream(args: Record<string, unknown>) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/dreams`, {
     method: 'POST',
     headers: supabaseHeaders(key),
-    body: JSON.stringify({ user_id: USER_ID, title: '', description, tags, created_at }),
+    body: JSON.stringify({ user_id: userId, title: '', description, tags, created_at }),
   })
   const data = await res.json() as Record<string, unknown>[]
   if (!res.ok) throw new Error(JSON.stringify(data))
   return JSON.stringify(data[0], null, 2)
 }
 
-async function handleGetDream(args: Record<string, unknown>) {
+async function handleGetDream(args: Record<string, unknown>, userId: string) {
   const key = getServiceKey()
   const today = new Date().toISOString().slice(0, 10)
   const date = (args.date as string | undefined) ?? today
@@ -138,11 +150,11 @@ async function handleGetDream(args: Record<string, unknown>) {
 
   const [dreamRes, chatRes] = await Promise.all([
     fetch(
-      `${SUPABASE_URL}/rest/v1/dreams?user_id=eq.${USER_ID}&created_at=gte.${dateStart}&created_at=lte.${dateEnd}&order=created_at.desc&limit=1`,
+      `${SUPABASE_URL}/rest/v1/dreams?user_id=eq.${userId}&created_at=gte.${dateStart}&created_at=lte.${dateEnd}&order=created_at.desc&limit=1`,
       { headers: supabaseHeaders(key) }
     ),
     fetch(
-      `${SUPABASE_URL}/rest/v1/chat_messages?user_id=eq.${USER_ID}&created_at=gte.${dateStart}&created_at=lte.${dateEnd}&order=created_at.asc&limit=100`,
+      `${SUPABASE_URL}/rest/v1/chat_messages?user_id=eq.${userId}&created_at=gte.${dateStart}&created_at=lte.${dateEnd}&order=created_at.asc&limit=100`,
       { headers: supabaseHeaders(key) }
     ),
   ])
@@ -154,7 +166,7 @@ async function handleGetDream(args: Record<string, unknown>) {
   return JSON.stringify({ date, dream, chat }, null, 2)
 }
 
-async function handleAskJung(args: Record<string, unknown>) {
+async function handleAskJung(args: Record<string, unknown>, userId: string) {
   const key = getServiceKey()
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) return 'Brak ANTHROPIC_API_KEY w env Vercel — dodaj go przez vercel env add ANTHROPIC_API_KEY production'
@@ -166,7 +178,7 @@ async function handleAskJung(args: Record<string, unknown>) {
   const dateEnd = `${date}T23:59:59`
 
   const dreamRes = await fetch(
-    `${SUPABASE_URL}/rest/v1/dreams?user_id=eq.${USER_ID}&created_at=gte.${dateStart}&created_at=lte.${dateEnd}&order=created_at.desc&limit=1`,
+    `${SUPABASE_URL}/rest/v1/dreams?user_id=eq.${userId}&created_at=gte.${dateStart}&created_at=lte.${dateEnd}&order=created_at.desc&limit=1`,
     { headers: supabaseHeaders(key) }
   )
   const dreams = await dreamRes.json() as Record<string, unknown>[]
@@ -224,10 +236,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (method === 'tools/call') {
       const { name, arguments: args = {} } = params as { name: string; arguments?: Record<string, unknown> }
       try {
+        const userId = await resolveUserId(req.headers['authorization'] as string | undefined)
         let text: string
-        if (name === 'add_dream') text = await handleAddDream(args)
-        else if (name === 'get_dream') text = await handleGetDream(args)
-        else if (name === 'ask_jung') text = await handleAskJung(args)
+        if (name === 'add_dream') text = await handleAddDream(args, userId)
+        else if (name === 'get_dream') text = await handleGetDream(args, userId)
+        else if (name === 'ask_jung') text = await handleAskJung(args, userId)
         else return err(-32601, `Nieznane narzędzie: ${name}`)
         return ok({ content: [{ type: 'text', text }] })
       } catch (e) {

@@ -42,6 +42,7 @@ import { ChatPage } from '@/pages/ChatPage'
 import { ApiDocsPage } from '@/pages/ApiDocsPage'
 import { AllDreamsPage } from '@/pages/AllDreamsPage'
 import { DesktopLayout } from '@/components/DesktopLayout'
+import SettingsPage from '@/pages/SettingsPage'
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { session, loading } = useAuth()
@@ -67,6 +68,7 @@ export default function App() {
               <Route path="/chat" element={<ChatPage />} />
               <Route path="/api-docs" element={<ApiDocsPage />} />
               <Route path="/dreams" element={<AllDreamsPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

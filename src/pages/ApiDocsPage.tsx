@@ -276,11 +276,10 @@ function McpContent() {
         <SectionHeading id="_mcp_install">Instalacja</SectionHeading>
         <SubHeading>1. Sklonuj i zbuduj serwer</SubHeading>
         <CodeBlock code={`cd dream-journal/mcp-server\nnpm install\nnpm run build`} label="Terminal" />
-        <SubHeading>2. Ustaw token</SubHeading>
+        <SubHeading>2. Wygeneruj token</SubHeading>
         <p className="font-ui text-white/60 text-sm mb-3 leading-relaxed">
-          Token przekazujesz przez zmienną środowiskową <code className="text-purple-300 bg-purple-500/10 px-1.5 py-0.5 rounded text-xs">DREAM_JOURNAL_TOKEN</code> — możesz go ustawić w konfiguracji Claude Desktop (patrz niżej) lub eksportować w shellu.
+          Zaloguj się do aplikacji, otwórz menu i przejdź do <strong className="text-white/80">Ustawienia</strong>. Kliknij <strong className="text-white/80">Nowy token</strong>, skopiuj wygenerowany klucz i wklej go do konfiguracji Claude Desktop (patrz niżej).
         </p>
-        <CodeBlock code={`export DREAM_JOURNAL_TOKEN="<twoj_supabase_jwt>"\nnode ${MCP_PATH}`} label="Terminal" />
       </section>
 
       {/* ── NARZĘDZIA ── */}
@@ -388,10 +387,9 @@ function McpContent() {
         <CodeBlock code={`{
   "mcpServers": {
     "dream-journal": {
-      "command": "node",
-      "args": ["${MCP_PATH}"],
-      "env": {
-        "DREAM_JOURNAL_TOKEN": "<twoj_supabase_jwt>"
+      "url": "https://dream-journal-five.vercel.app/api/mcp",
+      "headers": {
+        "Authorization": "Bearer <twoj_token>"
       }
     }
   }
@@ -705,30 +703,19 @@ const { dream, chat } = await res.json()`,
       <section id="autentykacja" className="mb-12 scroll-mt-24">
         <SectionHeading id="_auth">Jak uzyskać token</SectionHeading>
         <p className="font-ui text-white/60 text-sm mb-4 leading-relaxed">
-          Zaloguj się do aplikacji, otwórz konsolę przeglądarki (F12) i wpisz:
+          Token generujesz w aplikacji — nie musisz korzystać z konsoli ani API.
         </p>
-        <CodeBlock code="(await supabase.auth.getSession()).data.session.access_token" />
-        <p className="font-ui text-white/60 text-sm mb-4 mt-2 leading-relaxed">
-          Lub przez Supabase Auth REST API:
-        </p>
-        <CodeTabs tabs={[
-          {
-            label: 'curl',
-            code: `curl -X POST \\
-  "https://rrwynlvefmotlthypdcx.supabase.co/auth/v1/token?grant_type=password" \\
-  -H "Content-Type: application/json" \\
-  -H "apikey: <anon_key>" \\
-  -d '{"email": "...", "password": "..."}'`,
-          },
-          {
-            label: 'JavaScript',
-            code: `const { data } = await supabase.auth.signInWithPassword({
-  email: 'user@example.com',
-  password: 'haslo',
-})
-const token = data.session.access_token`,
-          },
-        ]} />
+        <ol className="space-y-2 mb-4 list-decimal list-inside">
+          {[
+            'Zaloguj się do aplikacji przez Google.',
+            'Otwórz menu (trzy kropki) i przejdź do Ustawienia.',
+            'Kliknij „Nowy token" — zostanie wygenerowany unikalny klucz zaczynający się od djt_...',
+            'Skopiuj token i wklej go do konfiguracji Claude Desktop jako wartość nagłówka Authorization.',
+          ].map((step, i) => (
+            <li key={i} className="font-ui text-white/60 text-sm leading-relaxed">{step}</li>
+          ))}
+        </ol>
+        <Callout>Token jest stały — nie wygasa. Możesz go usunąć i wygenerować nowy w dowolnym momencie w Ustawieniach.</Callout>
       </section>
 
       {/* ── UWAGI ── */}

@@ -22,6 +22,22 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
 }
 
+async function getQueryEmbedding(text: string): Promise<number[]> {
+  const openaiKey = Deno.env.get('OPENAI_API_KEY')
+  if (!openaiKey) throw new Error('OPENAI_API_KEY not set')
+
+  const res = await fetch('https://api.openai.com/v1/embeddings', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${openaiKey}`,
+    },
+    body: JSON.stringify({ model: 'text-embedding-3-small', input: text }),
+  })
+  const json = await res.json()
+  return json.data[0].embedding as number[]
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
 
@@ -65,40 +81,53 @@ Deno.serve(async (req) => {
   const targetDate = body.date ?? today
 
   // Fetch the dream for the target date
-  const dateStart = `${targetDate}T00:00:00`
-  const dateEnd = `${targetDate}T23:59:59`
   const { data: todayDreams } = await supabase
     .from('dreams')
     .select('*')
-    .gte('created_at', dateStart)
-    .lte('created_at', dateEnd)
+    .gte('created_at', `${targetDate}T00:00:00`)
+    .lte('created_at', `${targetDate}T23:59:59`)
     .limit(1)
 
   const currentDream = todayDreams?.[0] ?? null
 
-  // Fetch all dreams for context
-  const { data: allDreamsRaw } = await supabase
-    .from('dreams')
-    .select('id, title, description, tags, created_at')
-    .order('created_at', { ascending: false })
-    .limit(50)
-
-  const allDreams = (allDreamsRaw ?? []).map((d: { id: string; title: string; description: string; tags: string[]; created_at: string }) => ({
-    date: d.created_at.slice(0, 10),
-    title: d.title,
-    tags: d.tags,
-    summary: stripHtml(d.description).slice(0, 200),
-  }))
+  // Hybrid search for relevant dreams
+  let relevantDreams: { date: string; tags: string[]; summary: string }[] = []
+  try {
+    const embedding = await getQueryEmbedding(question)
+    const { data: searchResults } = await supabase.rpc('hybrid_search_dreams', {
+      p_user_id: user.id,
+      p_query_text: question,
+      p_query_embedding: embedding,
+      p_match_count: 10,
+    })
+    relevantDreams = (searchResults ?? []).map((d: { description: string; tags: string[]; created_at: string }) => ({
+      date: d.created_at.slice(0, 10),
+      tags: d.tags,
+      summary: stripHtml(d.description).slice(0, 200),
+    }))
+  } catch (e) {
+    console.error('Hybrid search failed, falling back to recent dreams:', e)
+    const { data: fallback } = await supabase
+      .from('dreams')
+      .select('description, tags, created_at')
+      .order('created_at', { ascending: false })
+      .limit(10)
+    relevantDreams = (fallback ?? []).map((d: { description: string; tags: string[]; created_at: string }) => ({
+      date: d.created_at.slice(0, 10),
+      tags: d.tags,
+      summary: stripHtml(d.description).slice(0, 200),
+    }))
+  }
 
   let contextBlock = ''
   if (currentDream) {
     contextBlock += `\n\n--- SEN Z DNIA ${targetDate} ---\nOpis: ${stripHtml(currentDream.description)}\nMotywy/tagi: ${currentDream.tags?.join(', ') || 'brak'}`
   }
-  if (allDreams.length > 0) {
-    const dreamList = allDreams
-      .map((d: { date: string; title: string; tags: string[]; summary: string }) => `[${d.date}] ${d.title || 'Sen bez nazwy'} — tagi: ${d.tags?.join(', ') || 'brak'} — ${d.summary}`)
+  if (relevantDreams.length > 0) {
+    const dreamList = relevantDreams
+      .map(d => `[${d.date}] tagi: ${d.tags?.join(', ') || 'brak'} — ${d.summary}`)
       .join('\n')
-    contextBlock += `\n\n--- WSZYSTKIE SNY UŻYTKOWNICZKI ---\n${dreamList}`
+    contextBlock += `\n\n--- TRAFNE SNY Z HISTORII ---\n${dreamList}`
   }
 
   const anthropic = createAnthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY') ?? '' })
