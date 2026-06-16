@@ -137,8 +137,8 @@ export function AllDreamsPage() {
     setDeletingId(null)
   }
 
-  const displayDreams = loaded && dreams.length === 0 ? SAMPLE_DREAMS : dreams
-  const isSample = loaded && dreams.length === 0
+  const displayDreams = dreams
+  const isSample = false
 
   const tagCounts = useMemo(() => {
     const counts: Record<string, number> = {}
@@ -185,26 +185,21 @@ export function AllDreamsPage() {
 
   const dreamCards = (
     <div className="flex flex-col gap-3">
-      {filtered.length === 0 && (
-        <p className="font-ui text-white/40 text-sm italic mt-8 text-center">
-          {query ? 'Brak wyników.' : 'Brak zapisanych snów.'}
+      {loaded && dreams.length === 0 && !query && (
+        <p className="font-ui text-white/40 text-sm text-center mt-10 px-4">
+          Dodaj pierwszy wpis,<br />aby przeglądać listę wszystkich snów.
         </p>
       )}
-      {isSample && !query && (
-        <p className="font-ui text-white/25 text-xs italic text-center mb-1">Przykładowe sny — dodaj swój pierwszy wpis</p>
+      {filtered.length === 0 && query && (
+        <p className="font-ui text-white/40 text-sm italic mt-8 text-center">Brak wyników.</p>
       )}
       {filtered.map(dream => {
         const plainText = stripHtml(dream.description)
-        const isSampleEntry = dream.id.startsWith('__sample')
         return (
           <div
             key={dream.id}
-            onClick={() => !isSampleEntry && navigate(`/dream/${dream.id}`)}
-            className={`w-full text-left rounded-2xl border border-white/15 px-5 py-4 transition-all duration-200 ${
-              isSampleEntry
-                ? 'opacity-60 cursor-default'
-                : 'md:hover:border-white/30 md:hover:-translate-y-0.5 md:hover:shadow-[0_4px_24px_rgba(0,0,0,0.25)] active:scale-[0.99] cursor-pointer'
-            }`}
+            onClick={() => navigate(`/dream/${dream.id}`)}
+            className="w-full text-left rounded-2xl border border-white/15 px-5 py-4 transition-all duration-200 md:hover:border-white/30 md:hover:-translate-y-0.5 md:hover:shadow-[0_4px_24px_rgba(0,0,0,0.25)] active:scale-[0.99] cursor-pointer"
             style={{ background: 'rgba(255,255,255,0.06)' }}
           >
             <div className="flex items-center justify-between mb-2">
@@ -308,19 +303,10 @@ export function AllDreamsPage() {
     </div>
   ) : (
     <div className="flex flex-col gap-0">
-      <div className="flex items-center gap-2 px-4 h-11 rounded-2xl border border-white/15 mb-5"
-        style={{ background: 'rgba(255,255,255,0.06)' }}>
-        <Search size={15} className="text-white/35 shrink-0" />
-        <input
-          type="text"
-          value={tagQuery}
-          onChange={e => setTagQuery(e.target.value)}
-          placeholder="Szukaj motywu"
-          className="flex-1 bg-transparent font-ui text-sm text-white placeholder-white/30 outline-none"
-        />
-      </div>
       {tagCounts.filter(([tag]) => tag.toLowerCase().includes(tagQuery.trim().toLowerCase())).length === 0 && (
-        <p className="font-ui text-white/40 text-sm italic mt-8 text-center">Brak motywów.</p>
+        <p className="font-ui text-white/40 text-sm text-center mt-10 px-4">
+          Gdy dodasz pierwszy motyw do snu,<br />pojawi się na liście.
+        </p>
       )}
       {tagCounts.filter(([tag]) => tag.toLowerCase().includes(tagQuery.trim().toLowerCase())).map(([tag, count]) => (
         <button
@@ -355,33 +341,32 @@ export function AllDreamsPage() {
           </button>
         </div>
 
-        <div className="px-4 pb-5">
+        <div className="px-4 pb-3">
           <TabBar />
         </div>
 
+        <div className="px-4 pb-3">
+          <div className="flex items-center gap-2 px-4 h-11 rounded-2xl border border-white/15"
+            style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <Search size={15} className="text-white/35 shrink-0" />
+            <input
+              type="text"
+              value={activeTab === 'dreams' ? query : tagQuery}
+              onChange={e => activeTab === 'dreams' ? setQuery(e.target.value) : setTagQuery(e.target.value)}
+              placeholder={activeTab === 'dreams' ? 'Szukaj frazy lub motywu' : 'Szukaj motywu'}
+              className="flex-1 bg-transparent font-ui text-sm text-white placeholder-white/30 outline-none"
+            />
+          </div>
+        </div>
+
         {activeTab === 'dreams' && (
-          <>
-            <div className="px-4 py-4">
-              <div className="flex items-center gap-2 px-4 h-11 rounded-2xl border border-white/15"
-                style={{ background: 'rgba(255,255,255,0.06)' }}>
-                <Search size={15} className="text-white/35 shrink-0" />
-                <input
-                  type="text"
-                  value={query}
-                  onChange={e => setQuery(e.target.value)}
-                  placeholder="Szukaj frazy lub motywu"
-                  className="flex-1 bg-transparent font-ui text-sm text-white placeholder-white/30 outline-none"
-                />
-              </div>
-            </div>
-            <div className="px-4 pb-16">
-              {dreamCards}
-            </div>
-          </>
+          <div className="px-4 pb-16">
+            {dreamCards}
+          </div>
         )}
 
         {activeTab === 'themes' && (
-          <div className="px-4 pb-16 pt-2">
+          <div className="px-4 pb-16">
             {themesList}
           </div>
         )}

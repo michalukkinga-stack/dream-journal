@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Copy, Check } from 'lucide-react'
+import { ArrowLeft, Copy, Check, Plus, RefreshCw, Trash2 } from 'lucide-react'
+import { supabase } from '@/lib/supabaseClient'
+import { useAuth } from '@/context/AuthContext'
 
 const BASE = 'https://rrwynlvefmotlthypdcx.supabase.co/functions/v1'
 const MCP_PATH = '/path/to/dream-journal/mcp-server/dist/index.js'
@@ -184,6 +186,107 @@ function Callout({ children }: { children: React.ReactNode }) {
   )
 }
 
+// ── Token Manager ────────────────────────────────────────────────
+type ApiToken = { id: string; token: string; name: string; created_at: string }
+
+function TokenManager() {
+  const { user } = useAuth()
+  const [tokens, setTokens] = useState<ApiToken[]>([])
+  const [loading, setLoading] = useState(true)
+  const [generating, setGenerating] = useState(false)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => { if (user) fetchTokens() }, [user])
+
+  async function fetchTokens() {
+    setLoading(true)
+    const { data, error } = await supabase.from('api_tokens').select('*').order('created_at', { ascending: false })
+    if (error) setError(error.message)
+    else setTokens(data ?? [])
+    setLoading(false)
+  }
+
+  async function generateToken() {
+    if (!user) return
+    setGenerating(true)
+    setError(null)
+    const { error } = await supabase.from('api_tokens').insert({ user_id: user.id, name: 'Mój token' })
+    if (error) setError(error.message)
+    else await fetchTokens()
+    setGenerating(false)
+  }
+
+  async function deleteToken(id: string) {
+    const { error } = await supabase.from('api_tokens').delete().eq('id', id)
+    if (error) setError(error.message)
+    else setTokens(t => t.filter(tok => tok.id !== id))
+  }
+
+  function copyText(text: string, id: string) {
+    navigator.clipboard.writeText(text)
+    setCopiedId(id)
+    setTimeout(() => setCopiedId(null), 2000)
+  }
+
+  const mcpConfig = tokens[0]
+    ? JSON.stringify({ mcpServers: { 'dream-journal': { url: 'https://dream-journal-five.vercel.app/api/mcp', headers: { Authorization: `Bearer ${tokens[0].token}` } } } }, null, 2)
+    : null
+
+  return (
+    <div className="rounded-xl border border-white/10 overflow-hidden mb-5" style={{ background: 'rgba(255,255,255,0.03)' }}>
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/10" style={{ background: 'rgba(255,255,255,0.04)' }}>
+        <span className="font-ui text-white/70 text-sm font-medium">Twoje tokeny API</span>
+        <button
+          onClick={generateToken}
+          disabled={generating}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded-lg text-xs font-ui font-medium text-white transition-colors"
+        >
+          {generating ? <RefreshCw size={11} className="animate-spin" /> : <Plus size={11} />}
+          Nowy token
+        </button>
+      </div>
+      <div className="p-4">
+        {error && <p className="text-xs text-red-400 mb-3">{error}</p>}
+        {loading ? (
+          <p className="text-xs text-white/30">Ładowanie...</p>
+        ) : tokens.length === 0 ? (
+          <p className="text-xs text-white/35 text-center py-3">Brak tokenów — wygeneruj pierwszy powyżej.</p>
+        ) : (
+          <div className="space-y-2">
+            {tokens.map(tok => (
+              <div key={tok.id} className="flex items-center gap-2">
+                <code className="flex-1 text-xs bg-black/30 px-3 py-2 rounded-lg font-mono text-indigo-300 truncate">{tok.token}</code>
+                <button onClick={() => copyText(tok.token, tok.id)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors" title="Kopiuj">
+                  {copiedId === tok.id ? <Check size={13} className="text-green-400" /> : <Copy size={13} className="text-white/40" />}
+                </button>
+                <button onClick={() => deleteToken(tok.id)} className="p-1.5 hover:bg-red-500/20 rounded-lg transition-colors" title="Usuń">
+                  <Trash2 size={13} className="text-white/25 hover:text-red-400" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        {mcpConfig && (
+          <div className="mt-4 pt-4 border-t border-white/8">
+            <p className="font-ui text-white/40 text-xs mb-2 uppercase tracking-wider">Gotowa konfiguracja Claude Desktop</p>
+            <div className="relative">
+              <pre className="bg-black/40 border border-white/10 rounded-xl p-3 text-xs font-mono text-white/60 overflow-x-auto">{mcpConfig}</pre>
+              <button
+                onClick={() => copyText(mcpConfig, 'config')}
+                className="absolute top-2 right-2 flex items-center gap-1 text-xs text-white/35 hover:text-white/70 transition-colors"
+              >
+                {copiedId === 'config' ? <Check size={11} /> : <Copy size={11} />}
+                {copiedId === 'config' ? 'Skopiowano' : 'Kopiuj'}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ── Mode toggle ──────────────────────────────────────────────────
 function ModeToggle({ mode, onChange }: { mode: 'api' | 'mcp'; onChange: (m: 'api' | 'mcp') => void }) {
   return (
@@ -277,9 +380,7 @@ function McpContent() {
         <SubHeading>1. Sklonuj i zbuduj serwer</SubHeading>
         <CodeBlock code={`cd dream-journal/mcp-server\nnpm install\nnpm run build`} label="Terminal" />
         <SubHeading>2. Wygeneruj token</SubHeading>
-        <p className="font-ui text-white/60 text-sm mb-3 leading-relaxed">
-          Zaloguj się do aplikacji, otwórz menu i przejdź do <strong className="text-white/80">Ustawienia</strong>. Kliknij <strong className="text-white/80">Nowy token</strong>, skopiuj wygenerowany klucz i wklej go do konfiguracji Claude Desktop (patrz niżej).
-        </p>
+        <TokenManager />
       </section>
 
       {/* ── NARZĘDZIA ── */}
@@ -708,14 +809,14 @@ const { dream, chat } = await res.json()`,
         <ol className="space-y-2 mb-4 list-decimal list-inside">
           {[
             'Zaloguj się do aplikacji przez Google.',
-            'Otwórz menu (trzy kropki) i przejdź do Ustawienia.',
-            'Kliknij „Nowy token" — zostanie wygenerowany unikalny klucz zaczynający się od djt_...',
+            'Przejdź do Dokumentacja › MCP.',
+            'Kliknij „Nowy token" — zostanie wygenerowany unikalny klucz.',
             'Skopiuj token i wklej go do konfiguracji Claude Desktop jako wartość nagłówka Authorization.',
           ].map((step, i) => (
             <li key={i} className="font-ui text-white/60 text-sm leading-relaxed">{step}</li>
           ))}
         </ol>
-        <Callout>Token jest stały — nie wygasa. Możesz go usunąć i wygenerować nowy w dowolnym momencie w Ustawieniach.</Callout>
+        <Callout>Token jest stały — nie wygasa. Możesz go usunąć i wygenerować nowy w dowolnym momencie w zakładce MCP powyżej.</Callout>
       </section>
 
       {/* ── UWAGI ── */}

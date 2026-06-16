@@ -40,7 +40,7 @@ export function CalendarStrip({
 
   const selectedKey = toDateKey(selectedDate)
   return (
-    <div className="relative py-3">
+    <div className="relative py-1.5">
       <button
         onClick={onPrev}
         disabled={!canPrev}

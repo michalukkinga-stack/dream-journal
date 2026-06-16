@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { Trash2, Plus, X, Mic, MoreVertical } from 'lucide-react'
+import { Trash2, Plus, X, Mic, MoreVertical, CalendarDays } from 'lucide-react'
 import { getDreams, saveDream, updateDream, deleteDream } from '@/storage/dreamStorage'
 import { Dream } from '@/types/dream'
 import { CalendarStrip, toDateKey } from '@/components/CalendarStrip'
@@ -12,6 +12,7 @@ import { getChatMessages } from '@/storage/chatStorage'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { MobileHeader } from '@/components/MobileHeader'
+import { MonthCalendarModal } from '@/components/MonthCalendarModal'
 
 function addDays(d: Date, n: number): Date {
   const r = new Date(d)
@@ -46,7 +47,9 @@ export function HomePage() {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
 
-  const chatPanelRef = useRef<ChatPanelHandle>(null)
+  const mobileChatRef = useRef<ChatPanelHandle>(null)
+  const desktopChatRef = useRef<ChatPanelHandle>(null)
+  const chatPanelRef = window.matchMedia('(min-width: 768px)').matches ? desktopChatRef : mobileChatRef
   const dreamEditorRef = useRef<DreamEditorHandle>(null)
   const [chatOpen, setChatOpen] = useState(false)
   const [chatHasMessages, setChatHasMessages] = useState(false)
@@ -246,6 +249,7 @@ export function HomePage() {
   const desktopScrollRef = useRef<HTMLDivElement>(null)
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(false)
   const desktopMenuRef = useRef<HTMLDivElement>(null)
+  const [monthCalendarOpen, setMonthCalendarOpen] = useState(false)
 
   useEffect(() => {
     if (!desktopMenuOpen) return
@@ -421,22 +425,25 @@ export function HomePage() {
       <div className="md:hidden min-h-screen flex flex-col max-w-[600px] mx-auto pb-14">
         <MobileHeader />
 
-        {toDateKey(selectedDate) !== toDateKey(today) && (
-          <div className="flex justify-start px-4 pb-1">
-            <button
-              onClick={() => {
-                selectDay(today)
-                setWindowStart(addDays(today, -6))
-              }}
-              className="font-ui text-[0.65rem] tracking-widest uppercase px-3 h-6 rounded-full
-                         border border-purple-400/50 text-purple-300
-                         hover:bg-purple-400/15 hover:border-purple-400/80
-                         transition-all duration-150 active:scale-95"
-            >
-              Dzisiaj
-            </button>
-          </div>
-        )}
+        <div className="flex items-center justify-between px-4 pb-0">
+          <button
+            onClick={() => setMonthCalendarOpen(true)}
+            className="w-8 h-8 flex items-center justify-center rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-all duration-150 active:scale-95"
+            title="Widok miesięczny"
+          >
+            <CalendarDays size={18} />
+          </button>
+          <button
+            onClick={() => { selectDay(today); setWindowStart(addDays(today, -6)) }}
+            style={{ visibility: toDateKey(selectedDate) !== toDateKey(today) ? 'visible' : 'hidden' }}
+            className="font-ui text-[0.65rem] tracking-widest uppercase px-3 h-6 rounded-full
+                       border border-purple-400/50 text-purple-300
+                       hover:bg-purple-400/15 hover:border-purple-400/80
+                       transition-all duration-150 active:scale-95"
+          >
+            Dzisiaj
+          </button>
+        </div>
 
         <CalendarStrip
           dreamsByDate={dreamsByDate}
@@ -453,7 +460,7 @@ export function HomePage() {
         {entryPanel}
 
         <ChatBottomSheet
-          ref={chatPanelRef}
+          ref={mobileChatRef}
           open={chatOpen}
           onToggle={() => setChatOpen(o => !o)}
           currentDream={existingDream}
@@ -515,13 +522,6 @@ export function HomePage() {
                     >
                       API Docs
                     </Link>
-                    <Link
-                      to="/settings"
-                      onClick={() => setDesktopMenuOpen(false)}
-                      className="font-ui flex items-center px-4 h-11 text-sm text-white/80 hover:text-white hover:bg-white/8 transition-colors"
-                    >
-                      Ustawienia
-                    </Link>
                     <div className="mx-4 h-px bg-white/10" />
                     <button
                       onClick={() => { setDesktopMenuOpen(false); signOut() }}
@@ -532,7 +532,14 @@ export function HomePage() {
                   </div>
                 )}
               </div>
-              <p className="font-display text-white text-xl">Dziennik snów</p>
+              <p className="font-display text-white text-base whitespace-nowrap">Dziennik snów</p>
+              <button
+                onClick={() => setMonthCalendarOpen(true)}
+                className="w-8 h-8 flex items-center justify-center rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-all duration-150 active:scale-95"
+                title="Widok miesięczny"
+              >
+                <CalendarDays size={18} />
+              </button>
             </div>
             <button
               onClick={() => {
@@ -606,7 +613,7 @@ export function HomePage() {
           {entryPanel}
 
           <ChatBottomSheet
-            ref={chatPanelRef}
+            ref={desktopChatRef}
             open={chatOpen}
             onToggle={() => setChatOpen(o => !o)}
             currentDream={existingDream}
@@ -633,6 +640,20 @@ export function HomePage() {
       )}
 
       {deleteConfirm}
+
+      {monthCalendarOpen && (
+        <MonthCalendarModal
+          dreamsByDate={dreamsByDate}
+          selectedDate={selectedDate}
+          today={today}
+          onSelect={(day) => {
+            selectDay(day)
+            setWindowStart(addDays(day, -6))
+            desktopScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+          }}
+          onClose={() => setMonthCalendarOpen(false)}
+        />
+      )}
     </>
   )
 }

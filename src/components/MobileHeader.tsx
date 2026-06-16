@@ -20,7 +20,7 @@ export function MobileHeader() {
   }, [open])
 
   return (
-    <div className="flex items-center justify-between pt-10 px-4 pb-1">
+    <div className="flex items-center justify-between pt-10 px-4 pb-0">
       <p className="font-display text-white text-xl">Dziennik Snów</p>
 
       <div className="relative" ref={menuRef}>
@@ -51,13 +51,6 @@ export function MobileHeader() {
               className="font-ui flex items-center px-4 h-11 text-sm text-white/80 hover:text-white hover:bg-white/8 transition-colors"
             >
               API Docs
-            </Link>
-            <Link
-              to="/settings"
-              onClick={() => setOpen(false)}
-              className="font-ui flex items-center px-4 h-11 text-sm text-white/80 hover:text-white hover:bg-white/8 transition-colors"
-            >
-              Ustawienia
             </Link>
             <div className="mx-4 h-px bg-white/10" />
             <button
