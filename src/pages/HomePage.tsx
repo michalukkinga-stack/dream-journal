@@ -234,8 +234,13 @@ export function HomePage() {
     const d = new Date(windowStart); d.setDate(d.getDate() + i); return toDateKey(d)
   }).includes(toDateKey(today))
 
-  // Desktop: 180 dni wstecz, dziś na górze listy
-  const desktopDays = Array.from({ length: 180 }, (_, i) => addDays(today, -i))
+  const oldestDream = dreams.length > 0
+    ? dreams.reduce((a, b) => new Date(a.createdAt) < new Date(b.createdAt) ? a : b)
+    : null
+  const minDate = oldestDream ? (() => { const d = new Date(oldestDream.createdAt); d.setHours(0,0,0,0); return d })() : undefined
+
+  // Desktop: 1700 dni wstecz (~4.5 roku), dziś na górze listy
+  const desktopDays = Array.from({ length: 1700 }, (_, i) => addDays(today, -i))
   const DAYS_PL_SHORT = ['niedziela','poniedziałek','wtorek','środa','czwartek','piątek','sobota']
 
   const desktopScrollRef = useRef<HTMLDivElement>(null)
@@ -438,6 +443,7 @@ export function HomePage() {
           selectedDate={selectedDate}
           windowStart={windowStart}
           today={today}
+          minDate={minDate}
           onSelect={selectDay}
           onPrev={() => setWindowStart(w => addDays(w, -7))}
           onNext={() => setWindowStart(w => addDays(w, 7))}

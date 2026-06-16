@@ -18,6 +18,7 @@ interface CalendarStripProps {
   selectedDate: Date
   windowStart: Date
   today: Date
+  minDate?: Date
   onSelect: (d: Date) => void
   onPrev: () => void
   onNext: () => void
@@ -28,19 +29,25 @@ export function CalendarStrip({
   selectedDate,
   windowStart,
   today,
+  minDate,
   onSelect,
   onPrev,
   onNext,
 }: CalendarStripProps) {
   const days = Array.from({ length: 7 }, (_, i) => addDays(windowStart, i))
   const canNext = addDays(windowStart, 7) <= today
+  const canPrev = minDate ? windowStart > minDate : true
 
   const selectedKey = toDateKey(selectedDate)
   return (
     <div className="relative py-3">
       <button
         onClick={onPrev}
-        className="absolute left-[-10px] top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-full text-white hover:bg-white/10 transition-all duration-150 z-10"
+        disabled={!canPrev}
+        className={[
+          'absolute left-[-10px] top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-full transition-all duration-150 z-10',
+          canPrev ? 'text-white hover:bg-white/10' : 'text-white/20 cursor-default',
+        ].join(' ')}
       >
         <ChevronLeft size={18} />
       </button>
