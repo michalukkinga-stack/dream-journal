@@ -66,22 +66,18 @@ export const ChatBottomSheet = forwardRef<ChatPanelHandle, ChatBottomSheetProps>
             </button>
           </div>
 
-          {open && (
-            <>
-              {/* Divider */}
-              <div className="mx-5 border-t border-white/10 shrink-0" />
+          {/* Divider */}
+          <div className={`mx-5 border-t border-white/10 shrink-0 ${open ? '' : 'hidden'}`} />
 
-              {/* Wiadomości */}
-              <div className="flex-1 overflow-y-auto px-5 pb-3">
-                <ChatPanel
-                  ref={resolvedRef}
-                  currentDream={currentDream}
-                  allDreams={allDreams}
-                  selectedDate={selectedDate}
-                />
-              </div>
-            </>
-          )}
+          {/* Wiadomości — zawsze zamontowane, żeby ref był dostępny od razu */}
+          <div className={`flex-1 overflow-y-auto px-5 pb-3 ${open ? '' : 'hidden'}`}>
+            <ChatPanel
+              ref={resolvedRef}
+              currentDream={currentDream}
+              allDreams={allDreams}
+              selectedDate={selectedDate}
+            />
+          </div>
         </div>
       </>
     )
