@@ -19,7 +19,7 @@ export function AgentInput({ value, onChange, onSend, isLoading = false, dreamHa
   }
 
   return (
-    <div className="shrink-0 px-4 pb-8 md:pb-3 pt-3">
+    <div className="shrink-0 px-4 pb-[17px] md:pb-3 pt-3">
       <div
         className="relative flex items-center gap-2 rounded-2xl"
         style={{

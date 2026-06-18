@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 import { Dream } from '@/types/dream'
 
 const MONTHS_PL = ['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru']
@@ -20,39 +20,45 @@ interface CalendarStripProps {
   today: Date
   minDate?: Date
   onSelect: (d: Date) => void
-  onPrev: () => void
-  onNext: () => void
+  onPrev?: () => void
+  onNext?: () => void
 }
 
 export function CalendarStrip({
   dreamsByDate,
   selectedDate,
-  windowStart,
   today,
   minDate,
   onSelect,
-  onPrev,
-  onNext,
 }: CalendarStripProps) {
-  const days = Array.from({ length: 7 }, (_, i) => addDays(windowStart, i))
-  const canNext = addDays(windowStart, 7) <= today
-  const canPrev = minDate ? windowStart > minDate : true
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const selectedRef = useRef<HTMLButtonElement>(null)
+
+  const fallback = addDays(today, -29)
+  const start = minDate && minDate < fallback ? minDate : fallback
+  const days: Date[] = []
+  let cur = new Date(start)
+  cur.setHours(0, 0, 0, 0)
+  const end = new Date(today)
+  end.setHours(0, 0, 0, 0)
+  while (cur <= end) {
+    days.push(new Date(cur))
+    cur = addDays(cur, 1)
+  }
 
   const selectedKey = toDateKey(selectedDate)
-  return (
-    <div className="relative py-1.5">
-      <button
-        onClick={onPrev}
-        disabled={!canPrev}
-        className={[
-          'absolute left-[-10px] top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-full transition-all duration-150 z-10',
-          canPrev ? 'text-white hover:bg-white/10' : 'text-white/20 cursor-default',
-        ].join(' ')}
-      >
-        <ChevronLeft size={18} />
-      </button>
 
-      <div className="flex gap-1.5 px-4">
+  useEffect(() => {
+    selectedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+  }, [selectedKey])
+
+  return (
+    <div className="py-1.5">
+      <div
+        ref={scrollRef}
+        className="flex gap-1.5 px-4 overflow-x-auto scrollbar-none"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
         {days.map(day => {
           const key = toDateKey(day)
           const isFuture = day > today
@@ -62,10 +68,11 @@ export function CalendarStrip({
           return (
             <button
               key={key}
+              ref={isSelected ? selectedRef : undefined}
               onClick={() => !isFuture && onSelect(day)}
               disabled={isFuture}
               className={[
-                'flex-1 relative flex flex-col items-center justify-center pt-2 pb-[24px] rounded-2xl transition-all duration-150',
+                'flex-none w-11 relative flex flex-col items-center justify-center pt-2 pb-[24px] rounded-2xl transition-all duration-150',
                 isFuture ? 'opacity-30 cursor-default' : 'active:scale-95',
                 isSelected && !isFuture
                   ? 'bg-white/20 ring-2 ring-violet-400'
@@ -87,12 +94,12 @@ export function CalendarStrip({
               {!isFuture && (
                 <div className="absolute bottom-1.5 flex items-center justify-center">
                   {hasDream ? (
-                    <div className="w-[9px] h-[9px] rounded-full bg-violet-400" />
+                    <span className="text-[11px] leading-none text-violet-400">★</span>
                   ) : (
-                    <div className={[
-                      'w-[9px] h-[9px] rounded-full border',
-                      isSelected ? 'border-white/70' : 'border-white/40',
-                    ].join(' ')} />
+                    <span className={[
+                      'text-[11px] leading-none',
+                      isSelected ? 'text-white/70' : 'text-white/40',
+                    ].join(' ')}>☆</span>
                   )}
                 </div>
               )}
@@ -100,19 +107,6 @@ export function CalendarStrip({
           )
         })}
       </div>
-
-      <button
-        onClick={onNext}
-        disabled={!canNext}
-        className={[
-          'absolute right-[-10px] top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-full transition-all duration-150 z-10',
-          canNext
-            ? 'text-white hover:bg-white/10'
-            : 'text-white/20 cursor-default',
-        ].join(' ')}
-      >
-        <ChevronRight size={18} />
-      </button>
     </div>
   )
 }

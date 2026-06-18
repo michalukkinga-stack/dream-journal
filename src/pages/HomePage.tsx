@@ -702,12 +702,12 @@ export function HomePage() {
                     </div>
                     <div className="ml-auto shrink-0">
                       {hasDream ? (
-                        <div className="w-[9px] h-[9px] rounded-full bg-violet-400" />
+                        <span className="text-[11px] md:text-[22px] leading-none text-violet-400">★</span>
                       ) : (
-                        <div className={[
-                          'w-[9px] h-[9px] rounded-full border',
-                          isSelected ? 'border-white/70' : 'border-white/40',
-                        ].join(' ')} />
+                        <span className={[
+                          'text-[11px] md:text-[22px] leading-none',
+                          isSelected ? 'text-white/70' : 'text-white/40',
+                        ].join(' ')}>☆</span>
                       )}
                     </div>
                   </button>

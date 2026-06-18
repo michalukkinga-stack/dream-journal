@@ -88,12 +88,12 @@ function MonthGrid({ year, month, dreamsByDate, selectedKey, todayKey, today, on
               </span>
               {!isFuture && (
                 hasDream ? (
-                  <div className="w-[6px] h-[6px] rounded-full bg-violet-400" />
+                  <span className="text-[11px] leading-none text-violet-400">★</span>
                 ) : (
-                  <div className={[
-                    'w-[6px] h-[6px] rounded-full border',
-                    isSelected ? 'border-white/70' : 'border-white/35',
-                  ].join(' ')} />
+                  <span className={[
+                    'text-[11px] leading-none',
+                    isSelected ? 'text-white/70' : 'text-white/35',
+                  ].join(' ')}>☆</span>
                 )
               )}
             </button>
