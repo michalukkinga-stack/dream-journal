@@ -293,6 +293,34 @@ export function HomePage() {
   const [monthCalendarOpen, setMonthCalendarOpen] = useState(false)
   const [todayVisible, setTodayVisible] = useState(true)
 
+  const editorSentinelRef = useRef<HTMLDivElement>(null)
+  const desktopMicContainerRef = useRef<HTMLDivElement>(null)
+  const entryPanelScrollRef = useRef<HTMLDivElement>(null)
+  const [iconsYOffset, setIconsYOffset] = useState(0)
+
+  const recalcIconsOffset = useCallback(() => {
+    if (!editorSentinelRef.current || !desktopMicContainerRef.current) return
+    const sentinelRect = editorSentinelRef.current.getBoundingClientRect()
+    const iconsRect = desktopMicContainerRef.current.getBoundingClientRect()
+    const iconsNaturalTop = (window.innerHeight - iconsRect.height) / 2
+    const overlap = (sentinelRect.bottom + 40) - iconsNaturalTop
+    setIconsYOffset(Math.max(0, overlap))
+  }, [])
+
+  useEffect(() => {
+    const ro = new ResizeObserver(recalcIconsOffset)
+    if (editorSentinelRef.current) ro.observe(editorSentinelRef.current)
+    const panel = entryPanelScrollRef.current
+    panel?.addEventListener('scroll', recalcIconsOffset)
+    window.addEventListener('resize', recalcIconsOffset)
+    recalcIconsOffset()
+    return () => {
+      ro.disconnect()
+      panel?.removeEventListener('scroll', recalcIconsOffset)
+      window.removeEventListener('resize', recalcIconsOffset)
+    }
+  }, [recalcIconsOffset])
+
   useEffect(() => {
     if (!desktopMenuOpen) return
     function handleClick(e: MouseEvent) {
@@ -308,7 +336,7 @@ export function HomePage() {
   const hasText = description.replace(/<[^>]*>/g, '').trim().length > 0
 
   const entryPanel = (
-    <div className="flex-1 flex flex-col px-4 pt-5 md:pt-[50px] pb-8 overflow-y-auto md:max-w-[900px]">
+    <div ref={entryPanelScrollRef} className="flex-1 flex flex-col px-4 pt-5 md:pt-[50px] pb-8 overflow-y-auto md:max-w-[900px]">
       {/* Date label + actions */}
       <div className="flex items-center justify-between mb-4 md:mb-[30px]">
         <p className="label-caps">{selectedLabel}</p>
@@ -375,33 +403,7 @@ export function HomePage() {
             )}
           </div>
           <DreamEditor ref={dreamEditorRef} key={toDateKey(selectedDate)} value={description} onChange={handleDescriptionChange} onListeningChange={setDreamMicListening} />
-          {isMicSupported && hasText && (
-            <div className="hidden md:flex flex-col items-center gap-4" style={{ marginTop: '20px' }}>
-              <div className="flex items-center gap-4">
-                <button
-                  type="button"
-                  onClick={() => dreamEditorRef.current?.toggleMic()}
-                  className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
-                  style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', boxShadow: dreamMicListening ? '0 0 0 8px rgba(255,255,255,0.08), 0 0 24px 4px rgba(167,139,250,0.35)' : '0 0 0 1px rgba(255,255,255,0.15)' }}
-                >
-                  <Mic size={28} className={dreamMicListening ? 'text-white' : 'text-white/70'} />
-                  {dreamMicListening && (
-                    <span className="absolute inset-0 rounded-full animate-ping" style={{ background: 'rgba(167,139,250,0.2)' }} />
-                  )}
-                </button>
-                <button
-                  type="button"
-                  disabled={photoUploading}
-                  onClick={() => photoInputRef.current?.click()}
-                  className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
-                  style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', boxShadow: '0 0 0 1px rgba(255,255,255,0.15)' }}
-                >
-                  {photoUploading ? <Loader2 size={28} className="text-white/70 animate-spin" /> : <Plus size={28} className="text-white/70" />}
-                </button>
-              </div>
-              <p className="font-ui text-white/70 text-xs text-center">Kliknij w ikonę mikrofonu, aby zacząć dyktować.</p>
-            </div>
-          )}
+          <div ref={editorSentinelRef} />
         </div>
       )}
 
@@ -453,24 +455,26 @@ export function HomePage() {
               </div>
               {micLabel}
             </div>
-            {/* Desktop: fixed, centered — only when no text content */}
-            {!hasText && (
-              <div className="hidden md:flex flex-col items-center justify-center gap-4 fixed top-0 bottom-0 pointer-events-none [&>*]:pointer-events-auto" style={{ left: '320px', width: '900px' }}>
-                <div className="flex items-center gap-4">
-                  {micBtn}
-                  <button
-                    type="button"
-                    disabled={photoUploading}
-                    onClick={() => photoInputRef.current?.click()}
-                    className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
-                    style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', boxShadow: '0 0 0 1px rgba(255,255,255,0.15)' }}
-                  >
-                    {photoUploading ? <Loader2 size={28} className="text-white/70 animate-spin" /> : <Plus size={28} className="text-white/70" />}
-                  </button>
-                </div>
-                {micLabel}
+            {/* Desktop: fixed, centered — stays put until text gets within 40px */}
+            <div
+              ref={desktopMicContainerRef}
+              className="hidden md:flex flex-col items-center justify-center gap-4 fixed top-0 bottom-0 pointer-events-none [&>*]:pointer-events-auto"
+              style={{ left: '320px', width: '900px', transform: `translateY(${iconsYOffset}px)`, transition: 'transform 200ms ease' }}
+            >
+              <div className="flex items-center gap-4">
+                {micBtn}
+                <button
+                  type="button"
+                  disabled={photoUploading}
+                  onClick={() => photoInputRef.current?.click()}
+                  className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
+                  style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', boxShadow: '0 0 0 1px rgba(255,255,255,0.15)' }}
+                >
+                  {photoUploading ? <Loader2 size={28} className="text-white/70 animate-spin" /> : <Plus size={28} className="text-white/70" />}
+                </button>
               </div>
-            )}
+              {micLabel}
+            </div>
           </>
         )
       })()}
