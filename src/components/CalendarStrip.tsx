@@ -48,7 +48,8 @@ export function CalendarStrip({
   const canGoPrev = windowStart > effectiveMin
 
   return (
-    <div className="py-1.5 flex items-center gap-1 px-2">
+    <div className="py-1.5 flex items-center gap-1 px-2 mx-2 rounded-2xl"
+         style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>
       <button
         onClick={onPrev}
         disabled={!canGoPrev}
