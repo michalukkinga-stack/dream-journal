@@ -427,15 +427,17 @@ export function HomePage() {
             <div className="flex-1 flex flex-col items-center justify-center gap-4 mb-[16.5rem] md:hidden">
               <div className="flex items-center gap-4">
                 {micBtn}
-                <button
-                  type="button"
-                  disabled={photoUploading}
-                  onClick={() => photoInputRef.current?.click()}
-                  className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
-                  style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', boxShadow: '0 0 0 1px rgba(255,255,255,0.15)' }}
-                >
-                  {photoUploading ? <Loader2 size={28} className="text-white/70 animate-spin" /> : <Plus size={28} className="text-white/70" />}
-                </button>
+                {!hasText && photoUrls.length === 0 && (
+                  <button
+                    type="button"
+                    disabled={photoUploading}
+                    onClick={() => photoInputRef.current?.click()}
+                    className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
+                    style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', boxShadow: '0 0 0 1px rgba(255,255,255,0.15)' }}
+                  >
+                    {photoUploading ? <Loader2 size={28} className="text-white/70 animate-spin" /> : <Plus size={28} className="text-white/70" />}
+                  </button>
+                )}
               </div>
               {micLabel}
             </div>

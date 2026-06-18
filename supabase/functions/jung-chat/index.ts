@@ -12,10 +12,16 @@ Gdy masz konkretny sen — skupiasz się na nim. Gdy pytanie ogólne — szukasz
 
 Odpowiadasz krótko: 2–3 zdania maksymalnie, chyba że ktoś wyraźnie prosi o więcej. Nie moralizujesz, nie diagnoznie.`
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'authorization, content-type',
+function getCorsHeaders(reqOrigin: string | null): Record<string, string> {
+  const prod = Deno.env.get('ALLOWED_ORIGIN') ?? 'https://dream-journal-five.vercel.app'
+  const allowed = [prod, 'http://localhost:5173', 'http://localhost:4173']
+  const origin = reqOrigin && allowed.includes(reqOrigin) ? reqOrigin : prod
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Vary': 'Origin',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'authorization, content-type',
+  }
 }
 
 type UIMessagePart = { type: string; text?: string }
@@ -62,58 +68,81 @@ async function getQueryEmbedding(text: string): Promise<number[]> {
   return json.data[0].embedding as number[]
 }
 
+async function checkRateLimit(supabase: ReturnType<typeof createClient>, endpoint: string): Promise<boolean> {
+  const bucket = Math.floor(Date.now() / 60000)
+  const { data } = await supabase.rpc('check_and_increment_rate_limit', {
+    p_endpoint: endpoint,
+    p_bucket: bucket,
+    p_limit: 20,
+  })
+  return data === true
+}
+
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+  const corsHeaders = getCorsHeaders(req.headers.get('origin'))
+  if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
+
+  const authHeader = req.headers.get('Authorization')
+  if (!authHeader?.startsWith('Bearer ')) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders },
+    })
+  }
+
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+    { global: { headers: { Authorization: authHeader } } }
+  )
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders },
+    })
+  }
+
+  const allowed = await checkRateLimit(supabase, 'jung-chat')
+  if (!allowed) {
+    return new Response(JSON.stringify({ error: 'Za dużo zapytań. Poczekaj chwilę i spróbuj ponownie.' }), {
+      status: 429, headers: { 'Content-Type': 'application/json', ...corsHeaders },
+    })
   }
 
   try {
-    const authHeader = req.headers.get('Authorization')
     const body = await req.json()
     const { messages, currentDream } = body as {
       messages: UIMessage[]
       currentDream?: { title: string; description: string; tags: string[]; createdAt: string }
-      allDreams?: unknown  // ignored — replaced by hybrid search
+      allDreams?: unknown
     }
 
     let contextBlock = ''
 
     if (currentDream) {
-      contextBlock += `\n\n--- AKTUALNIE OGLĄDANY SEN ---\nData: ${currentDream.createdAt}\nOpis: ${currentDream.description}\nMotywy/tagi: ${currentDream.tags?.join(', ') || 'brak'}`
+      contextBlock += `\n\n--- AKTUALNIE OGLĄDANY SEN ---\nData: ${currentDream.createdAt}\nOpis: ${stripHtml(currentDream.description)}\nMotywy/tagi: ${currentDream.tags?.join(', ') || 'brak'}`
     }
 
-    // Hybrid search using the last user message
-    if (authHeader?.startsWith('Bearer ')) {
-      try {
-        const supabase = createClient(
-          Deno.env.get('SUPABASE_URL') ?? '',
-          Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-          { global: { headers: { Authorization: authHeader } } }
-        )
-        const { data: { user } } = await supabase.auth.getUser()
+    try {
+      const lastMessage = getLastUserMessage(messages)
+      const queryText = lastMessage || 'sen marzenie nocne'
+      const embedding = await getQueryEmbedding(queryText)
 
-        if (user) {
-          const lastMessage = getLastUserMessage(messages)
-          const queryText = lastMessage || 'sen marzenie nocne'
-          const embedding = await getQueryEmbedding(queryText)
+      const { data: searchResults } = await supabase.rpc('hybrid_search_dreams', {
+        p_user_id: user.id,
+        p_query_text: queryText,
+        p_query_embedding: embedding,
+        p_match_count: 10,
+      })
 
-          const { data: searchResults } = await supabase.rpc('hybrid_search_dreams', {
-            p_user_id: user.id,
-            p_query_text: queryText,
-            p_query_embedding: embedding,
-            p_match_count: 10,
-          })
-
-          if (searchResults && searchResults.length > 0) {
-            const dreamList = (searchResults as { description: string; tags: string[]; created_at: string }[])
-              .map(d => `[${d.created_at.slice(0, 10)}] tagi: ${d.tags?.join(', ') || 'brak'} — ${stripHtml(d.description).slice(0, 200)}`)
-              .join('\n')
-            contextBlock += `\n\n--- TRAFNE SNY Z HISTORII ---\n${dreamList}`
-          }
-        }
-      } catch (e) {
-        console.error('Hybrid search failed:', e)
+      if (searchResults && searchResults.length > 0) {
+        const dreamList = (searchResults as { description: string; tags: string[]; created_at: string }[])
+          .map(d => `[${d.created_at.slice(0, 10)}] tagi: ${d.tags?.join(', ') || 'brak'} — ${stripHtml(d.description).slice(0, 200)}`)
+          .join('\n')
+        contextBlock += `\n\n--- TRAFNE SNY Z HISTORII ---\n${dreamList}`
       }
+    } catch (e) {
+      console.error('Hybrid search failed:', e)
     }
 
     const systemPrompt = JUNG_SYSTEM_PROMPT + contextBlock
@@ -129,9 +158,7 @@ Deno.serve(async (req) => {
       maxTokens: 1024,
     })
 
-    return result.toUIMessageStreamResponse({
-      headers: { 'Access-Control-Allow-Origin': '*' },
-    })
+    return result.toUIMessageStreamResponse({ headers: corsHeaders })
   } catch (err) {
     return new Response(JSON.stringify({ error: String(err) }), {
       status: 500,

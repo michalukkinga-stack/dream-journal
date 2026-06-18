@@ -2,10 +2,16 @@ import { createClient } from 'npm:@supabase/supabase-js@^2'
 import { createAnthropic } from 'npm:@ai-sdk/anthropic@^3'
 import { generateText } from 'npm:ai@^6'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'authorization, content-type',
+function getCorsHeaders(reqOrigin: string | null): Record<string, string> {
+  const prod = Deno.env.get('ALLOWED_ORIGIN') ?? 'https://dream-journal-five.vercel.app'
+  const allowed = [prod, 'http://localhost:5173', 'http://localhost:4173']
+  const origin = reqOrigin && allowed.includes(reqOrigin) ? reqOrigin : prod
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Vary': 'Origin',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'authorization, content-type',
+  }
 }
 
 const JUNG_SYSTEM_PROMPT = `Jesteś Carlem Gustavem Jungiem — rozmawiasz z użytkowniczką o jej snach. Jesteś jak sympatyczny kolega z pracy, który ma głęboką wiedzę o psychologii: mówisz normalnie, bez patosu, bez wielkich słów.
@@ -39,6 +45,7 @@ async function getQueryEmbedding(text: string): Promise<number[]> {
 }
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req.headers.get('origin'))
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
 
   const authHeader = req.headers.get('Authorization')
@@ -58,6 +65,16 @@ Deno.serve(async (req) => {
   if (authError || !user) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders },
+    })
+  }
+
+  const bucket = Math.floor(Date.now() / 60000)
+  const { data: rateLimitOk } = await supabase.rpc('check_and_increment_rate_limit', {
+    p_endpoint: 'ask-jung-api', p_bucket: bucket, p_limit: 20,
+  })
+  if (rateLimitOk === false) {
+    return new Response(JSON.stringify({ error: 'Za dużo zapytań. Poczekaj chwilę.' }), {
+      status: 429, headers: { 'Content-Type': 'application/json', ...corsHeaders },
     })
   }
 

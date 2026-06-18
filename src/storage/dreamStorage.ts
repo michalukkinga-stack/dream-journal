@@ -109,12 +109,24 @@ export async function updateDream(id: string, patch: Partial<Omit<Dream, 'id' | 
   await supabase.from('dreams').update(dbPatch).eq('id', id)
 }
 
+const ALLOWED_PHOTO_MIME = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as const
+const MAX_PHOTO_BYTES = 10 * 1024 * 1024 // 10 MB
+
 export async function uploadDreamPhoto(dreamId: string, file: File): Promise<string> {
+  if (!(ALLOWED_PHOTO_MIME as readonly string[]).includes(file.type)) {
+    throw new Error(`Niedozwolony typ pliku. Dozwolone: JPEG, PNG, WebP, GIF.`)
+  }
+  if (file.size > MAX_PHOTO_BYTES) {
+    throw new Error(`Plik za duży. Maksymalny rozmiar to 10 MB.`)
+  }
   const user = (await supabase.auth.getUser()).data.user
   if (!user) throw new Error('Not authenticated')
-  const ext = file.name.split('.').pop() ?? 'jpg'
+  const mimeToExt: Record<string, string> = {
+    'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif',
+  }
+  const ext = mimeToExt[file.type] ?? 'jpg'
   const path = `${user.id}/${dreamId}/${crypto.randomUUID()}.${ext}`
-  const { error } = await supabase.storage.from('dream-photos').upload(path, file)
+  const { error } = await supabase.storage.from('dream-photos').upload(path, file, { contentType: file.type })
   if (error) throw error
   const { data } = supabase.storage.from('dream-photos').getPublicUrl(path)
   return data.publicUrl

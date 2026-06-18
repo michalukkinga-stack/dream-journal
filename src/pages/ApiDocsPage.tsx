@@ -893,7 +893,14 @@ export function ApiDocsPage() {
           <div className="h-4 w-px bg-white/15" />
           <span className="font-display text-white text-sm font-semibold">Dokumentacja</span>
           <span className="font-ui text-white/30 text-xs">Dream Journal · v1</span>
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-3">
+            <button
+              onClick={() => navigate('/settings')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/15 text-white/60 hover:text-white hover:border-white/40 text-xs font-ui transition-all"
+            >
+              <Plus size={12} />
+              Wygeneruj token
+            </button>
             <ModeToggle mode={mode} onChange={handleModeChange} />
           </div>
         </div>

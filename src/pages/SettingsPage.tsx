@@ -9,6 +9,18 @@ type ApiToken = {
   token: string
   name: string
   created_at: string
+  expires_at: string | null
+}
+
+function generateSecureToken(): string {
+  const arr = new Uint8Array(32)
+  crypto.getRandomValues(arr)
+  return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+async function sha256hex(text: string): Promise<string> {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
 export default function SettingsPage() {
@@ -39,9 +51,12 @@ export default function SettingsPage() {
     if (!user) return
     setGenerating(true)
     setError(null)
+    const plainToken = generateSecureToken()
+    const tokenHash = await sha256hex(plainToken)
+    const expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
     const { error } = await supabase
       .from('api_tokens')
-      .insert({ user_id: user.id, name: 'Mój token' })
+      .insert({ user_id: user.id, name: 'Mój token', token: plainToken, token_hash: tokenHash, expires_at: expiresAt })
     if (error) setError(error.message)
     else await fetchTokens()
     setGenerating(false)
@@ -124,9 +139,16 @@ export default function SettingsPage() {
                 >
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-sm font-medium">{tok.name}</span>
-                    <span className="text-xs text-white/30">
-                      {new Date(tok.created_at).toLocaleDateString('pl-PL')}
-                    </span>
+                    <div className="text-right">
+                      <div className="text-xs text-white/30">
+                        Utworzony: {new Date(tok.created_at).toLocaleDateString('pl-PL')}
+                      </div>
+                      {tok.expires_at && (
+                        <div className={`text-xs ${new Date(tok.expires_at) < new Date() ? 'text-red-400' : 'text-white/30'}`}>
+                          Ważny do: {new Date(tok.expires_at).toLocaleDateString('pl-PL')}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <code className="flex-1 text-xs bg-black/30 px-3 py-2 rounded-lg font-mono text-indigo-300 truncate">

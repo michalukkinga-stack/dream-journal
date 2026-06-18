@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { createHash } from 'node:crypto'
 
 const SUPABASE_URL = 'https://rrwynlvefmotlthypdcx.supabase.co'
 
@@ -25,13 +26,15 @@ function getServiceKey(): string {
 async function resolveUserId(authHeader: string | undefined): Promise<string> {
   if (!authHeader?.startsWith('Bearer ')) throw new Error('Brak tokenu. Wygeneruj token w ustawieniach aplikacji i dodaj go do konfiguracji MCP.')
   const token = authHeader.slice(7).trim()
+  const tokenHash = createHash('sha256').update(token).digest('hex')
   const serviceKey = getServiceKey()
+  const now = new Date().toISOString()
   const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/api_tokens?token=eq.${encodeURIComponent(token)}&select=user_id&limit=1`,
+    `${SUPABASE_URL}/rest/v1/api_tokens?token_hash=eq.${encodeURIComponent(tokenHash)}&expires_at=gt.${encodeURIComponent(now)}&select=user_id&limit=1`,
     { headers: supabaseHeaders(serviceKey) }
   )
   const rows = await res.json() as { user_id: string }[]
-  if (!rows.length) throw new Error('Nieprawidłowy token. Sprawdź ustawienia aplikacji.')
+  if (!rows.length) throw new Error('Nieprawidłowy lub wygasły token. Sprawdź ustawienia aplikacji.')
   return rows[0].user_id
 }
 
@@ -205,7 +208,12 @@ async function handleAskJung(args: Record<string, unknown>, userId: string) {
 
 // ── Main handler ─────────────────────────────────────────────────
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  res.setHeader('Access-Control-Allow-Origin', '*')
+  const prod = process.env.ALLOWED_ORIGIN ?? 'https://dream-journal-five.vercel.app'
+  const allowed = [prod, 'http://localhost:5173', 'http://localhost:4173']
+  const reqOrigin = Array.isArray(req.headers.origin) ? req.headers.origin[0] : req.headers.origin
+  const origin = reqOrigin && allowed.includes(reqOrigin) ? reqOrigin : prod
+  res.setHeader('Access-Control-Allow-Origin', origin)
+  res.setHeader('Vary', 'Origin')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'content-type, authorization, mcp-session-id')
 

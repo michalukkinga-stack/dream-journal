@@ -1,9 +1,15 @@
 import { createClient } from 'npm:@supabase/supabase-js@^2'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'authorization, content-type',
+function getCorsHeaders(reqOrigin: string | null): Record<string, string> {
+  const prod = Deno.env.get('ALLOWED_ORIGIN') ?? 'https://dream-journal-five.vercel.app'
+  const allowed = [prod, 'http://localhost:5173', 'http://localhost:4173']
+  const origin = reqOrigin && allowed.includes(reqOrigin) ? reqOrigin : prod
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Vary': 'Origin',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'authorization, content-type',
+  }
 }
 
 function stripHtml(html: string): string {
@@ -11,6 +17,7 @@ function stripHtml(html: string): string {
 }
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req.headers.get('origin'))
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
 
   const authHeader = req.headers.get('Authorization')
