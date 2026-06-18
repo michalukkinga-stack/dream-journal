@@ -69,6 +69,12 @@
   color: #a78bfa;
 }
 
+@media (min-width: 768px) {
+  .label-caps {
+    font-size: 1rem;
+  }
+}
+
 /* ── Glass-morphism kafelek (ciemny) ──────────────────────── */
 .dream-card {
   background: rgba(255, 255, 255, 0.07);

@@ -43,7 +43,7 @@ export const DreamEditor = forwardRef<DreamEditorHandle, DreamEditorProps>(
       },
       editorProps: {
         attributes: {
-          class: 'outline-none text-sm leading-relaxed dream-editor-content',
+          class: 'outline-none text-sm md:text-base leading-relaxed dream-editor-content',
         },
       },
     })
