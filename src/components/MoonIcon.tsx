@@ -1,3 +1,5 @@
+import { useId } from 'react'
+
 function Sparkle({ cx, cy, r }: { cx: number; cy: number; r: number }) {
   const i = r * 0.18
   return (
@@ -17,6 +19,8 @@ function Sparkle({ cx, cy, r }: { cx: number; cy: number; r: number }) {
 }
 
 export function MoonIcon({ className }: { className?: string }) {
+  const id = useId().replace(/:/g, '')
+  const maskId = `moon-mask-${id}`
   return (
     <svg
       viewBox="0 0 200 200"
@@ -25,14 +29,13 @@ export function MoonIcon({ className }: { className?: string }) {
       style={{ filter: 'drop-shadow(0 4px 24px rgba(100,70,160,0.18))' }}
     >
       <defs>
-        <mask id="moon-mask">
+        <mask id={maskId}>
           <rect width="200" height="200" fill="white" />
-          <circle cx="66" cy="100" r="72" fill="black" />
+          <circle cx="130" cy="90" r="72" fill="black" />
         </mask>
       </defs>
-      <g opacity="0.5">
-        <circle cx="100" cy="100" r="80" fill="white" mask="url(#moon-mask)" />
-        <circle cx="100" cy="100" r="80" fill="none" stroke="white" strokeWidth="1.7" />
+      <g opacity="0.9">
+        <circle cx="100" cy="100" r="80" fill="white" mask={`url(#${maskId})`} />
       </g>
       <g opacity="0.92">
         <Sparkle cx={148} cy={133} r={18} />

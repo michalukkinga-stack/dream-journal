@@ -689,13 +689,13 @@ export function HomePage() {
                     <div className="flex flex-col shrink-0 min-w-0 gap-[8px]">
                       <span className={[
                         'font-ui text-[1.05rem] leading-none',
-                        isSelected ? 'text-white font-semibold' : 'text-white/80',
+                        isSelected ? 'text-white font-semibold' : 'text-white',
                       ].join(' ')}>
                         {day.getDate()} {MONTHS_PL_FULL[day.getMonth()]}
                       </span>
                       <span className={[
                         'font-ui text-[0.6rem] tracking-widest uppercase',
-                        isSelected ? 'text-white' : 'text-white/50',
+                        isSelected ? 'text-white' : 'text-white',
                       ].join(' ')}>
                         {DAYS_PL_SHORT[day.getDay()]}
                       </span>
