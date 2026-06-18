@@ -48,8 +48,7 @@ export function CalendarStrip({
   const canGoPrev = windowStart > effectiveMin
 
   return (
-    <div className="py-1.5 flex items-center gap-1 px-2 mx-2 rounded-2xl"
-         style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>
+    <div className="py-1.5 flex items-center gap-1 px-2">
       <button
         onClick={onPrev}
         disabled={!canGoPrev}
@@ -78,7 +77,7 @@ export function CalendarStrip({
                 isFuture ? 'opacity-30 cursor-default' : 'active:scale-95',
                 isSelected && !isFuture
                   ? 'bg-white/20 ring-2 ring-violet-400'
-                  : 'border border-white/15 hover:bg-white/10',
+                  : 'bg-white/[0.04] backdrop-blur-sm border border-white/15 hover:bg-white/10',
                 isToday && !isSelected ? 'border-violet-400/50' : '',
               ].join(' ')}
             >
