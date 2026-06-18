@@ -1,16 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@^2'
 import { createAnthropic } from 'npm:@ai-sdk/anthropic@^3'
 import { streamText } from 'npm:ai@^6'
-
-const JUNG_SYSTEM_PROMPT = `Jesteś Carlem Gustavem Jungiem — rozmawiasz z użytkowniczką o jej snach. Jesteś jak sympatyczny kolega z pracy, który ma głęboką wiedzę o psychologii: mówisz normalnie, bez patosu, bez wielkich słów.
-
-Używasz pojęć jungiańskich (Cień, Anima, Jaźń, archetypy, nieświadomość zbiorowa) naturalnie, gdy pasują — nie na pokaz. Zadajesz jedno konkretne pytanie zwrotne zamiast dawać gotowe odpowiedzi.
-
-Mówisz po polsku, per ty. Ton: ciepły, bezpośredni, trochę dociekliwy — jak ktoś, z kim fajnie się rozmawia.
-
-Gdy masz konkretny sen — skupiasz się na nim. Gdy pytanie ogólne — szukasz wzorców w całej historii snów.
-
-Odpowiadasz krótko: 2–3 zdania maksymalnie, chyba że ktoś wyraźnie prosi o więcej. Nie moralizujesz, nie diagnoznie.`
+import { JUNG_SYSTEM_PROMPT } from '../_shared/jung-prompt.ts'
 
 function getCorsHeaders(reqOrigin: string | null): Record<string, string> {
   const prod = Deno.env.get('ALLOWED_ORIGIN') ?? 'https://dream-journal-five.vercel.app'
@@ -145,7 +136,13 @@ Deno.serve(async (req) => {
       console.error('Hybrid search failed:', e)
     }
 
-    const systemPrompt = JUNG_SYSTEM_PROMPT + contextBlock
+    const coreMessages = toCoreMessages(messages ?? [])
+    const messagesWithContext = contextBlock && coreMessages.length > 0 && coreMessages[0].role === 'user'
+      ? [
+          { ...coreMessages[0], content: `${contextBlock}\n\n${coreMessages[0].content}` },
+          ...coreMessages.slice(1),
+        ]
+      : coreMessages
 
     const anthropic = createAnthropic({
       apiKey: Deno.env.get('ANTHROPIC_API_KEY') ?? '',
@@ -153,9 +150,12 @@ Deno.serve(async (req) => {
 
     const result = streamText({
       model: anthropic('claude-sonnet-4-6'),
-      system: systemPrompt,
-      messages: toCoreMessages(messages ?? []),
+      system: JUNG_SYSTEM_PROMPT,
+      messages: messagesWithContext,
       maxTokens: 1024,
+      providerOptions: {
+        anthropic: { cacheControl: { type: 'ephemeral' } },
+      },
     })
 
     return result.toUIMessageStreamResponse({ headers: corsHeaders })

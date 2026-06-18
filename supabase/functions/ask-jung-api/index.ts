@@ -1,6 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@^2'
 import { createAnthropic } from 'npm:@ai-sdk/anthropic@^3'
 import { generateText } from 'npm:ai@^6'
+import { JUNG_SYSTEM_PROMPT } from '../_shared/jung-prompt.ts'
 
 function getCorsHeaders(reqOrigin: string | null): Record<string, string> {
   const prod = Deno.env.get('ALLOWED_ORIGIN') ?? 'https://dream-journal-five.vercel.app'
@@ -13,16 +14,6 @@ function getCorsHeaders(reqOrigin: string | null): Record<string, string> {
     'Access-Control-Allow-Headers': 'authorization, content-type',
   }
 }
-
-const JUNG_SYSTEM_PROMPT = `Jesteś Carlem Gustavem Jungiem — rozmawiasz z użytkowniczką o jej snach. Jesteś jak sympatyczny kolega z pracy, który ma głęboką wiedzę o psychologii: mówisz normalnie, bez patosu, bez wielkich słów.
-
-Używasz pojęć jungiańskich (Cień, Anima, Jaźń, archetypy, nieświadomość zbiorowa) naturalnie, gdy pasują — nie na pokaz. Zadajesz jedno konkretne pytanie zwrotne zamiast dawać gotowe odpowiedzi.
-
-Mówisz po polsku, per ty. Ton: ciepły, bezpośredni, trochę dociekliwy — jak ktoś, z którym fajnie się rozmawia.
-
-Gdy masz konkretny sen — skupiasz się na nim. Gdy pytanie ogólne — szukasz wzorców w całej historii snów.
-
-Odpowiadasz krótko: 2–3 zdania maksymalnie, chyba że ktoś wyraźnie prosi o więcej. Nie moralizujesz, nie diagnozujesz.`
 
 function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
@@ -151,8 +142,13 @@ Deno.serve(async (req) => {
   const { text: answer } = await generateText({
     model: anthropic('claude-sonnet-4-6'),
     maxTokens: 1024,
-    system: JUNG_SYSTEM_PROMPT + contextBlock,
-    messages: [{ role: 'user', content: question }],
+    system: JUNG_SYSTEM_PROMPT,
+    messages: [
+      { role: 'user', content: contextBlock ? `${contextBlock}\n\n${question}` : question },
+    ],
+    providerOptions: {
+      anthropic: { cacheControl: { type: 'ephemeral' } },
+    },
   })
 
   return new Response(JSON.stringify({ answer, date: targetDate }), {

@@ -13,6 +13,7 @@ import { getChatMessages } from '@/storage/chatStorage'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { MobileHeader } from '@/components/MobileHeader'
+import { MoonIcon } from '@/components/MoonIcon'
 import { MonthCalendarModal } from '@/components/MonthCalendarModal'
 
 function addDays(d: Date, n: number): Date {
@@ -286,6 +287,7 @@ export function HomePage() {
   const DAYS_PL_SHORT = ['niedziela','poniedziałek','wtorek','środa','czwartek','piątek','sobota']
 
   const desktopScrollRef = useRef<HTMLDivElement>(null)
+  const [navExpanded, setNavExpanded] = useState(false)
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(false)
   const desktopMenuRef = useRef<HTMLDivElement>(null)
   const [monthCalendarOpen, setMonthCalendarOpen] = useState(false)
@@ -305,7 +307,7 @@ export function HomePage() {
   const hasText = description.replace(/<[^>]*>/g, '').trim().length > 0
 
   const entryPanel = (
-    <div className="flex-1 flex flex-col px-4 pt-5 pb-8 overflow-y-auto md:max-w-[900px]">
+    <div className="flex-1 flex flex-col px-4 pt-5 md:pt-[50px] pb-8 overflow-y-auto md:max-w-[900px]">
       {/* Date label + actions */}
       <div className="flex items-center justify-between mb-4 md:mb-[30px]">
         <p className="label-caps">{selectedLabel}</p>
@@ -443,7 +445,7 @@ export function HomePage() {
             </div>
             {/* Desktop: fixed, centered — only when no content */}
             {!hasText && photoUrls.length === 0 && (
-              <div className="hidden md:flex flex-col items-center justify-center gap-4 fixed top-0 bottom-0 pointer-events-none [&>*]:pointer-events-auto" style={{ left: '264px', width: '900px' }}>
+              <div className="hidden md:flex flex-col items-center justify-center gap-4 fixed top-0 bottom-0 pointer-events-none [&>*]:pointer-events-auto" style={{ left: '320px', width: '900px' }}>
                 <div className="flex items-center gap-4">
                   {micBtn}
                   <button
@@ -572,80 +574,99 @@ export function HomePage() {
 
       {/* ── DESKTOP layout (≥ md) ── */}
       <div className="hidden md:flex min-h-screen">
-        {/* Left panel — app name + scrollable days */}
-        <div className="w-56 flex flex-col shrink-0 h-screen sticky top-0">
-          {/* App name + links + Dzisiaj button */}
-          <div className="px-5 pt-8 pb-4 shrink-0">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="relative" ref={desktopMenuRef}>
-                <button
-                  onClick={() => setDesktopMenuOpen(o => !o)}
-                  className={`w-9 h-9 flex items-center justify-center rounded-full transition-all duration-150 active:scale-95 ${
-                    desktopMenuOpen ? 'text-white bg-white/15' : 'text-white/50 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <MoreVertical size={20} />
-                </button>
-                {desktopMenuOpen && (
-                  <div
-                    className="absolute left-0 top-11 z-50 rounded-2xl border border-white/15 py-1 min-w-[200px]"
-                    style={{ background: '#1f2937', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}
-                  >
-                    <Link
-                      to="/dreams"
-                      onClick={() => setDesktopMenuOpen(false)}
-                      className="font-ui flex items-center px-4 h-11 text-sm text-violet-400 hover:text-violet-300 hover:bg-white/8 transition-colors whitespace-nowrap"
-                    >
-                      Przeglądaj wszystkie wpisy
-                    </Link>
-                    <Link
-                      to="/api-docs"
-                      onClick={() => setDesktopMenuOpen(false)}
-                      className="font-ui flex items-center px-4 h-11 text-sm text-white/80 hover:text-white hover:bg-white/8 transition-colors"
-                    >
-                      API Docs
-                    </Link>
-                    <div className="mx-4 h-px bg-white/10" />
-                    <button
-                      onClick={() => { setDesktopMenuOpen(false); signOut() }}
-                      className="font-ui w-full flex items-center px-4 h-11 text-sm text-white/80 hover:text-white hover:bg-white/8 transition-colors"
-                    >
-                      Wylogowanie
-                    </button>
-                  </div>
-                )}
+        {/* Nav sidebar — icon-only, expands on hover */}
+        <div className="relative shrink-0 w-14 h-screen sticky top-0 z-20">
+          <div
+            className="absolute inset-y-0 left-0 flex flex-col overflow-hidden border-r border-white/10"
+            style={{
+              width: navExpanded ? '256px' : '56px',
+              transition: 'width 200ms ease-out',
+              background: 'rgba(255,255,255,0.06)',
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
+            }}
+            onMouseEnter={() => setNavExpanded(true)}
+            onMouseLeave={() => setNavExpanded(false)}
+          >
+            {/* Logo */}
+            <div className="px-[5px] pt-7 pb-5 shrink-0">
+              <div className="flex items-center gap-3 h-12 px-2 ml-[-4px]">
+                <MoonIcon className="w-10 h-10 shrink-0" />
+                <span className="font-display text-white text-[1.4rem] leading-none whitespace-nowrap transition-opacity duration-150" style={{ opacity: navExpanded ? 1 : 0 }}>
+                  Dziennik snów
+                </span>
               </div>
-              <p className="font-display text-white text-base whitespace-nowrap">Dziennik snów</p>
+            </div>
+
+            {/* Top nav items */}
+            <nav className="flex flex-col gap-0.5 px-2 shrink-0">
               <button
                 onClick={() => setMonthCalendarOpen(true)}
-                className="w-8 h-8 flex items-center justify-center rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-all duration-150 active:scale-95"
-                title="Widok miesięczny"
+                className="font-ui flex items-center gap-3 px-2 h-10 rounded-xl text-sm text-white/70 hover:text-white hover:bg-white/10 transition-all duration-150 active:scale-95 text-left w-full"
               >
-                <CalendarDays size={18} />
+                <CalendarDays size={16} className="shrink-0 ml-[1px]" />
+                <span className="whitespace-nowrap transition-opacity duration-150" style={{ opacity: navExpanded ? 1 : 0 }}>Kalendarz</span>
+              </button>
+              <Link
+                to="/dreams"
+                className="font-ui flex items-center gap-3 px-2 h-10 rounded-xl text-sm text-violet-400 hover:text-violet-300 hover:bg-white/10 transition-colors"
+              >
+                <span className="w-4 h-4 shrink-0 ml-[1px] flex items-center justify-center">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+                </span>
+                <span className="whitespace-nowrap transition-opacity duration-150" style={{ opacity: navExpanded ? 1 : 0 }}>Wszystkie wpisy</span>
+              </Link>
+            </nav>
+
+            {/* Bottom nav items */}
+            <div className="mt-auto flex flex-col gap-0.5 px-2 pb-5">
+              <Link
+                to="/api-docs"
+                className="font-ui flex items-center gap-3 px-2 h-10 rounded-xl text-sm text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                <span className="w-4 h-4 shrink-0 ml-[1px] flex items-center justify-center">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                </span>
+                <span className="whitespace-nowrap transition-opacity duration-150" style={{ opacity: navExpanded ? 1 : 0 }}>Dokumentacja</span>
+              </Link>
+              <button
+                onClick={() => signOut()}
+                className="font-ui flex items-center gap-3 px-2 h-10 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/10 transition-all duration-150 w-full text-left"
+              >
+                <span className="w-4 h-4 shrink-0 ml-[1px] flex items-center justify-center">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </span>
+                <span className="whitespace-nowrap transition-opacity duration-150" style={{ opacity: navExpanded ? 1 : 0 }}>Wyloguj się</span>
               </button>
             </div>
-            <button
-              onClick={() => {
-                selectDay(today)
-                desktopScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
-              }}
-              style={{ visibility: toDateKey(selectedDate) !== toDateKey(today) ? 'visible' : 'hidden' }}
-              className="font-ui text-[0.65rem] tracking-widest uppercase px-3 h-6 rounded-full
-                         border border-purple-400/50 text-purple-300
-                         hover:bg-purple-400/15 hover:border-purple-400/80
-                         transition-all duration-150 active:scale-95"
-            >
-              Dzisiaj
-            </button>
           </div>
+        </div>
 
+        {/* Days list sidebar */}
+        <div className="w-56 flex flex-col shrink-0 h-screen sticky top-0">
+          {/* Today bar — always 40px, shows button only when other day selected */}
+          <div className="shrink-0 h-10 flex items-center px-2">
+            {toDateKey(selectedDate) !== toDateKey(today) && (
+              <button
+                onClick={() => {
+                  selectDay(today)
+                  desktopScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+                }}
+                className="font-ui w-full text-center text-[0.65rem] tracking-widest uppercase h-7 rounded-xl
+                           border border-purple-400/50 text-purple-300
+                           hover:bg-purple-400/15 hover:border-purple-400/80
+                           transition-all duration-150 active:scale-95"
+              >
+                Dzisiaj
+              </button>
+            )}
+          </div>
           {/* Scrollable days list — today at top, oldest at bottom */}
-          <div ref={desktopScrollRef} className="flex-1 overflow-y-auto flex flex-col">
+          <div ref={desktopScrollRef} className="flex-1 overflow-y-auto flex flex-col pt-2">
             {desktopDays.map(day => {
               const key = toDateKey(day)
               const isSelected = key === toDateKey(selectedDate)
               const hasDream = dreamsByDate.has(key)
-              const isToday = key === toDateKey(today)
 
               return (
                 <div key={key} className="shrink-0 px-2 py-1">
@@ -686,13 +707,10 @@ export function HomePage() {
               )
             })}
           </div>
-
         </div>
 
         {/* Right panel — entry form */}
         <div className="flex-1 flex flex-col min-h-screen pl-[40px] relative">
-          {/* Spacer matching left panel title height so content aligns with first day row */}
-          <div className="h-[104px] shrink-0" />
           {entryPanel}
 
           <ChatBottomSheet
@@ -705,7 +723,7 @@ export function HomePage() {
             showStrip={chatHasMessages}
           />
 
-          <div className="fixed bottom-0 z-50" style={{ left: '264px', width: '900px' }}>
+          <div className="fixed bottom-0 z-50" style={{ left: '320px', width: '900px' }}>
             <AgentInput
               value={inputValue}
               onChange={setInputValue}
