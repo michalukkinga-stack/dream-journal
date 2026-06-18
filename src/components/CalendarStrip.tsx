@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react'
 import React from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Dream } from '@/types/dream'
 
 const MONTHS_PL = ['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru']
@@ -29,56 +29,37 @@ interface CalendarStripProps {
 export function CalendarStrip({
   dreamsByDate,
   selectedDate,
+  windowStart,
   today,
   minDate,
   onSelect,
-  onTodayVisibilityChange,
+  onPrev,
+  onNext,
 }: CalendarStripProps) {
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const selectedRef = useRef<HTMLButtonElement>(null)
-  const todayRef = useRef<HTMLButtonElement>(null)
-
-  const fallback = addDays(today, -29)
-  const start = minDate && minDate < fallback ? minDate : fallback
-  const days: Date[] = []
-  let cur = new Date(start)
-  cur.setHours(0, 0, 0, 0)
-  const end = new Date(today)
-  end.setHours(0, 0, 0, 0)
-  while (cur <= end) {
-    days.push(new Date(cur))
-    cur = addDays(cur, 1)
-  }
+  const days: Date[] = Array.from({ length: 7 }, (_, i) => addDays(windowStart, i))
 
   const selectedKey = toDateKey(selectedDate)
   const todayKey = toDateKey(today)
 
-  useEffect(() => {
-    selectedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
-  }, [selectedKey])
+  const windowEnd = addDays(windowStart, 6)
+  const canGoNext = windowEnd < today
 
-  useEffect(() => {
-    if (!onTodayVisibilityChange || !todayRef.current || !scrollRef.current) return
-    const observer = new IntersectionObserver(
-      ([entry]) => onTodayVisibilityChange(entry.isIntersecting),
-      { root: scrollRef.current, threshold: 0.5 }
-    )
-    observer.observe(todayRef.current)
-    return () => observer.disconnect()
-  }, [onTodayVisibilityChange])
+  const effectiveMin = minDate ?? addDays(today, -29)
+  const canGoPrev = windowStart > effectiveMin
 
   return (
-    <div className="py-1.5">
-      <div
-        ref={scrollRef}
-        className="flex gap-1.5 px-4 overflow-x-auto scrollbar-none"
-        style={{
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-          touchAction: 'pan-x',
-          WebkitOverflowScrolling: 'touch' as never,
-        }}
+    <div className="py-1.5 flex items-center gap-1 px-2">
+      <button
+        onClick={onPrev}
+        disabled={!canGoPrev}
+        className="flex-none p-1.5 rounded-xl text-white/60 hover:text-white hover:bg-white/10
+                   disabled:opacity-20 disabled:cursor-default transition-all active:scale-95"
+        aria-label="Poprzedni tydzień"
       >
+        <ChevronLeft size={20} />
+      </button>
+
+      <div className="flex-1 flex gap-1.5 justify-between">
         {days.map(day => {
           const key = toDateKey(day)
           const isFuture = day > today
@@ -89,18 +70,15 @@ export function CalendarStrip({
           return (
             <button
               key={key}
-              ref={(el) => {
-                if (isSelected) (selectedRef as React.MutableRefObject<HTMLButtonElement | null>).current = el
-                if (isToday) (todayRef as React.MutableRefObject<HTMLButtonElement | null>).current = el
-              }}
               onClick={() => !isFuture && onSelect(day)}
               disabled={isFuture}
               className={[
-                'flex-none w-11 relative flex flex-col items-center justify-center pt-2 pb-[24px] rounded-2xl transition-all duration-150',
+                'flex-1 relative flex flex-col items-center justify-center pt-2 pb-[24px] rounded-2xl transition-all duration-150',
                 isFuture ? 'opacity-30 cursor-default' : 'active:scale-95',
                 isSelected && !isFuture
                   ? 'bg-white/20 ring-2 ring-violet-400'
                   : 'border border-white/15 hover:bg-white/10',
+                isToday && !isSelected ? 'border-violet-400/50' : '',
               ].join(' ')}
             >
               <span className={[
@@ -109,10 +87,7 @@ export function CalendarStrip({
               ].join(' ')}>
                 {day.getDate()}
               </span>
-              <span className={[
-                'font-ui text-[0.6rem] mt-0.5 tracking-wide uppercase',
-                isSelected && !isFuture ? 'text-white' : 'text-white',
-              ].join(' ')}>
+              <span className="font-ui text-[0.6rem] mt-0.5 tracking-wide uppercase text-white">
                 {MONTHS_PL[day.getMonth()]}
               </span>
               {!isFuture && (
@@ -131,6 +106,16 @@ export function CalendarStrip({
           )
         })}
       </div>
+
+      <button
+        onClick={onNext}
+        disabled={!canGoNext}
+        className="flex-none p-1.5 rounded-xl text-white/60 hover:text-white hover:bg-white/10
+                   disabled:opacity-20 disabled:cursor-default transition-all active:scale-95"
+        aria-label="Następny tydzień"
+      >
+        <ChevronRight size={20} />
+      </button>
     </div>
   )
 }
