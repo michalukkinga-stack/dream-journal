@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import React from 'react'
 import { Dream } from '@/types/dream'
 
 const MONTHS_PL = ['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru']
@@ -22,6 +23,7 @@ interface CalendarStripProps {
   onSelect: (d: Date) => void
   onPrev?: () => void
   onNext?: () => void
+  onTodayVisibilityChange?: (visible: boolean) => void
 }
 
 export function CalendarStrip({
@@ -30,9 +32,11 @@ export function CalendarStrip({
   today,
   minDate,
   onSelect,
+  onTodayVisibilityChange,
 }: CalendarStripProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const selectedRef = useRef<HTMLButtonElement>(null)
+  const todayRef = useRef<HTMLButtonElement>(null)
 
   const fallback = addDays(today, -29)
   const start = minDate && minDate < fallback ? minDate : fallback
@@ -47,28 +51,48 @@ export function CalendarStrip({
   }
 
   const selectedKey = toDateKey(selectedDate)
+  const todayKey = toDateKey(today)
 
   useEffect(() => {
     selectedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
   }, [selectedKey])
+
+  useEffect(() => {
+    if (!onTodayVisibilityChange || !todayRef.current || !scrollRef.current) return
+    const observer = new IntersectionObserver(
+      ([entry]) => onTodayVisibilityChange(entry.isIntersecting),
+      { root: scrollRef.current, threshold: 0.5 }
+    )
+    observer.observe(todayRef.current)
+    return () => observer.disconnect()
+  }, [onTodayVisibilityChange])
 
   return (
     <div className="py-1.5">
       <div
         ref={scrollRef}
         className="flex gap-1.5 px-4 overflow-x-auto scrollbar-none"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        style={{
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          touchAction: 'pan-x',
+          WebkitOverflowScrolling: 'touch' as never,
+        }}
       >
         {days.map(day => {
           const key = toDateKey(day)
           const isFuture = day > today
           const isSelected = key === selectedKey
+          const isToday = key === todayKey
           const hasDream = dreamsByDate.has(key)
 
           return (
             <button
               key={key}
-              ref={isSelected ? selectedRef : undefined}
+              ref={(el) => {
+                if (isSelected) (selectedRef as React.MutableRefObject<HTMLButtonElement | null>).current = el
+                if (isToday) (todayRef as React.MutableRefObject<HTMLButtonElement | null>).current = el
+              }}
               onClick={() => !isFuture && onSelect(day)}
               disabled={isFuture}
               className={[

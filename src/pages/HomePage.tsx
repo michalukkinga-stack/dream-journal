@@ -291,6 +291,7 @@ export function HomePage() {
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(false)
   const desktopMenuRef = useRef<HTMLDivElement>(null)
   const [monthCalendarOpen, setMonthCalendarOpen] = useState(false)
+  const [todayVisible, setTodayVisible] = useState(true)
 
   useEffect(() => {
     if (!desktopMenuOpen) return
@@ -529,7 +530,7 @@ export function HomePage() {
           </button>
           <button
             onClick={() => { selectDay(today); setWindowStart(addDays(today, -6)) }}
-            style={{ visibility: toDateKey(selectedDate) !== toDateKey(today) ? 'visible' : 'hidden' }}
+            style={{ visibility: toDateKey(selectedDate) !== toDateKey(today) || !todayVisible ? 'visible' : 'hidden' }}
             className="font-ui text-[0.65rem] tracking-widest uppercase px-3 h-6 rounded-full
                        border border-purple-400/50 text-purple-300
                        hover:bg-purple-400/15 hover:border-purple-400/80
@@ -548,6 +549,7 @@ export function HomePage() {
           onSelect={selectDay}
           onPrev={() => setWindowStart(w => addDays(w, -7))}
           onNext={() => setWindowStart(w => addDays(w, 7))}
+          onTodayVisibilityChange={setTodayVisible}
         />
 
 
