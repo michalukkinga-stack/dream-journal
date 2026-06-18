@@ -10,7 +10,7 @@ function twClass(i: number) {
   return `tw-${(i % 8) + 1}`
 }
 
-function ConstellationContent({ sx, sy }: { sx: number; sy: number }) {
+function ConstellationContent({ sx, sy, showAccentStars = true }: { sx: number; sy: number; showAccentStars?: boolean }) {
   const s = (x: number, y: number): [number, number] => [
     Math.round(x * sx),
     Math.round(y * sy),
@@ -130,14 +130,16 @@ function ConstellationContent({ sx, sy }: { sx: number; sy: number }) {
       </g>
 
       {/* Medium accent sparkles */}
-      <g opacity="0.85">
-        {accentStars.map(([x, y], i) => {
-          const [cx, cy] = s(x, y)
-          return (
-            <path key={i} className={twClass(i + 7)} d={sparkle(cx, cy, 6)} />
-          )
-        })}
-      </g>
+      {showAccentStars && (
+        <g opacity="0.85">
+          {accentStars.map(([x, y], i) => {
+            const [cx, cy] = s(x, y)
+            return (
+              <path key={i} className={twClass(i + 7)} d={sparkle(cx, cy, 6)} />
+            )
+          })}
+        </g>
+      )}
 
       {/* Constellation lines */}
       <g strokeWidth="0.9" strokeLinecap="round" fill="none" opacity="0.8">
@@ -168,7 +170,7 @@ export function ConstellationBackground() {
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
       >
-        <ConstellationContent sx={1600 / 1024} sy={900 / 1024} />
+        <ConstellationContent sx={1600 / 1024} sy={900 / 1024} showAccentStars={false} />
       </svg>
 
       {/* Mobile top half */}

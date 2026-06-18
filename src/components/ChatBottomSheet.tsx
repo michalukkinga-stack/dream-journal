@@ -29,7 +29,7 @@ export const ChatBottomSheet = forwardRef<ChatPanelHandle, ChatBottomSheetProps>
 
         {/* Sheet — pozycjonowany tuż nad inputem */}
         <div
-          className="fixed left-0 right-0 z-50 max-w-[600px] md:max-w-none mx-auto md:mx-0 md:w-[868px] flex flex-col rounded-t-2xl transition-transform duration-300 ease-in-out overflow-hidden bottom-[5.5rem] md:bottom-[72px] md:left-[280px] md:right-auto"
+          className="fixed left-0 right-0 z-50 max-w-[600px] md:max-w-none mx-auto md:mx-0 md:w-[900px] flex flex-col rounded-t-2xl transition-transform duration-300 ease-in-out overflow-hidden bottom-[5.5rem] md:bottom-[72px] md:left-[320px] md:right-auto"
           style={{
             height: '67vh',
             transform: open
