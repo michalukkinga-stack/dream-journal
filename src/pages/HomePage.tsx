@@ -376,17 +376,28 @@ export function HomePage() {
           <DreamEditor ref={dreamEditorRef} key={toDateKey(selectedDate)} value={description} onChange={handleDescriptionChange} onListeningChange={setDreamMicListening} />
           {isMicSupported && hasText && (
             <div className="hidden md:flex flex-col items-center gap-4" style={{ marginTop: '20px' }}>
-              <button
-                type="button"
-                onClick={() => dreamEditorRef.current?.toggleMic()}
-                className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
-                style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', boxShadow: dreamMicListening ? '0 0 0 8px rgba(255,255,255,0.08), 0 0 24px 4px rgba(167,139,250,0.35)' : '0 0 0 1px rgba(255,255,255,0.15)' }}
-              >
-                <Mic size={28} className={dreamMicListening ? 'text-white' : 'text-white/70'} />
-                {dreamMicListening && (
-                  <span className="absolute inset-0 rounded-full animate-ping" style={{ background: 'rgba(167,139,250,0.2)' }} />
-                )}
-              </button>
+              <div className="flex items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => dreamEditorRef.current?.toggleMic()}
+                  className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
+                  style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', boxShadow: dreamMicListening ? '0 0 0 8px rgba(255,255,255,0.08), 0 0 24px 4px rgba(167,139,250,0.35)' : '0 0 0 1px rgba(255,255,255,0.15)' }}
+                >
+                  <Mic size={28} className={dreamMicListening ? 'text-white' : 'text-white/70'} />
+                  {dreamMicListening && (
+                    <span className="absolute inset-0 rounded-full animate-ping" style={{ background: 'rgba(167,139,250,0.2)' }} />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  disabled={photoUploading}
+                  onClick={() => photoInputRef.current?.click()}
+                  className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
+                  style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', boxShadow: '0 0 0 1px rgba(255,255,255,0.15)' }}
+                >
+                  {photoUploading ? <Loader2 size={28} className="text-white/70 animate-spin" /> : <Plus size={28} className="text-white/70" />}
+                </button>
+              </div>
               <p className="font-ui text-white/70 text-xs text-center">Kliknij w ikonę mikrofonu, aby zacząć dyktować.</p>
             </div>
           )}
@@ -429,22 +440,20 @@ export function HomePage() {
             <div className="flex-1 flex flex-col items-center justify-center gap-4 mb-[16.5rem] md:hidden">
               <div className="flex items-center gap-4">
                 {micBtn}
-                {!hasText && photoUrls.length === 0 && (
-                  <button
-                    type="button"
-                    disabled={photoUploading}
-                    onClick={() => photoInputRef.current?.click()}
-                    className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
-                    style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', boxShadow: '0 0 0 1px rgba(255,255,255,0.15)' }}
-                  >
-                    {photoUploading ? <Loader2 size={28} className="text-white/70 animate-spin" /> : <Plus size={28} className="text-white/70" />}
-                  </button>
-                )}
+                <button
+                  type="button"
+                  disabled={photoUploading}
+                  onClick={() => photoInputRef.current?.click()}
+                  className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
+                  style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', boxShadow: '0 0 0 1px rgba(255,255,255,0.15)' }}
+                >
+                  {photoUploading ? <Loader2 size={28} className="text-white/70 animate-spin" /> : <Plus size={28} className="text-white/70" />}
+                </button>
               </div>
               {micLabel}
             </div>
-            {/* Desktop: fixed, centered — only when no content */}
-            {!hasText && photoUrls.length === 0 && (
+            {/* Desktop: fixed, centered — only when no text content */}
+            {!hasText && (
               <div className="hidden md:flex flex-col items-center justify-center gap-4 fixed top-0 bottom-0 pointer-events-none [&>*]:pointer-events-auto" style={{ left: '320px', width: '900px' }}>
                 <div className="flex items-center gap-4">
                   {micBtn}
@@ -600,13 +609,6 @@ export function HomePage() {
 
             {/* Top nav items */}
             <nav className="flex flex-col gap-0.5 px-2 shrink-0">
-              <button
-                onClick={() => setMonthCalendarOpen(true)}
-                className="font-ui flex items-center gap-3 px-2 h-10 rounded-xl text-sm text-white/70 hover:text-white hover:bg-white/10 transition-all duration-150 active:scale-95 text-left w-full"
-              >
-                <CalendarDays size={16} className="shrink-0 ml-[1px]" />
-                <span className="whitespace-nowrap transition-opacity duration-150" style={{ opacity: navExpanded ? 1 : 0 }}>Kalendarz</span>
-              </button>
               <Link
                 to="/dreams"
                 className="font-ui flex items-center gap-3 px-2 h-10 rounded-xl text-sm text-violet-400 hover:text-violet-300 hover:bg-white/10 transition-colors"
@@ -644,15 +646,21 @@ export function HomePage() {
 
         {/* Days list sidebar */}
         <div className="w-56 flex flex-col shrink-0 h-screen sticky top-0">
-          {/* Today bar — always 40px, shows button only when other day selected */}
-          <div className="shrink-0 h-10 flex items-center px-2">
+          {/* Today bar — always 40px */}
+          <div className="shrink-0 h-10 flex items-center px-2 gap-2">
+            <button
+              onClick={() => setMonthCalendarOpen(true)}
+              className="w-7 h-7 flex items-center justify-center rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-all duration-150 active:scale-95 shrink-0"
+            >
+              <CalendarDays size={16} />
+            </button>
             {toDateKey(selectedDate) !== toDateKey(today) && (
               <button
                 onClick={() => {
                   selectDay(today)
                   desktopScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
                 }}
-                className="font-ui w-full text-center text-[0.65rem] tracking-widest uppercase h-7 rounded-xl
+                className="font-ui ml-auto text-center text-[0.65rem] tracking-widest uppercase px-3 h-7 rounded-xl
                            border border-purple-400/50 text-purple-300
                            hover:bg-purple-400/15 hover:border-purple-400/80
                            transition-all duration-150 active:scale-95"
