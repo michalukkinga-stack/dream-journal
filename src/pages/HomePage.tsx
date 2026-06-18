@@ -336,7 +336,7 @@ export function HomePage() {
   const hasText = description.replace(/<[^>]*>/g, '').trim().length > 0
 
   const entryPanel = (
-    <div ref={entryPanelScrollRef} className="flex-1 flex flex-col px-4 pt-5 md:pt-[50px] pb-8 overflow-y-auto md:max-w-[640px] md:self-center md:w-full">
+    <div ref={entryPanelScrollRef} className="flex-1 flex flex-col px-4 pt-5 md:pt-[50px] pb-8 overflow-y-auto md:max-w-[900px]">
       {/* Date label + actions */}
       <div className="flex items-center justify-between mb-4 md:mb-[30px]">
         <p className="label-caps">{selectedLabel}</p>
