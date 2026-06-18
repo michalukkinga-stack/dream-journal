@@ -689,7 +689,7 @@ export function HomePage() {
                     className={[
                       'w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-150 text-left backdrop-blur-sm',
                       'border border-white/15 hover:bg-white/10 active:scale-[0.98]',
-                      isSelected ? 'bg-white/20 ring-2 ring-violet-400' : 'bg-white/[0.04]',
+                      isSelected ? 'bg-white/20 ring-2 ring-violet-400' : 'bg-white/[0.02]',
                     ].join(' ')}
                   >
                     <div className="flex flex-col shrink-0 min-w-0 gap-[8px]">

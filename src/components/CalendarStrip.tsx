@@ -77,7 +77,7 @@ export function CalendarStrip({
                 isFuture ? 'opacity-30 cursor-default' : 'active:scale-95',
                 isSelected && !isFuture
                   ? 'bg-white/20 ring-2 ring-violet-400'
-                  : 'bg-white/[0.04] backdrop-blur-sm border border-white/15 hover:bg-white/10',
+                  : 'bg-white/[0.02] backdrop-blur-sm border border-white/15 hover:bg-white/10',
                 isToday && !isSelected ? 'border-violet-400/50' : '',
               ].join(' ')}
             >
