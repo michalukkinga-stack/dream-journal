@@ -393,7 +393,7 @@ export function HomePage() {
                 type="button"
                 onClick={() => setShowPicker(true)}
                 className="font-ui flex items-center gap-2 px-4 h-7 rounded-full
-                           border border-white/20 text-white text-[0.95rem] font-medium tracking-wide
+                           border border-white/20 text-white text-base font-medium tracking-wide
                            bg-white/10 hover:bg-white/20
                            transition-all duration-150 active:scale-95"
               >
@@ -427,7 +427,7 @@ export function HomePage() {
             )}
           </button>
         )
-        const micLabel = <p className="font-ui text-white/70 text-xs text-center">Kliknij w ikonę mikrofonu, aby zacząć dyktować.</p>
+        const micLabel = <p className="font-ui text-white/70 text-base text-center">Kliknij w ikonę mikrofonu, aby zacząć dyktować.</p>
         return (
           <>
             {/* Photo file input (shared) */}
