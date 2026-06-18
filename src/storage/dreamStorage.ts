@@ -56,7 +56,7 @@ export async function getDreamById(id: string): Promise<Dream | undefined> {
   return toAppDream(data as DbDream)
 }
 
-export async function saveDream(dream: Omit<Dream, 'id' | 'createdAt'> & { tags?: string[]; dateOverride?: string }): Promise<Dream> {
+export async function saveDream(dream: Omit<Dream, 'id' | 'createdAt'> & { tags?: string[]; photoUrls?: string[]; dateOverride?: string }): Promise<Dream> {
   if (!(await isAuthenticated())) {
     const newDream: Dream = {
       id: crypto.randomUUID(),

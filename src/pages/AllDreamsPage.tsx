@@ -74,6 +74,7 @@ const SAMPLE_DREAMS: Dream[] = [
     title: '',
     description: '<p>Leciałam nad miastem, które wyglądało jak moja rodzinna miejscowość, ale wszystkie budynki były odwrócone do góry nogami. Czułam się lekko i wolna.</p>',
     tags: ['latanie', 'miasto', 'wolność'],
+    photoUrls: [],
     createdAt: '2026-06-15T22:14:00Z',
   },
   {
@@ -81,6 +82,7 @@ const SAMPLE_DREAMS: Dream[] = [
     title: '',
     description: '<p>Byłam w ogromnym lesie z drzewami świecącymi na niebiesko. Spotkałam lisę, która mówiła ludzkim głosem i pokazała mi drogę do ukrytej polany.</p>',
     tags: ['las', 'zwierzęta', 'magia'],
+    photoUrls: [],
     createdAt: '2026-06-13T23:42:00Z',
   },
   {
@@ -88,6 +90,7 @@ const SAMPLE_DREAMS: Dream[] = [
     title: '',
     description: '<p>Śniłam o egzaminie, na który zapomniałam się przygotować. Sala była pusta, tylko profesor siedział przy biurku i pisał coś bez przerwy.</p>',
     tags: ['egzamin', 'stres', 'szkoła'],
+    photoUrls: [],
     createdAt: '2026-06-11T07:08:00Z',
   },
   {
@@ -95,6 +98,7 @@ const SAMPLE_DREAMS: Dream[] = [
     title: '',
     description: '<p>Latałam nad oceanem podczas burzy. Błyskawice oświetlały fale pode mną, ale czułam się bezpiecznie wysoko nad chmurami.</p>',
     tags: ['latanie', 'ocean', 'burza'],
+    photoUrls: [],
     createdAt: '2026-06-09T01:30:00Z',
   },
   {
@@ -102,6 +106,7 @@ const SAMPLE_DREAMS: Dream[] = [
     title: '',
     description: '<p>Wróciłam do domu z dzieciństwa, ale wszystkie pokoje były inne. W piwnicy znalazłam drzwi, których nigdy wcześniej nie widziałam.</p>',
     tags: ['dom', 'dzieciństwo', 'tajemnica'],
+    photoUrls: [],
     createdAt: '2026-06-07T06:55:00Z',
   },
 ]
@@ -195,6 +200,7 @@ export function AllDreamsPage() {
       )}
       {filtered.map(dream => {
         const plainText = stripHtml(dream.description)
+        const isSampleEntry = dream.id.startsWith('__sample')
         return (
           <div
             key={dream.id}
