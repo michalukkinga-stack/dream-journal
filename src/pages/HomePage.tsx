@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { Trash2, Plus, X, Mic, MoreVertical, CalendarDays } from 'lucide-react'
-import { getDreams, saveDream, updateDream, deleteDream } from '@/storage/dreamStorage'
+import { Trash2, Plus, X, Mic, MoreVertical, CalendarDays, Loader2 } from 'lucide-react'
+import { getDreams, saveDream, updateDream, deleteDream, uploadDreamPhoto } from '@/storage/dreamStorage'
+import { DreamPhotos } from '@/components/DreamPhotos'
 import { Dream } from '@/types/dream'
 import { CalendarStrip, toDateKey } from '@/components/CalendarStrip'
 import { DreamEditor, DreamEditorHandle } from '@/components/DreamEditor'
@@ -46,6 +47,8 @@ export function HomePage() {
   const [showPicker, setShowPicker] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
+  const [photoUrls, setPhotoUrls] = useState<string[]>([])
+  const [pendingPhotoUrls, setPendingPhotoUrls] = useState<string[]>([])
 
   const mobileChatRef = useRef<ChatPanelHandle>(null)
   const desktopChatRef = useRef<ChatPanelHandle>(null)
@@ -56,7 +59,40 @@ export function HomePage() {
   const [inputValue, setInputValue] = useState('')
   const DEFAULT_QUESTION = 'Co może oznaczać mój sen?'
   const [dreamMicListening, setDreamMicListening] = useState(false)
+  const [photoUploading, setPhotoUploading] = useState(false)
+  const photoInputRef = useRef<HTMLInputElement>(null)
   const isMicSupported = typeof window !== 'undefined' && !!(window.SpeechRecognition || (window as unknown as { webkitSpeechRecognition?: unknown }).webkitSpeechRecognition)
+
+  async function handlePhotoFiles(files: FileList | null) {
+    if (!files || files.length === 0) return
+    setPhotoUploading(true)
+
+    // Natychmiastowy podgląd — local objectURLs przed uploadem
+    const localUrls = Array.from(files).map(f => URL.createObjectURL(f))
+    setPendingPhotoUrls(prev => [...prev, ...localUrls])
+
+    try {
+      let dreamId = existingDream?.id
+      let currentUrls = photoUrls
+      if (!dreamId) {
+        const dateStr = toDateKey(selectedDate) + 'T12:00:00'
+        const created = await saveDream({ title: '', description: '', tags: [], dateOverride: dateStr })
+        dreamId = created.id
+        currentUrls = []
+        await load()
+      }
+      const uploads = await Promise.all(Array.from(files).map(f => uploadDreamPhoto(dreamId!, f)))
+      const next = [...currentUrls, ...uploads]
+      await updateDream(dreamId!, { photoUrls: next })
+      const refreshed = await load()
+      const updated = refreshed.get(toDateKey(selectedDate))
+      setPhotoUrls(updated?.photoUrls ?? next)
+    } finally {
+      setPendingPhotoUrls(prev => prev.filter(u => !localUrls.includes(u)))
+      localUrls.forEach(u => URL.revokeObjectURL(u))
+      setPhotoUploading(false)
+    }
+  }
 
 
   // Refs for auto-save (capture latest values in async closures)
@@ -101,6 +137,7 @@ export function HomePage() {
         setMode('edit')
         setDescription(existing.description)
         setTags(existing.tags)
+        setPhotoUrls(existing.photoUrls ?? [])
       }
     })
   }, [load])
@@ -154,10 +191,12 @@ export function HomePage() {
       setMode('edit')
       setDescription(existing.description)
       setTags(existing.tags)
+      setPhotoUrls(existing.photoUrls ?? [])
     } else {
       setMode('add')
       setDescription('')
       setTags([])
+      setPhotoUrls([])
     }
     setConfirmDelete(false)
     setSaveStatus('idle')
@@ -173,10 +212,10 @@ export function HomePage() {
     const existing = dreamsByDate.get(key)
     if (!existing) return
     if (modeRef.current === 'add' && !isUserChangeRef.current) {
-      // Dream exists for this date but we're in add mode (initial load or post-save)
       setMode('edit')
       setDescription(existing.description)
       setTags(existing.tags)
+      setPhotoUrls(existing.photoUrls ?? [])
     }
   }, [dreamsByDate]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -283,6 +322,15 @@ export function HomePage() {
 
       {(mode === 'add' || mode === 'edit') && !isFuture && (
         <div className="flex-1 flex flex-col gap-3">
+          {/* Photos grid (above content, below date header) */}
+          {(existingDream && photoUrls.length > 0) || pendingPhotoUrls.length > 0 ? (
+            <DreamPhotos
+              dreamId={existingDream?.id ?? ''}
+              photoUrls={photoUrls}
+              onChange={setPhotoUrls}
+              pendingUrls={pendingPhotoUrls}
+            />
+          ) : null}
           <div>
             {tags.length > 0 ? (
               <div className="flex flex-wrap gap-2 items-center">
@@ -366,14 +414,47 @@ export function HomePage() {
         const micLabel = <p className="font-ui text-white/70 text-xs text-center">Kliknij w ikonę mikrofonu, aby zacząć dyktować.</p>
         return (
           <>
+            {/* Photo file input (shared) */}
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={e => handlePhotoFiles(e.target.files)}
+            />
             {/* Mobile: in-flow */}
             <div className="flex-1 flex flex-col items-center justify-center gap-4 mb-[16.5rem] md:hidden">
-              {micBtn}{micLabel}
+              <div className="flex items-center gap-4">
+                {micBtn}
+                <button
+                  type="button"
+                  disabled={photoUploading}
+                  onClick={() => photoInputRef.current?.click()}
+                  className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
+                  style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', boxShadow: '0 0 0 1px rgba(255,255,255,0.15)' }}
+                >
+                  {photoUploading ? <Loader2 size={28} className="text-white/70 animate-spin" /> : <Plus size={28} className="text-white/70" />}
+                </button>
+              </div>
+              {micLabel}
             </div>
             {/* Desktop: fixed, centered — only when no content */}
-            {!hasText && (
+            {!hasText && photoUrls.length === 0 && (
               <div className="hidden md:flex flex-col items-center justify-center gap-4 fixed top-0 bottom-0 pointer-events-none [&>*]:pointer-events-auto" style={{ left: '264px', width: '900px' }}>
-                {micBtn}{micLabel}
+                <div className="flex items-center gap-4">
+                  {micBtn}
+                  <button
+                    type="button"
+                    disabled={photoUploading}
+                    onClick={() => photoInputRef.current?.click()}
+                    className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
+                    style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', boxShadow: '0 0 0 1px rgba(255,255,255,0.15)' }}
+                  >
+                    {photoUploading ? <Loader2 size={28} className="text-white/70 animate-spin" /> : <Plus size={28} className="text-white/70" />}
+                  </button>
+                </div>
+                {micLabel}
               </div>
             )}
           </>

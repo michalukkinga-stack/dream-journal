@@ -7,11 +7,12 @@ type DbDream = {
   title: string
   description: string
   tags: string[]
+  photo_urls: string[]
   created_at: string
 }
 
 function toAppDream(d: DbDream): Dream {
-  return { id: d.id, title: d.title, description: d.description, tags: d.tags, createdAt: d.created_at }
+  return { id: d.id, title: d.title, description: d.description, tags: d.tags, photoUrls: d.photo_urls ?? [], createdAt: d.created_at }
 }
 
 // ── localStorage fallback (dev / unauthenticated) ─────────────────────────────
@@ -62,6 +63,7 @@ export async function saveDream(dream: Omit<Dream, 'id' | 'createdAt'> & { tags?
       title: dream.title,
       description: dream.description ?? '',
       tags: dream.tags ?? [],
+      photoUrls: [],
       createdAt: dream.dateOverride ?? new Date().toISOString(),
     }
     const dreams = getLocalDreams()
@@ -99,7 +101,34 @@ export async function updateDream(id: string, patch: Partial<Omit<Dream, 'id' | 
     setLocalDreams(getLocalDreams().map(d => d.id === id ? { ...d, ...patch } : d))
     return
   }
-  await supabase.from('dreams').update(patch).eq('id', id)
+  const dbPatch: Record<string, unknown> = {}
+  if (patch.title !== undefined) dbPatch.title = patch.title
+  if (patch.description !== undefined) dbPatch.description = patch.description
+  if (patch.tags !== undefined) dbPatch.tags = patch.tags
+  if (patch.photoUrls !== undefined) dbPatch.photo_urls = patch.photoUrls
+  await supabase.from('dreams').update(dbPatch).eq('id', id)
+}
+
+export async function uploadDreamPhoto(dreamId: string, file: File): Promise<string> {
+  const user = (await supabase.auth.getUser()).data.user
+  if (!user) throw new Error('Not authenticated')
+  const ext = file.name.split('.').pop() ?? 'jpg'
+  const path = `${user.id}/${dreamId}/${crypto.randomUUID()}.${ext}`
+  const { error } = await supabase.storage.from('dream-photos').upload(path, file)
+  if (error) throw error
+  const { data } = supabase.storage.from('dream-photos').getPublicUrl(path)
+  return data.publicUrl
+}
+
+export async function deleteDreamPhoto(url: string): Promise<void> {
+  const user = (await supabase.auth.getUser()).data.user
+  if (!user) return
+  // Extract path from public URL: everything after /object/public/dream-photos/
+  const marker = '/object/public/dream-photos/'
+  const idx = url.indexOf(marker)
+  if (idx === -1) return
+  const path = url.slice(idx + marker.length)
+  await supabase.storage.from('dream-photos').remove([path])
 }
 
 export function stripHtml(html: string): string {
