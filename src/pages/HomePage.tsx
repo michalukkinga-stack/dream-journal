@@ -294,27 +294,44 @@ export function HomePage() {
   const [todayVisible, setTodayVisible] = useState(true)
 
   const editorSentinelRef = useRef<HTMLDivElement>(null)
+  const editorAreaTopRef = useRef<HTMLDivElement>(null)
+  const agentInputRef = useRef<HTMLDivElement>(null)
   const desktopMicContainerRef = useRef<HTMLDivElement>(null)
+  const micContentRef = useRef<HTMLDivElement>(null)
   const entryPanelScrollRef = useRef<HTMLDivElement>(null)
   const [iconsYOffset, setIconsYOffset] = useState(0)
 
   const recalcIconsOffset = useCallback(() => {
-    if (!editorSentinelRef.current || !desktopMicContainerRef.current) return
+    if (!editorSentinelRef.current || !micContentRef.current) return
+    if (!editorAreaTopRef.current || !agentInputRef.current) return
     const sentinelRect = editorSentinelRef.current.getBoundingClientRect()
-    const iconsRect = desktopMicContainerRef.current.getBoundingClientRect()
-    const iconsNaturalTop = (window.innerHeight - iconsRect.height) / 2
-    const overlap = (sentinelRect.bottom + 40) - iconsNaturalTop
-    setIconsYOffset(Math.max(0, overlap))
+    // Use height of actual content (buttons + label), not the full-viewport container
+    const contentHeight = micContentRef.current.getBoundingClientRect().height
+    const areaTop = editorAreaTopRef.current.getBoundingClientRect().top
+    const areaBottom = agentInputRef.current.getBoundingClientRect().top
+    const desiredCenter = (areaTop + areaBottom) / 2
+    const naturalCenter = window.innerHeight / 2
+    // Base offset to shift icons from viewport center to area midpoint
+    const baseOffset = desiredCenter - naturalCenter
+    // Push down only when actual text (sentinel) is within 20px of where icons would be
+    const desiredContentTop = desiredCenter - contentHeight / 2
+    const pushOffset = Math.max(0, sentinelRect.bottom + 20 - desiredContentTop)
+    setIconsYOffset(baseOffset + pushOffset)
   }, [])
 
   useEffect(() => {
     const ro = new ResizeObserver(recalcIconsOffset)
     if (editorSentinelRef.current) ro.observe(editorSentinelRef.current)
+    if (editorAreaTopRef.current) ro.observe(editorAreaTopRef.current)
+    if (agentInputRef.current) ro.observe(agentInputRef.current)
+    if (micContentRef.current) ro.observe(micContentRef.current)
     const panel = entryPanelScrollRef.current
     panel?.addEventListener('scroll', recalcIconsOffset)
     window.addEventListener('resize', recalcIconsOffset)
-    recalcIconsOffset()
+    // Defer first calc to after browser layout (fixed elements need a frame)
+    const raf = requestAnimationFrame(recalcIconsOffset)
     return () => {
+      cancelAnimationFrame(raf)
       ro.disconnect()
       panel?.removeEventListener('scroll', recalcIconsOffset)
       window.removeEventListener('resize', recalcIconsOffset)
@@ -402,6 +419,7 @@ export function HomePage() {
               </button>
             )}
           </div>
+          <div ref={editorAreaTopRef} />
           <DreamEditor ref={dreamEditorRef} key={toDateKey(selectedDate)} value={description} onChange={handleDescriptionChange} onListeningChange={setDreamMicListening} />
           <div ref={editorSentinelRef} />
         </div>
@@ -455,12 +473,13 @@ export function HomePage() {
               </div>
               {micLabel}
             </div>
-            {/* Desktop: fixed, centered — stays put until text gets within 40px */}
+            {/* Desktop: fixed, centered — stays put until text gets within 20px */}
             <div
               ref={desktopMicContainerRef}
-              className="hidden md:flex flex-col items-center justify-center gap-4 fixed top-0 bottom-0 pointer-events-none [&>*]:pointer-events-auto"
+              className="hidden md:flex flex-col items-center justify-center fixed top-0 bottom-0 pointer-events-none"
               style={{ left: '320px', width: '900px', transform: `translateY(${iconsYOffset}px)`, transition: 'transform 200ms ease' }}
             >
+              <div ref={micContentRef} className="flex flex-col items-center gap-4 [&>*]:pointer-events-auto">
               <div className="flex items-center gap-4">
                 {micBtn}
                 <button
@@ -474,6 +493,7 @@ export function HomePage() {
                 </button>
               </div>
               {micLabel}
+              </div>{/* /micContentRef */}
             </div>
           </>
         )
@@ -737,7 +757,7 @@ export function HomePage() {
             showStrip={chatHasMessages}
           />
 
-          <div className="fixed bottom-0 z-50" style={{ left: '320px', width: '900px' }}>
+          <div ref={agentInputRef} className="fixed bottom-0 z-50" style={{ left: '280px', right: 0 }}>
             <AgentInput
               value={inputValue}
               onChange={setInputValue}
