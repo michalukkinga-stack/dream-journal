@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@^2'
 import { createAnthropic } from 'npm:@ai-sdk/anthropic@^3'
 import { streamText } from 'npm:ai@^6'
-import { JUNG_SYSTEM_PROMPT } from '../_shared/jung-prompt.ts'
+import { getSystemPrompt } from '../_shared/jung-prompt.ts'
 
 function getCorsHeaders(reqOrigin: string | null): Record<string, string> {
   const prod = Deno.env.get('ALLOWED_ORIGIN') ?? 'https://dream-journal-five.vercel.app'
@@ -102,10 +102,11 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json()
-    const { messages, currentDream } = body as {
+    const { messages, currentDream, persona } = body as {
       messages: UIMessage[]
       currentDream?: { title: string; description: string; tags: string[]; createdAt: string }
       allDreams?: unknown
+      persona?: string
     }
 
     let contextBlock = ''
@@ -150,7 +151,7 @@ Deno.serve(async (req) => {
 
     const result = streamText({
       model: anthropic('claude-sonnet-4-6'),
-      system: JUNG_SYSTEM_PROMPT,
+      system: getSystemPrompt(persona ?? 'jung'),
       messages: messagesWithContext,
       maxTokens: 1024,
       providerOptions: {

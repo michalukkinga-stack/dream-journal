@@ -14,6 +14,7 @@ interface ChatPanelProps {
   currentDream?: Dream
   allDreams: Dream[]
   selectedDate: string
+  persona?: string
 }
 
 export interface ChatPanelHandle {
@@ -22,11 +23,11 @@ export interface ChatPanelHandle {
 }
 
 export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(
-  ({ currentDream, allDreams, selectedDate }, ref) => {
+  ({ currentDream, allDreams, selectedDate, persona = 'jung' }, ref) => {
     const bottomRef = useRef<HTMLDivElement>(null)
 
-    const contextRef = useRef({ currentDream, allDreams })
-    useEffect(() => { contextRef.current = { currentDream, allDreams } }, [currentDream, allDreams])
+    const contextRef = useRef({ currentDream, allDreams, persona })
+    useEffect(() => { contextRef.current = { currentDream, allDreams, persona } }, [currentDream, allDreams, persona])
 
     const transport = useMemo(
       () =>
@@ -37,12 +38,13 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(
             'Content-Type': 'application/json',
           },
           prepareSendMessagesRequest: async (opts) => {
-            const { currentDream: cd, allDreams: ad } = contextRef.current
+            const { currentDream: cd, allDreams: ad, persona: p } = contextRef.current
             return {
               ...opts,
               body: {
                 ...(opts.body as object),
                 messages: opts.messages,
+                persona: p,
                 currentDream: cd
                   ? {
                       title: cd.title,

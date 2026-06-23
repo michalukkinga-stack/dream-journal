@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { Trash2, Plus, X, Mic, MoreVertical, CalendarDays, Loader2 } from 'lucide-react'
+import { Trash2, Plus, X, Mic, MoreVertical, CalendarDays, Loader2, UserRound } from 'lucide-react'
 import { getDreams, saveDream, updateDream, deleteDream, uploadDreamPhoto } from '@/storage/dreamStorage'
 import { DreamPhotos } from '@/components/DreamPhotos'
 import { Dream } from '@/types/dream'
@@ -15,6 +15,7 @@ import { useAuth } from '@/context/AuthContext'
 import { MobileHeader } from '@/components/MobileHeader'
 import { MoonIcon } from '@/components/MoonIcon'
 import { MonthCalendarModal } from '@/components/MonthCalendarModal'
+import { TherapistPicker, TherapistId, THERAPISTS } from '@/components/TherapistPicker'
 
 function addDays(d: Date, n: number): Date {
   const r = new Date(d)
@@ -291,6 +292,8 @@ export function HomePage() {
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(false)
   const desktopMenuRef = useRef<HTMLDivElement>(null)
   const [monthCalendarOpen, setMonthCalendarOpen] = useState(false)
+  const [therapistPickerOpen, setTherapistPickerOpen] = useState(false)
+  const [selectedTherapist, setSelectedTherapist] = useState<TherapistId>('jung')
   const [todayVisible, setTodayVisible] = useState(true)
 
   const editorSentinelRef = useRef<HTMLDivElement>(null)
@@ -542,7 +545,7 @@ export function HomePage() {
     <>
       {/* ── MOBILE layout (< md) ── */}
       <div className="md:hidden min-h-screen flex flex-col max-w-[600px] mx-auto pb-14">
-        <MobileHeader />
+        <MobileHeader onPickTherapist={() => setTherapistPickerOpen(true)} />
 
         <div className="flex items-center justify-between px-4 pb-0">
           <button
@@ -587,6 +590,7 @@ export function HomePage() {
           allDreams={dreams}
           selectedDate={selectedKey}
           showStrip={chatHasMessages}
+          persona={selectedTherapist}
         />
 
         <div className="fixed bottom-0 left-0 right-0 z-50 max-w-[600px] mx-auto">
@@ -644,6 +648,15 @@ export function HomePage() {
                 </span>
                 <span className="whitespace-nowrap transition-opacity duration-150" style={{ opacity: navExpanded ? 1 : 0 }}>Wszystkie wpisy</span>
               </Link>
+              <button
+                onClick={() => setTherapistPickerOpen(true)}
+                className="font-ui flex items-center gap-3 px-2 h-10 rounded-xl text-sm text-white/60 hover:text-white hover:bg-white/10 transition-colors w-full text-left"
+              >
+                <span className="w-4 h-4 shrink-0 ml-[1px] flex items-center justify-center">
+                  <UserRound size={15} />
+                </span>
+                <span className="whitespace-nowrap transition-opacity duration-150" style={{ opacity: navExpanded ? 1 : 0 }}>Wybierz terapeutę</span>
+              </button>
             </nav>
 
             {/* Bottom nav items */}
@@ -755,6 +768,7 @@ export function HomePage() {
             allDreams={dreams}
             selectedDate={selectedKey}
             showStrip={chatHasMessages}
+            persona={selectedTherapist}
           />
 
           <div ref={agentInputRef} className="fixed bottom-0 z-50" style={{ left: '280px', right: 0 }}>
@@ -775,6 +789,14 @@ export function HomePage() {
       )}
 
       {deleteConfirm}
+
+      <TherapistPicker
+        open={therapistPickerOpen}
+        selected={selectedTherapist}
+        purchased={['neurobiolog']}
+        onSelect={(id) => setSelectedTherapist(id)}
+        onClose={() => setTherapistPickerOpen(false)}
+      />
 
       {monthCalendarOpen && (
         <MonthCalendarModal

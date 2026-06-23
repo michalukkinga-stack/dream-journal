@@ -10,6 +10,7 @@ interface ChatBottomSheetProps {
   allDreams: Dream[]
   selectedDate: string
   showStrip?: boolean
+  persona?: string
 }
 
 // Wysokość AgentInput (pb-8 + pt-3 + input ~44px) ≈ 88px = 5.5rem
@@ -18,7 +19,7 @@ const INPUT_BAR_HEIGHT = '5.5rem'
 const HANDLE_HEIGHT = '2.5rem'
 
 export const ChatBottomSheet = forwardRef<ChatPanelHandle, ChatBottomSheetProps>(
-  ({ open, onToggle, currentDream, allDreams, selectedDate, showStrip = false }, ref) => {
+  ({ open, onToggle, currentDream, allDreams, selectedDate, showStrip = false, persona }, ref) => {
     const panelRef = useRef<ChatPanelHandle>(null)
     const resolvedRef = (ref as React.RefObject<ChatPanelHandle>) ?? panelRef
 
@@ -76,6 +77,7 @@ export const ChatBottomSheet = forwardRef<ChatPanelHandle, ChatBottomSheetProps>
               currentDream={currentDream}
               allDreams={allDreams}
               selectedDate={selectedDate}
+              persona={persona}
             />
           </div>
         </div>
