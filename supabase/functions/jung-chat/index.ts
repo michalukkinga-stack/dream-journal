@@ -120,7 +120,7 @@ Deno.serve(async (req) => {
 
       if (!purchase) {
         return new Response(
-          JSON.stringify({ error: `Terapeuta "${persona}" wymaga zakupu. Odblokuj go w ustawieniach aplikacji.` }),
+          JSON.stringify({ error: `Przewodnik "${persona}" wymaga zakupu. Odblokuj go w ustawieniach aplikacji.` }),
           { status: 403, headers: { 'Content-Type': 'application/json', ...corsHeaders } },
         )
       }

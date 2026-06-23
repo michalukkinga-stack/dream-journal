@@ -49,7 +49,7 @@ export function TherapistPicker({ open, selected, purchased = [], onSelect, onCl
   const content = (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between mb-1">
-        <p className="font-display text-white text-lg font-semibold">Wybierz terapeutę</p>
+        <p className="font-display text-white text-lg font-semibold">Wybierz przewodnika</p>
         <button
           type="button"
           onClick={onClose}

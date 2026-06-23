@@ -132,7 +132,7 @@ export function HomePage() {
     })
   }, [])
 
-  // Pobierz zakupione terapeuty z bazy danych (źródło prawdy po stronie serwera)
+  // Pobierz zakupionych przewodników z bazy danych (źródło prawdy po stronie serwera)
   useEffect(() => {
     supabase
       .from('purchases')
@@ -613,6 +613,7 @@ export function HomePage() {
             isLoading={false}
             dreamHasContent={dreamHasContent}
             placeholder={chatHasMessages ? 'Zadaj pytanie...' : 'Co może oznaczać mój sen?'}
+            therapistName={THERAPISTS.find(t => t.id === selectedTherapist)?.name}
           />
         </div>
 
@@ -667,7 +668,7 @@ export function HomePage() {
                 <span className="w-4 h-4 shrink-0 ml-[1px] flex items-center justify-center">
                   <UserRound size={15} />
                 </span>
-                <span className="whitespace-nowrap transition-opacity duration-150" style={{ opacity: navExpanded ? 1 : 0 }}>Wybierz terapeutę</span>
+                <span className="whitespace-nowrap transition-opacity duration-150" style={{ opacity: navExpanded ? 1 : 0 }}>Wybierz przewodnika</span>
               </button>
             </nav>
 
@@ -791,6 +792,7 @@ export function HomePage() {
               isLoading={false}
               dreamHasContent={dreamHasContent}
               placeholder={chatHasMessages ? 'Zadaj pytanie...' : 'Co może oznaczać mój sen?'}
+              therapistName={THERAPISTS.find(t => t.id === selectedTherapist)?.name}
             />
           </div>
         </div>

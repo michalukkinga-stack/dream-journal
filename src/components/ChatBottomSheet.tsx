@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { ChatPanel, ChatPanelHandle } from '@/components/ChatPanel'
+import { THERAPISTS } from '@/components/TherapistPicker'
 import { Dream } from '@/types/dream'
 import { forwardRef, useRef } from 'react'
 
@@ -53,9 +54,14 @@ export const ChatBottomSheet = forwardRef<ChatPanelHandle, ChatBottomSheetProps>
             className="shrink-0 h-10 w-full flex items-center justify-between px-5 cursor-pointer"
             onClick={!open ? onToggle : undefined}
           >
-            <span className="font-display text-white text-base font-semibold tracking-wide">
-              Analiza snu
-            </span>
+            <div className="flex items-baseline gap-2">
+              <span className="font-display text-white text-base font-semibold tracking-wide">
+                Analiza snu
+              </span>
+              <span className="font-display text-white/40 text-sm tracking-wide" style={{ fontWeight: 400 }}>
+                Przewodnik: {THERAPISTS.find(t => t.id === persona)?.name ?? 'Carl Jung'}
+              </span>
+            </div>
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); onToggle(); }}

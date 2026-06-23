@@ -22,6 +22,11 @@ export function AgentInput({ value, onChange, onSend, isLoading = false, dreamHa
 
   return (
     <div className="shrink-0 px-4 pb-[17px] md:pb-3 pt-3 flex flex-col gap-1.5">
+      {therapistName && (
+        <p className="font-display text-white/40 text-sm text-right tracking-wide" style={{ fontWeight: 400 }}>
+          Przewodnik: {therapistName}
+        </p>
+      )}
       <div
         className="relative flex items-center gap-2 rounded-2xl"
         style={{
@@ -72,7 +77,7 @@ export function AgentInput({ value, onChange, onSend, isLoading = false, dreamHa
                        transition-all duration-150 active:scale-95"
           >
             <UserRound size={11} />
-            {therapistName ? `Terapeuta: ${therapistName}` : 'Wybierz terapeutę'}
+            {therapistName ? `Przewodnik: ${therapistName}` : 'Wybierz przewodnika'}
           </button>
         </div>
       )}
