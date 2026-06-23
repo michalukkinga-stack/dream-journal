@@ -12,6 +12,7 @@ import { ChatBottomSheet } from '@/components/ChatBottomSheet'
 import { getChatMessages } from '@/storage/chatStorage'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { supabase } from '@/lib/supabaseClient'
 import { MobileHeader } from '@/components/MobileHeader'
 import { MoonIcon } from '@/components/MoonIcon'
 import { MonthCalendarModal } from '@/components/MonthCalendarModal'
@@ -129,6 +130,16 @@ export function HomePage() {
     getChatMessages(toDateKey(today)).then(msgs => {
       if (msgs.length > 0) setChatHasMessages(true)
     })
+  }, [])
+
+  // Pobierz zakupione terapeuty z bazy danych (źródło prawdy po stronie serwera)
+  useEffect(() => {
+    supabase
+      .from('purchases')
+      .select('therapist_id')
+      .then(({ data }) => {
+        if (data) setPurchasedTherapists(data.map(r => r.therapist_id as TherapistId))
+      })
   }, [])
 
   useEffect(() => {
@@ -294,6 +305,7 @@ export function HomePage() {
   const [monthCalendarOpen, setMonthCalendarOpen] = useState(false)
   const [therapistPickerOpen, setTherapistPickerOpen] = useState(false)
   const [selectedTherapist, setSelectedTherapist] = useState<TherapistId>('jung')
+  const [purchasedTherapists, setPurchasedTherapists] = useState<TherapistId[]>([])
   const [todayVisible, setTodayVisible] = useState(true)
 
   const editorSentinelRef = useRef<HTMLDivElement>(null)
@@ -793,7 +805,7 @@ export function HomePage() {
       <TherapistPicker
         open={therapistPickerOpen}
         selected={selectedTherapist}
-        purchased={['neurobiolog']}
+        purchased={purchasedTherapists}
         onSelect={(id) => setSelectedTherapist(id)}
         onClose={() => setTherapistPickerOpen(false)}
       />

@@ -1,4 +1,5 @@
 import { X } from 'lucide-react'
+import { useAuth } from '@/context/AuthContext'
 
 export type TherapistId = 'jung' | 'neurobiolog' | 'wrozbit'
 
@@ -27,7 +28,18 @@ interface TherapistPickerProps {
 export function TherapistPicker({ open, selected, purchased = [], onSelect, onClose }: TherapistPickerProps) {
   if (!open) return null
 
+  const { user } = useAuth()
+
   const isUnlocked = (id: TherapistId) => id === 'jung' || purchased.includes(id)
+
+  // Doklejamy client_reference_id (user_id) do URL Payment Linka,
+  // żeby webhook Stripe wiedział, któremu użytkownikowi przyznać dostęp.
+  function buildStripeUrl(baseUrl: string): string {
+    if (!user) return baseUrl
+    const url = new URL(baseUrl)
+    url.searchParams.set('client_reference_id', user.id)
+    return url.toString()
+  }
 
   const handleRowClick = (id: TherapistId) => {
     if (!isUnlocked(id)) return
@@ -93,7 +105,7 @@ export function TherapistPicker({ open, selected, purchased = [], onSelect, onCl
             {/* Right side: unlock button only for locked therapists */}
             {!unlocked && t.price && t.stripeUrl && (
               <a
-                href={t.stripeUrl}
+                href={buildStripeUrl(t.stripeUrl)}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={e => e.stopPropagation()}

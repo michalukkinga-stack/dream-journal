@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createHash } from 'node:crypto'
 
 const SUPABASE_URL = 'https://rrwynlvefmotlthypdcx.supabase.co'
+const MCP_RATE_LIMIT = 30  // max zapytań na minutę per użytkownik
 
 const AVAILABLE_TAGS = [
   'Radość','Strach','Smutek','Złość','Miłość','Tęsknota','Euforia','Spokój','Niepokój','Samotność',
@@ -49,6 +50,24 @@ function supabaseHeaders(key: string) {
 
 function stripHtml(html: string) {
   return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+async function checkRateLimit(userId: string): Promise<boolean> {
+  const key = getServiceKey()
+  const bucket = Math.floor(Date.now() / 60_000)
+  // Używamy check_and_increment_rate_limit_for_user, bo wywołujemy jako service_role
+  // (auth.uid() byłoby NULL) i musimy przekazać user_id explicite.
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/rpc/check_and_increment_rate_limit_for_user`,
+    {
+      method: 'POST',
+      headers: supabaseHeaders(key),
+      body: JSON.stringify({ p_user_id: userId, p_endpoint: 'mcp', p_bucket: bucket, p_limit: MCP_RATE_LIMIT }),
+    }
+  )
+  if (!res.ok) return true  // fail open — nie blokujemy przy awarii DB
+  const result = await res.json() as boolean
+  return result === true
 }
 
 async function inferTags(description: string): Promise<string[]> {
@@ -245,6 +264,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const { name, arguments: args = {} } = params as { name: string; arguments?: Record<string, unknown> }
       try {
         const userId = await resolveUserId(req.headers['authorization'] as string | undefined)
+
+        // Rate limiting — max MCP_RATE_LIMIT wywołań narzędzi na minutę per użytkownik
+        const withinLimit = await checkRateLimit(userId)
+        if (!withinLimit) {
+          return res.status(429).json({
+            jsonrpc: '2.0', id,
+            error: { code: 429, message: 'Za dużo zapytań. Poczekaj chwilę i spróbuj ponownie.' }
+          })
+        }
+
         let text: string
         if (name === 'add_dream') text = await handleAddDream(args, userId)
         else if (name === 'get_dream') text = await handleGetDream(args, userId)

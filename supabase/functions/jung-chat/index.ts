@@ -109,6 +109,23 @@ Deno.serve(async (req) => {
       persona?: string
     }
 
+    // Weryfikacja zakupu dla płatnych person (po stronie serwera)
+    const PAID_PERSONAS = ['neurobiolog', 'wrozbit']
+    if (persona && PAID_PERSONAS.includes(persona)) {
+      const { data: purchase } = await supabase
+        .from('purchases')
+        .select('id')
+        .eq('therapist_id', persona)
+        .maybeSingle()
+
+      if (!purchase) {
+        return new Response(
+          JSON.stringify({ error: `Terapeuta "${persona}" wymaga zakupu. Odblokuj go w ustawieniach aplikacji.` }),
+          { status: 403, headers: { 'Content-Type': 'application/json', ...corsHeaders } },
+        )
+      }
+    }
+
     let contextBlock = ''
 
     if (currentDream) {
