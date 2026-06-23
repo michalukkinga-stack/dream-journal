@@ -1,10 +1,14 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { MoreVertical } from 'lucide-react'
+import { Menu, UserRound } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { MoonIcon } from '@/components/MoonIcon'
 
-export function MobileHeader() {
+interface MobileHeaderProps {
+  onPickTherapist?: () => void
+}
+
+export function MobileHeader({ onPickTherapist }: MobileHeaderProps) {
   const { signOut } = useAuth()
   const [open, setOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -34,12 +38,12 @@ export function MobileHeader() {
             open ? 'text-white bg-white/15' : 'text-white/50 hover:text-white hover:bg-white/10'
           }`}
         >
-          <MoreVertical size={20} />
+          <Menu size={20} />
         </button>
 
         {open && (
           <div
-            className="absolute right-0 top-11 z-50 rounded-2xl border border-white/15 py-1 min-w-[180px]"
+            className="absolute right-0 top-11 z-50 rounded-2xl border border-white/15 py-1 min-w-[210px]"
             style={{ background: '#1f2937', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}
           >
             <Link
@@ -50,6 +54,13 @@ export function MobileHeader() {
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
               Wszystkie wpisy
             </Link>
+            <button
+              onClick={() => { setOpen(false); onPickTherapist?.() }}
+              className="font-ui w-full flex items-center gap-3 px-4 h-11 text-sm text-white/80 hover:text-white hover:bg-white/8 transition-colors"
+            >
+              <UserRound size={15} />
+              Wybierz terapeutę
+            </button>
             <Link
               to="/api-docs"
               onClick={() => setOpen(false)}

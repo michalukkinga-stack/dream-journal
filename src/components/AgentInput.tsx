@@ -1,4 +1,4 @@
-import { SendHorizonal } from 'lucide-react'
+import { SendHorizonal, UserRound } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface AgentInputProps {
@@ -8,9 +8,11 @@ interface AgentInputProps {
   isLoading?: boolean
   dreamHasContent?: boolean
   placeholder?: string
+  onPickTherapist?: () => void
+  therapistName?: string
 }
 
-export function AgentInput({ value, onChange, onSend, isLoading = false, dreamHasContent = false, placeholder = 'Co może oznaczać mój sen?' }: AgentInputProps) {
+export function AgentInput({ value, onChange, onSend, isLoading = false, dreamHasContent = false, placeholder = 'Co może oznaczać mój sen?', onPickTherapist, therapistName }: AgentInputProps) {
   function handleSend() {
     const text = value.trim()
     if (!text || isLoading) return
@@ -19,7 +21,7 @@ export function AgentInput({ value, onChange, onSend, isLoading = false, dreamHa
   }
 
   return (
-    <div className="shrink-0 px-4 pb-[17px] md:pb-3 pt-3">
+    <div className="shrink-0 px-4 pb-[17px] md:pb-3 pt-3 flex flex-col gap-1.5">
       <div
         className="relative flex items-center gap-2 rounded-2xl"
         style={{
@@ -59,6 +61,21 @@ export function AgentInput({ value, onChange, onSend, isLoading = false, dreamHa
           <SendHorizonal size={16} className="text-white" />
         </button>
       </div>
+
+      {onPickTherapist && (
+        <div className="flex justify-center">
+          <button
+            type="button"
+            onClick={onPickTherapist}
+            className="font-ui flex items-center gap-1.5 px-3 h-6 rounded-full text-[0.65rem] tracking-wide
+                       text-white/40 hover:text-white/70 hover:bg-white/10
+                       transition-all duration-150 active:scale-95"
+          >
+            <UserRound size={11} />
+            {therapistName ? `Terapeuta: ${therapistName}` : 'Wybierz terapeutę'}
+          </button>
+        </div>
+      )}
     </div>
   )
 }
