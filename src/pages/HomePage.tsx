@@ -473,7 +473,7 @@ export function HomePage() {
               onChange={e => handlePhotoFiles(e.target.files)}
             />
             {/* Mobile: in-flow */}
-            <div className="flex-1 flex flex-col items-center justify-center gap-4 mb-[16.5rem] md:hidden">
+            <div className="flex flex-col items-center justify-start gap-4 mb-[16.5rem] md:hidden">
               <div className="flex items-center gap-4">
                 {micBtn}
                 <button
@@ -782,6 +782,7 @@ export function HomePage() {
             selectedDate={selectedKey}
             showStrip={chatHasMessages}
             persona={selectedTherapist}
+            onPickTherapist={() => setTherapistPickerOpen(true)}
           />
 
           <div ref={agentInputRef} className="fixed bottom-0 z-50" style={{ left: '280px', right: 0 }}>
@@ -793,6 +794,7 @@ export function HomePage() {
               dreamHasContent={dreamHasContent}
               placeholder={chatHasMessages ? 'Zadaj pytanie...' : 'Co może oznaczać mój sen?'}
               therapistName={THERAPISTS.find(t => t.id === selectedTherapist)?.name}
+              onPickTherapist={() => setTherapistPickerOpen(true)}
             />
           </div>
         </div>

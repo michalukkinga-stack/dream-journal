@@ -127,6 +127,14 @@
   font-family: 'Instrument Sans', system-ui, sans-serif;
 }
 
+/* Mobile: reserve space for the multi-line placeholder so the mic/+ buttons
+   start below the helper text instead of overlapping it */
+@media (max-width: 767px) {
+  .dream-editor .ProseMirror:has(p.is-editor-empty:first-child) {
+    min-height: 6.5rem;
+  }
+}
+
 /* Prose content w szczegółach snu */
 .dream-prose p {
   margin-bottom: 0.75rem;
