@@ -10,9 +10,11 @@ interface AgentInputProps {
   placeholder?: string
   onPickTherapist?: () => void
   therapistName?: string
+  /** Ukryj etykietę "Przewodnik" (np. gdy jest już pokazana obok tytułu "Analiza snu") */
+  hideTherapistName?: boolean
 }
 
-export function AgentInput({ value, onChange, onSend, isLoading = false, dreamHasContent = false, placeholder = 'Co może oznaczać mój sen?', onPickTherapist, therapistName }: AgentInputProps) {
+export function AgentInput({ value, onChange, onSend, isLoading = false, dreamHasContent = false, placeholder = 'Co może oznaczać mój sen?', onPickTherapist, therapistName, hideTherapistName = false }: AgentInputProps) {
   function handleSend() {
     const text = value.trim()
     if (!text || isLoading) return
@@ -22,7 +24,7 @@ export function AgentInput({ value, onChange, onSend, isLoading = false, dreamHa
 
   return (
     <div className="shrink-0 px-4 pb-[17px] md:pb-3 pt-3 flex flex-col gap-1.5 md:w-full md:max-w-[900px]">
-      {therapistName && (
+      {therapistName && !hideTherapistName && (
         onPickTherapist ? (
           <div className="flex justify-end">
             <button
@@ -81,7 +83,7 @@ export function AgentInput({ value, onChange, onSend, isLoading = false, dreamHa
         </button>
       </div>
 
-      {onPickTherapist && !therapistName && (
+      {onPickTherapist && !therapistName && !hideTherapistName && (
         <div className="flex justify-center">
           <button
             type="button"
