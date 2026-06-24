@@ -14,10 +14,10 @@ export function GoogleSignInButton() {
     <button
       onClick={handleClick}
       className="w-full flex items-center justify-center gap-3 h-12 px-6 rounded-full
-                 bg-white text-[#1f1f1f] font-medium text-[0.95rem]
-                 shadow-md hover:shadow-lg hover:bg-[#f8f8f8]
+                 bg-[#131314] text-[#e3e3e3] font-medium text-[0.95rem]
+                 shadow-md hover:shadow-lg hover:bg-[#1e1f20]
                  active:scale-[0.98] transition-all duration-150
-                 border border-[#dadce0]"
+                 border border-[#8e918f]"
       style={{ fontFamily: "'Google Sans', Roboto, Arial, sans-serif" }}
     >
       <GoogleLogo />

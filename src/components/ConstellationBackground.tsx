@@ -1,4 +1,5 @@
 import React from 'react'
+import { cn } from '@/lib/utils'
 
 // 4-pointed sparkle path centered at (cx, cy) with arm length r
 function sparkle(cx: number, cy: number, r: number): string {
@@ -158,24 +159,30 @@ function ConstellationContent({ sx, sy, showAccentStars = true }: { sx: number; 
   )
 }
 
-export function ConstellationBackground() {
+export function ConstellationBackground({ forceMobile = false }: { forceMobile?: boolean }) {
+  // When forceMobile is set, the mobile (two-half) constellations are shown on
+  // every viewport — used e.g. on the welcome screen so it matches the mobile look.
+  const mobileHidden = forceMobile ? '' : 'md:hidden'
+
   return (
     <>
       {/* Desktop: 16:9 viewBox */}
-      <svg
-        className="fixed inset-0 w-full h-full pointer-events-none select-none hidden md:block"
-        style={{ zIndex: 0 }}
-        viewBox="0 0 1600 900"
-        preserveAspectRatio="xMidYMid slice"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-      >
-        <ConstellationContent sx={1600 / 1024} sy={900 / 1024} showAccentStars={false} />
-      </svg>
+      {!forceMobile && (
+        <svg
+          className="fixed inset-0 w-full h-full pointer-events-none select-none hidden md:block"
+          style={{ zIndex: 0 }}
+          viewBox="0 0 1600 900"
+          preserveAspectRatio="xMidYMid slice"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <ConstellationContent sx={1600 / 1024} sy={900 / 1024} showAccentStars={false} />
+        </svg>
+      )}
 
       {/* Mobile top half */}
       <svg
-        className="fixed left-0 right-0 pointer-events-none select-none md:hidden"
+        className={cn('fixed left-0 right-0 pointer-events-none select-none', mobileHidden)}
         style={{ zIndex: 0, top: 0, height: '50vh' }}
         viewBox="0 0 1024 1024"
         preserveAspectRatio="xMidYMid slice"
@@ -187,7 +194,7 @@ export function ConstellationBackground() {
 
       {/* Mobile bottom half */}
       <svg
-        className="fixed left-0 right-0 pointer-events-none select-none md:hidden"
+        className={cn('fixed left-0 right-0 pointer-events-none select-none', mobileHidden)}
         style={{ zIndex: 0, bottom: 0, height: '50vh' }}
         viewBox="0 0 1024 1024"
         preserveAspectRatio="xMidYMid slice"

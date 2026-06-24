@@ -1,5 +1,6 @@
 import { MoonIcon } from '@/components/MoonIcon'
 import { GoogleSignInButton } from '@/components/GoogleSignInButton'
+import { ConstellationBackground } from '@/components/ConstellationBackground'
 
 function SparkleI() {
   return (
@@ -28,15 +29,18 @@ function SparkleI() {
 
 export function LoginPage() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6">
-      <div className="w-full max-w-sm space-y-10">
-        <div className="flex flex-col items-center gap-3">
-          <MoonIcon className="w-32 h-32 text-[#533483]/70" />
-          <h1 className="font-display text-white text-4xl text-center">
+    <div className="min-h-screen flex flex-col items-center px-6 relative">
+      <ConstellationBackground forceMobile />
+      <div className="flex-1 flex flex-col items-center justify-center w-full max-w-sm relative" style={{ zIndex: 1 }}>
+        <div className="flex flex-col items-center gap-3 translate-y-20">
+          <MoonIcon className="w-32 h-32 text-[#533483]/70 opacity-60" />
+          <h1 className="font-display text-white/80 text-4xl text-center">
             Dz<SparkleI />ennik Snów
           </h1>
         </div>
+      </div>
 
+      <div className="w-full max-w-sm relative pb-5" style={{ zIndex: 1 }}>
         <GoogleSignInButton />
       </div>
     </div>
