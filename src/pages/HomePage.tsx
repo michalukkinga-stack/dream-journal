@@ -368,7 +368,7 @@ export function HomePage() {
   const hasText = description.replace(/<[^>]*>/g, '').trim().length > 0
 
   const entryPanel = (
-    <div ref={entryPanelScrollRef} className="flex-1 flex flex-col px-4 pt-5 md:pt-[50px] pb-8 overflow-y-auto md:max-w-[900px]">
+    <div ref={entryPanelScrollRef} className="flex-1 flex flex-col px-4 pt-5 md:pt-[50px] pb-8 overflow-y-auto md:max-w-[900px] md:mx-auto md:w-full">
       {/* Date label + actions */}
       <div className="flex items-center justify-between mb-4 md:mb-[30px]">
         <p className="label-caps">{selectedLabel}</p>
@@ -492,7 +492,7 @@ export function HomePage() {
             <div
               ref={desktopMicContainerRef}
               className="hidden md:flex flex-col items-center justify-center fixed top-0 bottom-0 pointer-events-none"
-              style={{ left: '320px', width: '900px', transform: `translateY(${iconsYOffset}px)`, transition: 'transform 200ms ease' }}
+              style={{ left: '280px', right: 0, transform: `translateY(${iconsYOffset}px)`, transition: 'transform 200ms ease' }}
             >
               <div ref={micContentRef} className="flex flex-col items-center gap-4 [&>*]:pointer-events-auto">
               <div className="flex items-center gap-4">
@@ -770,7 +770,7 @@ export function HomePage() {
         </div>
 
         {/* Right panel — entry form */}
-        <div className="flex-1 flex flex-col min-h-screen pl-[40px] relative">
+        <div className="flex-1 flex flex-col min-h-screen relative">
           {entryPanel}
 
           <ChatBottomSheet
@@ -785,7 +785,7 @@ export function HomePage() {
             onPickTherapist={() => setTherapistPickerOpen(true)}
           />
 
-          <div ref={agentInputRef} className="fixed bottom-0 z-50" style={{ left: '280px', right: 0 }}>
+          <div ref={agentInputRef} className="fixed bottom-0 z-50 flex justify-center" style={{ left: '280px', right: 0 }}>
             <AgentInput
               value={inputValue}
               onChange={setInputValue}

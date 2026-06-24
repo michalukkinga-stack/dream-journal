@@ -12,6 +12,7 @@ interface ChatBottomSheetProps {
   selectedDate: string
   showStrip?: boolean
   persona?: string
+  onPickTherapist?: () => void
 }
 
 // Wysokość AgentInput (pb-8 + pt-3 + input ~44px) ≈ 88px = 5.5rem
@@ -20,7 +21,7 @@ const INPUT_BAR_HEIGHT = '5.5rem'
 const HANDLE_HEIGHT = '2.5rem'
 
 export const ChatBottomSheet = forwardRef<ChatPanelHandle, ChatBottomSheetProps>(
-  ({ open, onToggle, currentDream, allDreams, selectedDate, showStrip = false, persona }, ref) => {
+  ({ open, onToggle, currentDream, allDreams, selectedDate, showStrip = false, persona, onPickTherapist }, ref) => {
     const panelRef = useRef<ChatPanelHandle>(null)
     const resolvedRef = (ref as React.RefObject<ChatPanelHandle>) ?? panelRef
 
@@ -58,9 +59,21 @@ export const ChatBottomSheet = forwardRef<ChatPanelHandle, ChatBottomSheetProps>
               <span className="font-display text-white text-base font-semibold tracking-wide">
                 Analiza snu
               </span>
-              <span className="font-display text-white/40 text-sm tracking-wide" style={{ fontWeight: 400 }}>
-                Przewodnik: {THERAPISTS.find(t => t.id === persona)?.name ?? 'Carl Jung'}
-              </span>
+              {onPickTherapist ? (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); onPickTherapist(); }}
+                  className="font-display text-white/40 hover:text-white/70 text-sm tracking-wide rounded px-1 -mx-1
+                             hover:bg-white/10 transition-all duration-150 active:scale-95 cursor-pointer"
+                  style={{ fontWeight: 400 }}
+                >
+                  Przewodnik: {THERAPISTS.find(t => t.id === persona)?.name ?? 'Carl Jung'}
+                </button>
+              ) : (
+                <span className="font-display text-white/40 text-sm tracking-wide" style={{ fontWeight: 400 }}>
+                  Przewodnik: {THERAPISTS.find(t => t.id === persona)?.name ?? 'Carl Jung'}
+                </span>
+              )}
             </div>
             <button
               type="button"

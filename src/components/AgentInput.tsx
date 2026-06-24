@@ -21,11 +21,25 @@ export function AgentInput({ value, onChange, onSend, isLoading = false, dreamHa
   }
 
   return (
-    <div className="shrink-0 px-4 pb-[17px] md:pb-3 pt-3 flex flex-col gap-1.5">
+    <div className="shrink-0 px-4 pb-[17px] md:pb-3 pt-3 flex flex-col gap-1.5 md:w-full md:max-w-[900px]">
       {therapistName && (
-        <p className="font-display text-white/40 text-sm text-right tracking-wide" style={{ fontWeight: 400 }}>
-          Przewodnik: {therapistName}
-        </p>
+        onPickTherapist ? (
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={onPickTherapist}
+              className="font-display text-white/40 hover:text-white/70 text-sm text-right tracking-wide
+                         rounded px-1 -mx-1 hover:bg-white/10 transition-all duration-150 active:scale-95 cursor-pointer"
+              style={{ fontWeight: 400 }}
+            >
+              Przewodnik: {therapistName}
+            </button>
+          </div>
+        ) : (
+          <p className="font-display text-white/40 text-sm text-right tracking-wide" style={{ fontWeight: 400 }}>
+            Przewodnik: {therapistName}
+          </p>
+        )
       )}
       <div
         className="relative flex items-center gap-2 rounded-2xl"
@@ -67,7 +81,7 @@ export function AgentInput({ value, onChange, onSend, isLoading = false, dreamHa
         </button>
       </div>
 
-      {onPickTherapist && (
+      {onPickTherapist && !therapistName && (
         <div className="flex justify-center">
           <button
             type="button"
