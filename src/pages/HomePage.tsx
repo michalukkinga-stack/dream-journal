@@ -794,7 +794,6 @@ export function HomePage() {
               dreamHasContent={dreamHasContent}
               placeholder={chatHasMessages ? 'Zadaj pytanie...' : 'Co może oznaczać mój sen?'}
               therapistName={THERAPISTS.find(t => t.id === selectedTherapist)?.name}
-              hideTherapistName={chatHasMessages}
               onPickTherapist={() => setTherapistPickerOpen(true)}
             />
           </div>
