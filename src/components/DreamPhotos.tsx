@@ -94,13 +94,15 @@ export function DreamPhotos({ dreamId, photoUrls, onChange, pendingUrls = [] }: 
 
       {lightbox && (
         <div
-          className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4"
           onClick={() => setLightbox(null)}
         >
+          {/* Osobna warstwa tła — nie zawiera obrazka, żeby backdrop-blur nie rozmywał zdjęcia (bug WebKit) */}
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
           <img
             src={lightbox}
             alt=""
-            className="max-w-full max-h-full rounded-2xl object-contain"
+            className="relative max-w-full max-h-full rounded-2xl object-contain"
             onClick={e => e.stopPropagation()}
           />
           <button
